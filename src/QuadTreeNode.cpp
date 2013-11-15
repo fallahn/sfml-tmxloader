@@ -34,6 +34,19 @@ it freely, subject to the following restrictions:
 
 using namespace tmx;
 
+QuadTreeNode::QuadTreeNode(sf::Uint16 level, const sf::FloatRect& bounds)
+	: MAX_OBJECTS(5u), MAX_LEVELS(5u), m_level(level),
+	m_bounds(bounds)
+{ 
+	m_children.reserve(4); 
+	m_debugShape = sf::RectangleShape(sf::Vector2f(bounds.width, bounds.height));
+	m_debugShape.setPosition(bounds.left, bounds.top);
+	m_debugShape.setFillColor(sf::Color::Transparent);
+	m_debugShape.setOutlineColor(sf::Color::Green);
+	m_debugShape.setOutlineThickness(-2.f);
+
+}
+
 //public functions//
 void QuadTreeRoot::Clear(const sf::FloatRect& newBounds)
 {

@@ -47,19 +47,7 @@ namespace tmx
 	class QuadTreeNode
 	{
 	public:
-		QuadTreeNode(sf::Uint16 level = 0, const sf::FloatRect& bounds = sf::FloatRect(0.f, 0.f, 1.f, 1.f))
-			: MAX_OBJECTS(5u), MAX_LEVELS(5u), m_level(level),
-			m_bounds(bounds)
-		{ 
-			m_children.reserve(4); 
-			m_debugShape = sf::RectangleShape(sf::Vector2f(bounds.width, bounds.height));
-			m_debugShape.setPosition(bounds.left, bounds.top);
-			m_debugShape.setFillColor(sf::Color::Transparent);
-			m_debugShape.setOutlineColor(sf::Color::Green);
-			m_debugShape.setOutlineThickness(-2.f);
-
-		};
-
+		QuadTreeNode(sf::Uint16 level = 0, const sf::FloatRect& bounds = sf::FloatRect(0.f, 0.f, 1.f, 1.f));
 		virtual ~QuadTreeNode(){};
 
 		//fills vector with references to all objects which
