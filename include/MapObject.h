@@ -34,8 +34,20 @@ it freely, subject to the following restrictions:
 #include <vector>
 #include <map>
 #include <iostream>
-#include <SFML/System.hpp>
-#include <SFML/Graphics.hpp>
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
+
+#include <SFML/System/NonCopyable.hpp>
+
 #include <Helpers.h>
 
 namespace tmx

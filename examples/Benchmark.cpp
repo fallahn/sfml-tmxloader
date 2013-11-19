@@ -13,7 +13,7 @@ int main()
 	tmx::MapLoader ml("maps/");
 	ml.Load("desert.tmx");
 
-	sf::Clock deltaClock;
+	sf::Clock deltaClock, frameClock;
 
 	//-----------------------------------//
 
@@ -46,12 +46,14 @@ int main()
 		view.move(movement);
 		renderWindow.setView(view);
 
+		frameClock.restart();
+
 		//draw
 		renderWindow.clear();
 		renderWindow.draw(ml);
 		renderWindow.display();
 
-		const float time = 1.f / dt;
+		const float time = 1.f / frameClock.getElapsedTime().asSeconds();
 		std::stringstream stream;
 		stream << "Use the cursor keys to move the view. Current fps: " << time << std::endl;
 		renderWindow.setTitle(stream.str());

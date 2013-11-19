@@ -45,7 +45,7 @@ namespace Helpers
 		//Returns length of a given vector
 		static const float GetLength(const sf::Vector2f& source)
 		{
-			return sqrt(GetLengthSquared(source));
+			return std::sqrt(GetLengthSquared(source));
 		}
 
 		//calculats dot product of 2 vectors
@@ -67,7 +67,7 @@ namespace Helpers
 		//Returns angle in degrees of a given vector where 0 is horizontal
 		static const float GetAngle(const sf::Vector2f& source)
 		{
-			return atan2(source.y , source.x) * 180.f / 3.14159265f;
+			return std::atan2(source.y , source.x) * 180.f / 3.14159265f;
 		}
 	};
 };

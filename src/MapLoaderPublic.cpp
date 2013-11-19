@@ -143,6 +143,11 @@ std::vector<MapObject*> MapLoader::QueryQuadTree(const sf::FloatRect& testArea)
 	return m_rootNode.Retrieve(testArea);
 }
 
+std::vector<MapLayer>& MapLoader::GetLayers(void)
+{
+	return m_layers;
+}
+
 void MapLoader::Draw(sf::RenderTarget& rt)
 {
 	m_SetDrawingBounds(rt.getView());
@@ -208,4 +213,44 @@ sf::Vector2f MapLoader::OrthogonalToIsometric(const sf::Vector2f& worldCoords)
 
 	return sf::Vector2f(((worldCoords.x / m_tileRatio) + worldCoords.y),
 							(worldCoords.y - (worldCoords.x / m_tileRatio)));
+}
+
+sf::Vector2u MapLoader::GetMapSize() const
+{
+	return sf::Vector2u(m_width * m_tileWidth, m_height * m_tileHeight);
+}
+
+std::string MapLoader::GetPropertyString(const std::string& name)
+{
+	assert(m_properties.find(name) != m_properties.end());
+	return m_properties[name];
+}
+
+void MapLoader::SetLayerShader(sf::Uint16 layerId, const sf::Shader& shader)
+{
+	m_layers[layerId].States.shader = &shader;
+}
+
+bool MapLoader::QuadTreeAvailable() const
+{
+	return m_quadTreeAvailable;
+}
+
+
+
+MapLoader::TileInfo::TileInfo()
+	: TileSetId (0u)
+{
+
+}
+
+MapLoader::TileInfo::TileInfo(const sf::IntRect& rect, const sf::Vector2f& size, sf::Uint16 tilesetId)
+	: Size		(size),
+	TileSetId	(tilesetId),
+	SubRect		(rect)
+{
+	Coords[0] = sf::Vector2f(static_cast<float>(rect.left), static_cast<float>(rect.top));
+	Coords[1] = sf::Vector2f(static_cast<float>(rect.left + rect.width), static_cast<float>(rect.top));
+	Coords[2] = sf::Vector2f(static_cast<float>(rect.left + rect.width), static_cast<float>(rect.top + rect.height));
+	Coords[3] = sf::Vector2f(static_cast<float>(rect.left), static_cast<float>(rect.top + rect.height));
 }

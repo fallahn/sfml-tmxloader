@@ -59,7 +59,7 @@ namespace tmx
 		//or intersecting testArea
 		std::vector<MapObject*> QueryQuadTree(const sf::FloatRect& testArea);
 		//returns a vector of map layers
-		std::vector<MapLayer>& GetLayers(void) {return m_layers;};
+		std::vector<MapLayer>& GetLayers(void);
 		//draws visible tiles to given target, optionally draw outline of objects for debugging
 		//along with any quadTree debug bounds. Uses vertex arrays for performance
 		void Draw(sf::RenderTarget& rt);
@@ -74,17 +74,13 @@ namespace tmx
 		//eg: use to find the orthogonal world coordinates currently under the mouse cursor
 		sf::Vector2f OrthogonalToIsometric(const sf::Vector2f& worldCoords);
 		//returns the map size in pixels
-		sf::Vector2u GetMapSize() const{return sf::Vector2u(m_width * m_tileWidth, m_height * m_tileHeight);};
+		sf::Vector2u GetMapSize() const;
 		//returns empty string if property not found
-		std::string GetPropertyString(const std::string& name)
-		{
-			assert(m_properties.find(name) != m_properties.end());
-			return m_properties[name];
-		}
+		std::string GetPropertyString(const std::string& name);
 		//sets the shader property of a layer's rendering states member
-		void SetLayerShader(sf::Uint16 layerId, sf::Shader* shader){m_layers[layerId].States.shader = shader;};
+		void SetLayerShader(sf::Uint16 layerId, const sf::Shader& shader);
 		//so we can test if QuadTree is available
-		bool QuadTreeAvailable() const{return m_quadTreeAvailable;}
+		bool QuadTreeAvailable() const;
 	private:
 		//properties which correspond to tmx
 		sf::Uint16 m_width, m_height; //tile count
@@ -106,14 +102,8 @@ namespace tmx
 			sf::Vector2f Size;
 			sf::Uint16 TileSetId;
 			sf::IntRect SubRect;
-			TileInfo() : TileSetId(0){};
-			TileInfo(const sf::IntRect& rect, const sf::Vector2f& size, sf::Uint16 tilesetId) : Size(size), TileSetId(tilesetId), SubRect(rect)
-			{
-				Coords[0] = sf::Vector2f(static_cast<float>(rect.left), static_cast<float>(rect.top));
-				Coords[1] = sf::Vector2f(static_cast<float>(rect.left + rect.width), static_cast<float>(rect.top));
-				Coords[2] = sf::Vector2f(static_cast<float>(rect.left + rect.width), static_cast<float>(rect.top + rect.height));
-				Coords[3] = sf::Vector2f(static_cast<float>(rect.left), static_cast<float>(rect.top + rect.height));
-			}
+			TileInfo();
+			TileInfo(const sf::IntRect& rect, const sf::Vector2f& size, sf::Uint16 tilesetId);
 		};
 		std::vector<TileInfo> m_tileInfo; //stores information on all the tilesets for creating vertex arrays
 

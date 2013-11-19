@@ -20,7 +20,7 @@ bool MapObject::Segment::Intersects(const MapObject::Segment& segment)
 		//point at which lines intersect - do what you will with this
 		sf::Vector2f intersection(Start.x + (t * s1.x), Start.y + (t * s1.y));
 		return true;
-	}						
+	}
 	return false;
 }
 
@@ -71,13 +71,13 @@ void MapObject::SetPosition(const sf::Vector2f& position)
 	Move(distance);
 }
 
-void MapObject::Move(const sf::Vector2f& distance)	
+void MapObject::Move(const sf::Vector2f& distance)
 {
 	//update properties by movement amount
 	m_centrePoint += distance;
-	for(auto p : m_polypoints)
+	for(auto& p : m_polypoints)
 		p += distance;
-			
+
 	for(auto i = 0u; i < m_debugShape.getVertexCount(); ++i)
 		m_debugShape[i].position += distance;
 
@@ -85,10 +85,10 @@ void MapObject::Move(const sf::Vector2f& distance)
 	m_AABB.top += distance.y;
 
 	//set new position
-	m_position += distance;			
+	m_position += distance;
 }
 
-bool MapObject::Contains(sf::Vector2f point) const	
+bool MapObject::Contains(sf::Vector2f point) const
 {
 	if(m_shape == Polyline) return false;
 
@@ -139,7 +139,7 @@ void MapObject::CreateDebugShape(const sf::Color& colour)
 {
 	//reset any existing shapes incase new points have been added
 	m_debugShape.clear();
-			
+
 	//draw poly points
 	for(auto i = m_polypoints.cbegin(); i != m_polypoints.cend(); ++i)
 		m_debugShape.append(sf::Vertex(*i + m_position, colour));
