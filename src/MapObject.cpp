@@ -1,5 +1,5 @@
 ///source for map object class///
-#include <MapObject.h>
+#include <tmx/MapObject.h>
 
 using namespace tmx;
 
@@ -46,8 +46,8 @@ MapObject::MapObject()
 	if(!m_debugFont.loadFromFile("assets/fonts/default.ttf"))
 	{
 		//feel free to supress these messages
-		std::cout << "If you wish to output text during debugging please specify a font file in the map object class" << std::endl;
-		std::cout << "If you do not wish to use debug output this can be safely ignored." << std:: endl;
+		std::cerr << "If you wish to output text during debugging please specify a font file in the map object class" << std::endl;
+		std::cerr << "If you do not wish to use debug output this can be safely ignored." << std:: endl;
 	}
 }
 
@@ -137,13 +137,20 @@ bool MapObject::Intersects(const MapObject& object) const
 
 void MapObject::CreateDebugShape(const sf::Color& colour)
 {
+	if(m_polypoints.size() == 0)
+	{
+		std::cerr << "Unable to create debug shape, object data missing." << std::endl;
+		std::cerr << "Check image file paths referenced by tmx file." << std::endl;
+		return;
+	}
+
 	//reset any existing shapes incase new points have been added
 	m_debugShape.clear();
 
 	//draw poly points
 	for(auto i = m_polypoints.cbegin(); i != m_polypoints.cend(); ++i)
 		m_debugShape.append(sf::Vertex(*i + m_position, colour));
-
+	
 	if(m_shape != Polyline)
 	{
 		//close shape by copying first point to end
@@ -202,6 +209,13 @@ sf::Vector2f MapObject::CollisionNormal(const sf::Vector2f& start, const sf::Vec
 
 void MapObject::CreateSegments()
 {
+	if(m_polypoints.size() == 0)
+	{
+		std::cerr << "Unable to object segments, object data missing." << std::endl;
+		std::cerr << "Check image file paths referenced by tmx file." << std::endl;
+		return;
+	}
+	
 	for(auto i = 0u; i < m_polypoints.size() - 1; i++)
 	{
 		m_polySegs.push_back(Segment(m_polypoints[i], m_polypoints[i + 1]));
@@ -209,7 +223,7 @@ void MapObject::CreateSegments()
 	if(m_shape != Polyline) //close shape
 		m_polySegs.push_back(Segment(*(m_polypoints.end() - 1), *m_polypoints.begin()));
 
-	std::cout << "Added " << m_polySegs.size() << " segments to Map Object" << std::endl;
+	std::cerr << "Added " << m_polySegs.size() << " segments to Map Object" << std::endl;
 }
 
 

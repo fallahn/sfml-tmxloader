@@ -30,7 +30,7 @@ it freely, subject to the following restrictions:
 #ifndef MAP_LOADER_H_
 #define MAP_LOADER_H_
 
-#include <QuadTreeNode.h>
+#include <tmx/QuadTreeNode.h>
 #include <iostream>
 #include <pugixml/pugixml.hpp>
 #include <array>
@@ -66,7 +66,7 @@ namespace tmx
 		//overload for drawing layer by type / position
 		void Draw(sf::RenderTarget& rt, MapLayer::DrawType type);
 		//overload for drawing layer by index
-		void Draw(sf::RenderTarget& rt, sf::Uint16 index);
+		void Draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug = false);
 		//projects orthogonal world coords to isometric world coords if available, else return original value
 		//eg: use to convert an isometric world coordinate to a position to be drawn in view space
 		sf::Vector2f IsometricToOrthogonal(const sf::Vector2f& projectedCoords);
@@ -127,7 +127,7 @@ namespace tmx
 		bool m_ParseImageLayer(const pugi::xml_node& imageLayerNode);
 		void m_ParseLayerProperties(const pugi::xml_node& propertiesNode, MapLayer& destLayer);
 		void m_SetIsometricCoords(MapLayer& layer);
-		void m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer);
+		void m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug = false);
 
 		//sf::drawable
 		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
@@ -143,6 +143,7 @@ namespace tmx
 		//caches loaded images to prevent loading the same tileset more than once
 		sf::Image& m_LoadImage(std::string path);
 		std::map<std::string, std::shared_ptr<sf::Image> >m_cachedImages;
+		bool m_failedImage;
 	};
 
 

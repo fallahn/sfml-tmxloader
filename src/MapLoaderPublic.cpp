@@ -27,7 +27,7 @@ it freely, subject to the following restrictions:
    source distribution.
 *********************************************************************/
 
-#include <MapLoader.h>
+#include <tmx/MapLoader.h>
 
 using namespace tmx;
 
@@ -40,7 +40,8 @@ MapLoader::MapLoader(const std::string& mapDirectory)
 	m_mapLoaded			(false),
 	m_quadTreeAvailable	(false),
 	m_mapDirectory		(mapDirectory),
-	m_tileRatio			(1.f)
+	m_tileRatio			(1.f),
+	m_failedImage		(false)
 {
 	//reserve some space to help reduce reallocations
 	m_layers.reserve(10);
@@ -66,8 +67,8 @@ bool MapLoader::Load(const std::string& map)
 	pugi::xml_parse_result result = mapDoc.load_file(mapPath.c_str());
 	if(!result)
 	{
-		std::cout << "Failed to open " << map << std::endl;
-		std::cout << "Reason: " << result.description() << std::endl;
+		std::cerr << "Failed to open " << map << std::endl;
+		std::cerr << "Reason: " << result.description() << std::endl;
 		return m_mapLoaded = false;
 	}
 
@@ -75,7 +76,7 @@ bool MapLoader::Load(const std::string& map)
 	pugi::xml_node mapNode = mapDoc.child("map");
 	if(!mapNode)
 	{
-		std::cout << "Map node not found. Map " << map << " not loaded." << std::endl;
+		std::cerr << "Map node not found. Map " << map << " not loaded." << std::endl;
 		return m_mapLoaded = false;
 	}
 	if(!(m_mapLoaded = m_ParseMapNode(mapNode))) return false;
@@ -111,14 +112,14 @@ bool MapLoader::Load(const std::string& map)
 				return false;
 			}
 		}
-		//std::cout << name << std::endl;
+		//std::cerr << name << std::endl;
 		currentNode = currentNode.next_sibling();
 	}
 
 	m_CreateDebugGrid();
 
-	std::cout << "Parsed " << m_layers.size() << " layers." << std::endl;
-	std::cout << "Loaded " << map << " successfully." << std::endl;
+	std::cerr << "Parsed " << m_layers.size() << " layers." << std::endl;
+	std::cerr << "Loaded " << map << " successfully." << std::endl;
 
 	return m_mapLoaded = true;
 }
@@ -181,7 +182,7 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type)
 		m_SetDrawingBounds(rt.getView());
 		for(auto layer : m_layers)
 		{
-			if(layer.type = ObjectGroup)
+			if(layer.type == ObjectGroup)
 			{
 				for(auto& object : layer.objects)		
 					object.DrawDebugShape(rt);
@@ -193,10 +194,10 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type)
 	}
 }
 
-void MapLoader::Draw(sf::RenderTarget& rt, sf::Uint16 index)
+void MapLoader::Draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug)
 {
 	m_SetDrawingBounds(rt.getView());
-	m_DrawLayer(rt, m_layers[index]);
+	m_DrawLayer(rt, m_layers[index], debug);
 }
 
 sf::Vector2f MapLoader::IsometricToOrthogonal(const sf::Vector2f& projectedCoords)
