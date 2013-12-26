@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="20" height="10" tilewidth="64" tileheight="64">
+ <tileset firstgid="1" name="diffuse" tilewidth="64" tileheight="64">
+  <image source="diffuse.png" width="512" height="320"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="20" height="10">
+  <data encoding="base64" compression="zlib">
+   eJyTZWBgkKUyFgZidiCWIxNzALEQknn8DJQDASTzxKhgHhsO8xTR1HFCxXjINA8dSEDViFPBPJDbuKBquAm4Edk8XHZLMKCmA3xuRFYLslseiPmQsAKS2/Cpw6WWWhgAcbYLwA==
+  </data>
+ </layer>
+ <objectgroup color="#00ff00" name="Static" width="20" height="10">
+  <object x="2" y="0" width="91" height="545"/>
+  <object x="3" y="546" width="1275" height="93"/>
+  <object x="1185" y="-3" width="89" height="550"/>
+  <object x="1116" y="548">
+   <polygon points="2,-3 69,-68 69,-2"/>
+  </object>
+  <object x="81" y="466">
+   <polygon points="13,12 80,79 13,79"/>
+  </object>
+  <object x="266" y="267" width="43" height="43">
+   <ellipse/>
+  </object>
+  <object x="421" y="546">
+   <polygon points="0,0 61,-66 60,-128 126,-194 125,-258 156,-284 219,-284 247,-258 248,-192 313,-129 312,-65 379,0"/>
+  </object>
+  <object x="191" y="369" width="190" height="104">
+   <ellipse/>
+  </object>
+ </objectgroup>
+ <objectgroup color="#ffffff" name="Dynamic" width="20" height="10">
+  <object x="946" y="158" width="31" height="31">
+   <ellipse/>
+  </object>
+  <object x="264" y="159" width="31" height="31">
+   <ellipse/>
+  </object>
+  <object x="650" y="158" width="31" height="31">
+   <ellipse/>
+  </object>
+  <object x="863" y="228" width="256" height="256">
+   <ellipse/>
+  </object>
+ </objectgroup>
+</map>

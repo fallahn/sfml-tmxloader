@@ -7,6 +7,10 @@ Utility class for creating box2D bodies from tmx map objects. You
 can optionally include this file and tmx2box2d.cpp in your project if
 you plan to use box2d - http://www.box2d.org for processing physics.
 
+Some of the hull decimation code is a based on an ActionScript class
+by Antoan Angelov. See:
+http://www.emanueleferonato.com/2011/09/12/create-non-convex-complex-shapes-with-box2d/
+
 The zlib license has been used to make this software fully compatible
 with SFML. See http://www.sfml-dev.org/license.php
 
