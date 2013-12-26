@@ -35,8 +35,10 @@ it freely, subject to the following restrictions:
 using namespace tmx;
 
 QuadTreeNode::QuadTreeNode(sf::Uint16 level, const sf::FloatRect& bounds)
-	: MAX_OBJECTS(5u), MAX_LEVELS(5u), m_level(level),
-	m_bounds(bounds)
+	: MAX_OBJECTS	(5u),
+	MAX_LEVELS		(5u),
+	m_level			(level),
+	m_bounds		(bounds)
 { 
 	m_children.reserve(4); 
 	m_debugShape = sf::RectangleShape(sf::Vector2f(bounds.width, bounds.height));

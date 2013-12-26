@@ -37,10 +37,10 @@ MapLoader::MapLoader(const std::string& mapDirectory)
 	m_height			(1u),
 	m_tileWidth			(1u),
 	m_tileHeight		(1u),
+	m_tileRatio			(1.f),
+	m_mapDirectory		(mapDirectory),
 	m_mapLoaded			(false),
 	m_quadTreeAvailable	(false),
-	m_mapDirectory		(mapDirectory),
-	m_tileRatio			(1.f),
 	m_failedImage		(false)
 {
 	//reserve some space to help reduce reallocations

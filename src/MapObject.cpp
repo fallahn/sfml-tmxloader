@@ -226,6 +226,40 @@ void MapObject::CreateSegments()
 	std::cerr << "Added " << m_polySegs.size() << " segments to Map Object" << std::endl;
 }
 
+bool MapObject::Convex() const
+{
+	if (m_shape == MapObjectShape::Polyline)
+		return false;
+	
+	bool negative = false;
+	bool positive = false;
+
+	sf::Uint16 a, b, c, n = m_polypoints.size();
+	for (a = 0u; a < n; ++a)
+	{
+		b = (a + 1) % n;
+		c = (b + 1) % n;
+		
+		float cross = Helpers::Vectors::Cross(m_polypoints[a], m_polypoints[b], m_polypoints[c]);
+		
+		if(cross < 0.f)
+			negative = true;
+		else if(cross > 0.f)
+			positive = true;
+		if (positive && negative) return false;
+	}
+	return true;
+}
+
+const std::vector<sf::Vector2f>& MapObject::PolyPoints()const
+{
+	return m_polypoints;
+}
+
+void MapObject::ReverseWinding()
+{
+	std::reverse(m_polypoints.begin(), m_polypoints.end());
+}
 
 //private
 sf::Vector2f MapObject::m_CalcCentre() const

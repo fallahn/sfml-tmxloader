@@ -56,6 +56,7 @@ namespace tmx
 	{
 		Rectangle,
 		Ellipse,
+		Circle,
 		Polygon,
 		Polyline,
 		Tile
@@ -141,6 +142,12 @@ namespace tmx
 		sf::Vector2f CollisionNormal(const sf::Vector2f& start, const sf::Vector2f& end) const;
 		//creates a vector of segments making up the poly shape
 		void CreateSegments();
+		//returns if an objects poly shape is convex or not
+		bool Convex() const;
+		//returns a reference to the array of points making up the object
+		const std::vector<sf::Vector2f>& PolyPoints() const;
+		//reversing winding of object points
+		void ReverseWinding();
 
 private:
 		//object properties, reflects those which are part of the tmx format

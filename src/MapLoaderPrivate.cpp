@@ -385,7 +385,7 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 	return true;
 }
 
-void MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid)
+void MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid, const sf::Vector2f& offset)
 {
 	sf::Uint8 opacity = static_cast<sf::Uint8>(255.f * layer.opacity);
 	sf::Color colour = sf::Color(255u, 255u, 255u, opacity);
@@ -418,22 +418,27 @@ void MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf
 	//adjust position for isometric maps
 	if(m_orientation == Isometric)
 	{
-		sf::Vector2f offset(-static_cast<float>(x * (m_tileWidth / 2u)), static_cast<float>(x * (m_tileHeight / 2u)));
-		offset.x -= static_cast<float>(y * (m_tileWidth / 2u));
-		offset.y -= static_cast<float>(y * (m_tileHeight / 2u));
-		offset.x -= static_cast<float>(m_tileWidth / 2u);
-		offset.y += static_cast<float>(m_tileHeight / 2u);
+		sf::Vector2f isoOffset(-static_cast<float>(x * (m_tileWidth / 2u)), static_cast<float>(x * (m_tileHeight / 2u)));
+		isoOffset.x -= static_cast<float>(y * (m_tileWidth / 2u));
+		isoOffset.y -= static_cast<float>(y * (m_tileHeight / 2u));
+		isoOffset.x -= static_cast<float>(m_tileWidth / 2u);
+		isoOffset.y += static_cast<float>(m_tileHeight / 2u);
 
-		v0.position += offset;
-		v1.position += offset;
-		v2.position += offset;
-		v3.position += offset;
+		v0.position += isoOffset;
+		v1.position += isoOffset;
+		v2.position += isoOffset;
+		v3.position += isoOffset;
 	}
 
 	v0.color = colour;
 	v1.color = colour;
 	v2.color = colour;
 	v3.color = colour;
+
+	v0.position += offset;
+	v1.position += offset;
+	v2.position += offset;
+	v3.position += offset;
 
 	layer.vertexArrays[m_tileInfo[gid].TileSetId].append(v0);
 	layer.vertexArrays[m_tileInfo[gid].TileSetId].append(v1);
@@ -454,6 +459,8 @@ bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
 
 	//add layer to map layers
 	MapLayer layer(ObjectGroup);
+	for (auto i : m_tilesetTextures)
+		layer.vertexArrays.push_back(sf::VertexArray(sf::Quads));
 	layer.name = groupNode.attribute("name").as_string();
 	if(groupNode.attribute("opacity")) layer.opacity = groupNode.attribute("opacity").as_float();
 	if(pugi::xml_node propertiesNode = groupNode.child("properties"))
@@ -496,7 +503,8 @@ bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
 					object.AddPoint(IsometricToOrthogonal(point));
 				}
 
-				object.SetShapeType(Ellipse);
+				if (size.x == size.y) object.SetShapeType(Circle);
+				else object.SetShapeType(Ellipse);
 			}
 			else //add points for rectangle to use in intersection testing
 			{
@@ -578,17 +586,14 @@ bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
 			sf::Uint32 gid = objectNode.attribute("gid").as_int();
 
 			std::cerr << "Found object with tile GID " << gid << std::endl;
-			MapTile tile;
-			TileInfo info = m_tileInfo[gid];
-			tile.sprite.setTexture(m_tilesetTextures[info.TileSetId]);
-			tile.sprite.setTextureRect(info.SubRect);
-			tile.sprite.setRotation(object.GetRotation());
-			tile.sprite.setColor(sf::Color(255u, 255u, 255u, static_cast<sf::Uint8>(255.f * layer.opacity)));
-			tile.sprite.setPosition(object.GetPosition());
-			tile.gridCoord = sf::Vector2i(static_cast<int>(object.GetPosition().x / m_tileWidth), static_cast<int>(object.GetPosition().y / m_tileHeight));
-			layer.tiles.push_back(tile);
+
+			const sf::Uint16 x = static_cast<sf::Uint16>(object.GetPosition().x / m_tileWidth);
+			const sf::Uint16 y = static_cast<sf::Uint16>(object.GetPosition().y / m_tileHeight);
+			sf::Vector2f offset(object.GetPosition().x - (x * m_tileWidth), object.GetPosition().y - (y * m_tileHeight));
+			m_AddTileToLayer(layer, x, y, gid, offset);
 			object.SetShapeType(Tile);
 
+			TileInfo info = m_tileInfo[gid];
 			//create bounding poly
 			float width = static_cast<float>(info.Size.x);
 			float height = static_cast<float>(info.Size.y);
@@ -749,23 +754,17 @@ void MapLoader::m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug)
 			rt.draw(layer.vertexArrays[i], layer.States);
 		}
 	}
-	if(layer.type == ObjectGroup || layer.type == ImageLayer)
+	if(layer.type == ImageLayer) //drawn using a single sprite
 	{
-		//draw tiles used on objects
 		for(auto tile = layer.tiles.begin(); tile != layer.tiles.end(); ++tile)
 		{
-			//draw tile if in bounds and is not transparent
-			if((m_bounds.contains(tile->sprite.getPosition()) && tile->sprite.getColor().a)
-				|| layer.type == ImageLayer) //always draw image layer
-			{
-				rt.draw(tile->sprite, tile->renderStates);
-			}
+			rt.draw(tile->sprite, tile->renderStates);			
 		}
-		if(debug && layer.type == ObjectGroup)
-		{
-			for(auto& object : layer.objects)		
-				object.DrawDebugShape(rt);
-		}
+	}
+	if(debug && layer.type == ObjectGroup)
+	{
+		for(auto& object : layer.objects)		
+			object.DrawDebugShape(rt);
 	}
 }
 
@@ -799,21 +798,15 @@ void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 				rt.draw(layer.vertexArrays[i], states);
 			}
 		}
-		if(layer.type == ObjectGroup || layer.type == ImageLayer)
+		if(layer.type == ImageLayer)
 		{
 			//draw tiles used on objects
 			for(auto tile = layer.tiles.begin(); tile != layer.tiles.end(); ++tile)
 			{
-				//draw tile if in bounds and is not transparent
-				if((m_bounds.contains(tile->sprite.getPosition()) && tile->sprite.getColor().a)
-					|| layer.type == ImageLayer) //always draw image layer
-				{
-					rt.draw(tile->sprite, tile->renderStates);
-				}
+				rt.draw(tile->sprite, tile->renderStates);
 			}
 		}
-	}
-		
+	}	
 }
 
 //decoding and utility functions
