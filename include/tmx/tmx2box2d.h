@@ -59,7 +59,7 @@ namespace tmx
 
 		//adds the object to the b2World. Returns a pointer to the body
 		//created so that its properties my be modified. Bodies are static by default
-		static b2Body* Add(const MapObject& object, b2World& world, bool dynamic = false);
+		static b2Body* Add(const MapObject& object, b2World& world, b2BodyType bodyType = b2_staticBody);
 
 	private:
 		static void m_Split(const MapObject& object, b2Body* body);

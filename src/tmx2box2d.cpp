@@ -51,6 +51,8 @@ namespace
 	//this scales tmx units into box2D metres
 	//value is units per metre.
 	const float worldScale = 100.f;
+	//used in point calcs. Don't change this.
+	const float pointTolerance = 0.1f;
 }
 
 //---------------------------------------------
@@ -78,12 +80,12 @@ float tmx::BoxToSfFloat(float val)
 using namespace tmx;
 
 //public
-b2Body* BodyCreator::Add(const MapObject& object, b2World& world, bool dynamic)
+b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bodyType)
 {
 	assert(object.PolyPoints().size() > 1u);
 
 	b2BodyDef bodyDef;
-	if(dynamic) bodyDef.type = b2_dynamicBody;
+	bodyDef.type = bodyType;
 
 	b2Body* body = nullptr;
 
@@ -404,23 +406,23 @@ sf::Vector2f BodyCreator::m_HitPoint(const sf::Vector2f& p1, const sf::Vector2f&
 
 bool BodyCreator::m_OnLine(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end)
 {
-	const float tolerance = 0.1f;
-	if (end.x - start.x > tolerance || start.x - end.x > tolerance)
+	if (end.x - start.x > pointTolerance || start.x - end.x > pointTolerance)
 	{
 		float a = (end.y - start.y) / (end.x - start.x);
 		float newY = a * (p.x - start.x) + start.y;
 		float diff = std::abs(newY - p.y);
-		return (diff < tolerance);
+		return (diff < pointTolerance);
 	}
 
-	return (p.x - start.x < tolerance || start.x - p.x < tolerance);
+	return (p.x - start.x < pointTolerance || start.x - p.x < pointTolerance);
 }
 
 bool BodyCreator::m_OnSeg(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end)
 {
-	const float tolerance = 0.1f;
-	bool a = (start.x + tolerance >= p.x && p.x >= end.x - tolerance) || (start.x - tolerance <= p.x && p.x <= end.x + tolerance);
-	bool b = (start.y + tolerance >= p.y && p.y >= end.y - tolerance) || (start.y - tolerance <= p.y && p.y <= end.y + tolerance);
+	bool a = (start.x + pointTolerance >= p.x && p.x >= end.x - pointTolerance) 
+		|| (start.x - pointTolerance <= p.x && p.x <= end.x + pointTolerance);
+	bool b = (start.y + pointTolerance >= p.y && p.y >= end.y - pointTolerance)
+		|| (start.y - pointTolerance <= p.y && p.y <= end.y + pointTolerance);
 	return ((a && b) && m_OnLine(p, start, end));
 }
 
@@ -428,7 +430,7 @@ bool BodyCreator::m_PointsMatch(const sf::Vector2f& p1, const sf::Vector2f& p2)
 {
 	float x = std::abs(p2.x - p1.x);
 	float y = std::abs(p2.y - p1.y);
-	return (x < 0.1f && y < 0.1f);
+	return (x < pointTolerance && y < pointTolerance);
 }
 
 float BodyCreator::m_GetWinding(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3)
@@ -493,13 +495,12 @@ bool BodyCreator::m_CheckShape(MapObject& object)
 				}
 			}
 		}
-
 		if (!b1) b2 = true;
 	}
 
 	if (b2)
 	{
-		std::cerr << "Object " << object.GetName() << " vertices are wound in the wrong order." << std::endl;
+		std::cerr << "Object " << object.GetName() << " vertices are wound in the wrong direction." << std::endl;
 		std::cerr << "Attempting to fix..." << std::endl;
 		object.ReverseWinding();
 	}

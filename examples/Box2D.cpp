@@ -46,7 +46,7 @@ source distribution.
 
 int main()
 {
-	sf::RenderWindow renderWindow(sf::VideoMode(1280u, 640u), "TMX Loader - box2D from map object example");
+	sf::RenderWindow renderWindow(sf::VideoMode(1280u, 640u), "TMX Loader - Box2D Body Creation Example");
 	renderWindow.setVerticalSyncEnabled(true);
 
 	//create map loader and load map
@@ -54,7 +54,7 @@ int main()
 	ml.Load("b2d.tmx");
 
 	//create a box2D world
-	b2World world(b2Vec2(0.f, -10.f));
+	b2World world(tmx::SfToBoxVec(sf::Vector2f(0.f, 1000.f)));
 
 	//parse map objects
 	std::vector<std::unique_ptr<sf::Shape>> debugBoxes;
@@ -113,8 +113,8 @@ int main()
 			for (const auto& o : l.objects)
 			{
 				//this time keep a copy of the pointer so we can update the dynamic objects
-				//with their information. Don't forget to pass 'true' to create a dynamic body
-				b2Body* b = tmx::BodyCreator::Add(o, world, true);
+				//with their information. Don't forget to create a dynamic body
+				b2Body* b = tmx::BodyCreator::Add(o, world, b2BodyType::b2_dynamicBody);
 				b->GetFixtureList()->SetRestitution(0.99f); //set some properties of the body
 				//we assume for this example all dynamic objects are circular. Other shapes also work
 				//but you need to impliment your own drawing for them.
