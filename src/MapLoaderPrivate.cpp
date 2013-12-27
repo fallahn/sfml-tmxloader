@@ -222,7 +222,7 @@ bool MapLoader::m_ProcessTiles(const pugi::xml_node& tilesetNode)
 			rect.top += margin;
 			rect.height = tileHeight;
 			rect.left = x * (tileWidth + spacing);
-			rect.left += spacing;
+			rect.left += margin;
 			rect.width = tileWidth;
 
 			//store texture coords and tileset index for vertex array
