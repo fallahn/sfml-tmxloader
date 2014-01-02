@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="40" height="40" tilewidth="32" tileheight="32">
- <tileset firstgid="1" source="desert.tsx"/>
+ <tileset firstgid="1" source="/usr/local/desert.tsx"/>
  <tileset firstgid="49" name="Sewer" tilewidth="24" tileheight="24">
-  <image source="sewer_tileset.png" trans="ff00ff" width="192" height="217"/>
+  <image source="c:\some path\sewer_tileset.png" trans="ff00ff" width="192" height="217"/>
   <tile id="33">
    <properties>
     <property name="tileprop" value="sd"/>

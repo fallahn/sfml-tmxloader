@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013
+Matt Marchant 2013 - 2014
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -52,6 +52,8 @@ namespace tmx
 		~MapLoader();
 		//loads a given tmx file, returns false on failure
 		bool Load(const std::string& mapFile);
+		//adds give path to list of directories to search for assets, such as tile sets
+		void AddSearchPath(const std::string& path);
 		//updates the map's quad tree. Not necessary when not querying the quad tree
 		//root area is the are covered by root node, for example the screen size
 		void UpdateQuadTree(const sf::FloatRect& rootArea);
@@ -90,10 +92,9 @@ namespace tmx
 		std::map<std::string, std::string> m_properties;
 
 		mutable sf::FloatRect m_bounds; //bounding area of tiles visible on screen
-		std::string m_mapDirectory; //directory relative to executable containing map files and images
+		std::vector<std::string> m_searchPaths; //additional paths to search for tileset files
 
 		std::vector<MapLayer> m_layers; //layers of map, including image and object layers
-		//std::vector<sf::Texture> m_tileTextures;
 		std::vector<sf::Texture> m_imageLayerTextures;
 		std::vector<sf::Texture> m_tilesetTextures; //textures created from complete sets used when drawing vertex arrays
 		struct TileInfo //holds texture coords and tileset id of a tile
@@ -128,6 +129,7 @@ namespace tmx
 		void m_ParseLayerProperties(const pugi::xml_node& propertiesNode, MapLayer& destLayer);
 		void m_SetIsometricCoords(MapLayer& layer);
 		void m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug = false);
+		std::string m_FileFromPath(const std::string& path);
 
 		//sf::drawable
 		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
@@ -141,7 +143,7 @@ namespace tmx
 		void m_CreateDebugGrid(void);
 
 		//caches loaded images to prevent loading the same tileset more than once
-		sf::Image& m_LoadImage(std::string path);
+		sf::Image& m_LoadImage(const std::string& imageName);
 		std::map<std::string, std::shared_ptr<sf::Image> >m_cachedImages;
 		bool m_failedImage;
 	};

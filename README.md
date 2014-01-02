@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013
+Matt Marchant 2013 - 2014
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 
 The zlib license has been used to make this software fully compatible
@@ -40,31 +40,30 @@ Supports orthogonal maps
 Supports isometric maps
 Supports conversion between orthogonal and isometric world coords
 Parses all types of layers (normal, object and image), layer properties
-Parses all type of object, object shapes, types, properties
-Option to draw debug output of objects, grid and object names
+Parses all types of object, object shapes, types, properties
+Option to draw debug output of objects and tile grid
 Supports multiple tile sets, including tsx files
 Supports all layer encoding and compression: base64, csv, zlib, gzip and xml (requires zlib library, see /lib directory)
 Quad tree partitioning / querying of map object data
-FAST rendering with sf::VertexArray
-
+Optional utility functions for converting tmx map objects into box2D body data
 
 
 What's not supported / limitations
 ----------------------------------
 
 Parsing of individual tile properties
-Flipping / rotation of sprites
+Flipping / rotation of map objects
 Staggered isometric maps
-Tile set images must be in the same directory as tmx/tsx files
-To display object names when drawing object debug shapes then you must provide a font
-and update MapObject.h
+
 
 
 Usage
 -----
 
-First download and link the zlib library which matches your compiler and link it to your
-project, then add the map loader .cpp files to your project/command line.
+First download the zlib library which matches your compiler and link it to your
+project, then add the map loader .cpp files to your project/command line. Only
+add the tmx2box2d files if you are using box2D for physics and wish to convert
+map object data to box2D physics bodies.
 
 
 To quickly get up and running create an instance of the MapLoader class
@@ -81,8 +80,12 @@ and draw it in your main loop
 
 
 Note that the constructor takes a path to the directory containing the map files as a parameter (with
-or without the trailing '/') so that you only need pass the map name to MapLoader::Load(). Currently
-all map files (tmx, tsx, images etc) must be in the directory passed to the constructor.
+or without the trailing '/') so that you only need pass the map name to MapLoader::Load().If you have
+images and/or tileset data in another directory you may add it with:
+
+    ml.AddSearchPath(path);
+	
+*before* attempting to load the map file.
 
 New maps can be loaded simply by calling the load function again, existing maps will be automatically
 unloaded. MapLoader::Load() also returns true on success and false on failure, to aid running the function
@@ -139,7 +142,17 @@ This returns a vector of pointers to MapObjects contained within any quads which
 by your sprite's bounds. You can then proceed to perform any collision testing as usual.
 
 
-For more detailed examples see the source for the included demos.
+Some utility functions are providied in tmx2box2d.h/cpp. If you use box2D for physics then add these 
+files to you project and then create box2D physics bodies using:
+
+	tmx::BodyCreator::Add(mapObject, b2World);
+	
+where b2World is a pointer to a valid box2D physics world.
+
+
+
+For more detailed examples see the source for the included demos, and the wiki on github:
+https://github.com/fallahn/sfml-tmxloader/wiki
 
 
 
@@ -148,8 +161,8 @@ Requirements
 
 pugixml (included)
 zlib (http://zlib.net/)
-SFML 2.0 (http://sfml-dev.org)
-C++11 compiler support (tested with VS11 and GCC4.7)
+SFML 2.x (http://sfml-dev.org)
+Minimal C++11 compiler support (tested with VS11 and GCC4.7)
 
 
 Revision History

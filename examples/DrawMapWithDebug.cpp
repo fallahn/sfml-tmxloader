@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013
+Matt Marchant 2013 - 2014
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -37,7 +37,7 @@ int main()
 	sf::RenderWindow renderWindow(sf::VideoMode(800u, 600u), "TMX Loader");
 
 	//create map loader and load map
-	tmx::MapLoader ml("maps/");
+	tmx::MapLoader ml("maps\\");
 	ml.Load("desert.tmx");
 
 	bool showDebug = false;

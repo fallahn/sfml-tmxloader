@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013
+Matt Marchant 2013 - 2014
 
 The zlib license has been used to make this software fully compatible
 with SFML. See http://www.sfml-dev.org/license.php

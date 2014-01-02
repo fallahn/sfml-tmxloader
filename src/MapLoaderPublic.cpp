@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013
+Matt Marchant 2013 - 2014
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -38,7 +38,6 @@ MapLoader::MapLoader(const std::string& mapDirectory)
 	m_tileWidth			(1u),
 	m_tileHeight		(1u),
 	m_tileRatio			(1.f),
-	m_mapDirectory		(mapDirectory),
 	m_mapLoaded			(false),
 	m_quadTreeAvailable	(false),
 	m_failedImage		(false)
@@ -46,10 +45,7 @@ MapLoader::MapLoader(const std::string& mapDirectory)
 	//reserve some space to help reduce reallocations
 	m_layers.reserve(10);
 
-	//check map directory contains trailing slash
-	if(!m_mapDirectory.empty() && *m_mapDirectory.rbegin() != '/')
-		m_mapDirectory += '/';
-
+	AddSearchPath(mapDirectory);
 }
 //dtor
 MapLoader::~MapLoader()
@@ -59,7 +55,7 @@ MapLoader::~MapLoader()
 
 bool MapLoader::Load(const std::string& map)
 {
-	std::string mapPath = m_mapDirectory + map;
+	std::string mapPath = m_searchPaths[0] + m_FileFromPath(map);
 	m_Unload(); //clear any old data first
 
 	//parse map xml, return on error
@@ -122,6 +118,18 @@ bool MapLoader::Load(const std::string& map)
 	std::cerr << "Loaded " << map << " successfully." << std::endl;
 
 	return m_mapLoaded = true;
+}
+
+void MapLoader::AddSearchPath(const std::string& path)
+{
+	m_searchPaths.push_back(path);
+
+	std::string& s = m_searchPaths.back();
+	std::replace(s.begin(), s.end(), '\\', '/');
+
+	if(s.size() > 1 && *s.rbegin() != '/')
+		s += '/';
+	else if(s == "/" || s == "\\") s = "";
 }
 
 void MapLoader::UpdateQuadTree(const sf::FloatRect& rootArea)

@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013
+Matt Marchant 2013 - 2014
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -128,16 +128,26 @@ bool MapLoader::m_ParseTileSets(const pugi::xml_node& mapNode)
 		if(tileset.attribute("source"))
 		{
 			//try loading tsx
-			std::string path = m_mapDirectory + tileset.attribute("source").as_string();
+			std::string file = m_FileFromPath(tileset.attribute("source").as_string());
+			std::string path;
 			pugi::xml_document tsxDoc;
-			pugi::xml_parse_result result = tsxDoc.load_file(path.c_str());
+			pugi::xml_parse_result result;
+			
+			for(auto& p : m_searchPaths)
+			{
+				path = p + file;
+				result = tsxDoc.load_file(path.c_str());
+				if(result) break;
+			}
 			if(!result)
 			{
 				std::cerr << "Failed to open external tsx document: " << path << std::endl;
 				std::cerr << "Reason: " << result.description() << std::endl;
+				std::cerr << "Make sure to add any external paths with AddSearchPath()" << std::endl;
 				m_Unload(); //purge any partially loaded data
 				return false;
 			}
+			
 			//try parsing tileset node
 			pugi::xml_node ts = tsxDoc.child("tileset");
 
@@ -180,14 +190,12 @@ bool MapLoader::m_ProcessTiles(const pugi::xml_node& tilesetNode)
 	}
 
 	//process image from disk
-	std::string imagePath;
-	imagePath = m_mapDirectory + imageNode.attribute("source").as_string();
-
-	sf::Image sourceImage = m_LoadImage(imagePath);
+	std::string imageName = m_FileFromPath(imageNode.attribute("source").as_string());
+	sf::Image sourceImage = m_LoadImage(imageName);
 	if(m_failedImage)
 	{
-		std::cerr << "Failed to load image at " << imagePath << std::endl;
-		std::cerr << "Please check image exists and path is relative to tmx document." << std::endl;
+		std::cerr << "Failed to load image " << imageName << std::endl;
+		std::cerr << "Please check image exists and add any external paths with AddSearchPath()" << std::endl;
 		return false;
 	}
 
@@ -232,7 +240,7 @@ bool MapLoader::m_ProcessTiles(const pugi::xml_node& tilesetNode)
 		}
 	}
 
-	std::cerr << "Processed " << imagePath << std::endl;
+	std::cerr << "Processed " << imageName << std::endl;
 	return true;
 }
 
@@ -649,12 +657,12 @@ bool MapLoader::m_ParseImageLayer(const pugi::xml_node& imageLayerNode)
 		return false;
 	}
 
-	std::string imageName = m_mapDirectory + imageNode.attribute("source").as_string();
+	std::string imageName = imageNode.attribute("source").as_string();
 	sf::Image image = m_LoadImage(imageName);
 	if(m_failedImage)
 	{
 		std::cerr << "Failed to load image at " << imageName << std::endl;
-		std::cerr << "Please check image exists and path is relative to tmx document." << std::endl;
+		std::cerr << "Please check image exists and add any external paths with AddSearchPath()" << std::endl;
 		return false;
 	}
 
@@ -772,6 +780,21 @@ void MapLoader::m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug)
 			if(m_bounds.intersects(object.GetAABB()))
 				object.DrawDebugShape(rt);
 	}
+}
+
+std::string MapLoader::m_FileFromPath(const std::string& path)
+{
+	assert(!path.empty());
+
+	for(auto it = path.rbegin(); it != path.rend(); ++it)
+	{
+		if(*it == '/' || *it == '\\')
+		{
+			int pos = std::distance(path.rbegin(), it);
+			return path.substr(path.size() - pos);
+		}
+	}
+	return path;
 }
 
 void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates states) const
@@ -911,19 +934,34 @@ bool MapLoader::m_Decompress(const char* source, std::vector<unsigned char>& des
 	return true;
 }
 
-sf::Image& MapLoader::m_LoadImage(std::string path)
+sf::Image& MapLoader::m_LoadImage(const std::string& imageName)
 {
-	auto i = m_cachedImages.find(path);
-	if(i != m_cachedImages.end())
-		return *i->second;
+	for(auto& p : m_searchPaths)
+	{
+		auto i = m_cachedImages.find(p + imageName);
+		if(i != m_cachedImages.end())
+			return *i->second;
+	}
 
 	//else attempt to load
 	std::shared_ptr<sf::Image> newImage = std::shared_ptr<sf::Image>(new sf::Image());
-	if(path.empty() || !newImage->loadFromFile(path))
+
+	//try other paths first
+	bool loaded = false;
+	std::string path;
+	for(auto& p : m_searchPaths)
+	{
+		path = p + imageName;		
+		loaded = newImage->loadFromFile(path);
+		if(loaded) break;
+	}
+	if(!loaded)
 	{
 		newImage->create(20u, 20u, sf::Color::Yellow);
 		m_failedImage = true;
+		path = "default";
 	}
+
 	m_cachedImages[path] = newImage;
 	return *m_cachedImages[path];//newImage;
 }
