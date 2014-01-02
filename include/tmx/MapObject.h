@@ -49,6 +49,7 @@ it freely, subject to the following restrictions:
 #include <SFML/System/NonCopyable.hpp>
 
 #include <Helpers.h>
+#include <DebugShape.h>
 
 namespace tmx
 {
@@ -105,6 +106,7 @@ namespace tmx
 		//sets the object position in world coords
 		void SetPosition(const sf::Vector2f& position);
 		//moves the object by given amount
+		void Move(float x, float y);
 		void Move(const sf::Vector2f& distance);
 		//sets the width and height of the object
 		void SetSize(const sf::Vector2f& size){m_size = size;};
@@ -159,8 +161,7 @@ private:
 		bool m_visible;
 		std::vector<sf::Vector2f> m_polypoints; //list of points defining any polygonal shape
 		MapObjectShape m_shape;
-		sf::VertexArray m_debugShape;
-		sf::Font m_debugFont;
+		DebugShape m_debugShape;
 		sf::Vector2f m_centrePoint;
 
 		std::vector<Segment> m_polySegs; //segments which make up shape, if any

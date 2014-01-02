@@ -39,7 +39,8 @@ class DebugShape : public sf::Drawable, public sf::Transformable
 public:
 	DebugShape();
 	void AddVertex(const sf::Vertex& vert);
-
+	void Reset();
+	void CloseShape();
 private:
 
 	

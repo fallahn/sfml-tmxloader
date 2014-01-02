@@ -40,6 +40,17 @@ void DebugShape::AddVertex(const sf::Vertex& v)
 	m_array.append(v);
 }
 
+void DebugShape::Reset()
+{
+	m_array.clear();
+}
+
+void DebugShape::CloseShape()
+{
+	if(m_array.getVertexCount())
+		m_array.append(m_array[0]);
+}
+
 //private
 void DebugShape::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 {

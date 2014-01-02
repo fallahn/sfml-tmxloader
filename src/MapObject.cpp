@@ -37,18 +37,7 @@ MapObject::MapObject()
 	 m_shape		(Rectangle),
 	 m_furthestPoint(0.f)
 {
-	m_debugShape.setPrimitiveType(sf::LinesStrip);
 
-	//this loads a font for text output during debug drawing
-	//you need to select your own font here as SFML no longer
-	//supports a default font. If you do not plan to use this
-	//during debugging it can be ignored.
-	if(!m_debugFont.loadFromFile("assets/fonts/default.ttf"))
-	{
-		//feel free to supress these messages
-		std::cerr << "If you wish to output text during debugging please specify a font file in the map object class" << std::endl;
-		std::cerr << "If you do not wish to use debug output this can be safely ignored." << std:: endl;
-	}
 }
 
 //public
@@ -71,6 +60,11 @@ void MapObject::SetPosition(const sf::Vector2f& position)
 	Move(distance);
 }
 
+void MapObject::Move(float x, float y)
+{
+	Move(sf::Vector2f(x, y));
+}
+
 void MapObject::Move(const sf::Vector2f& distance)
 {
 	//update properties by movement amount
@@ -78,8 +72,7 @@ void MapObject::Move(const sf::Vector2f& distance)
 	for(auto& p : m_polypoints)
 		p += distance;
 
-	for(auto i = 0u; i < m_debugShape.getVertexCount(); ++i)
-		m_debugShape[i].position += distance;
+	m_debugShape.move(distance);
 
 	m_AABB.left += distance.x;
 	m_AABB.top += distance.y;
@@ -145,17 +138,14 @@ void MapObject::CreateDebugShape(const sf::Color& colour)
 	}
 
 	//reset any existing shapes incase new points have been added
-	m_debugShape.clear();
+	m_debugShape.Reset();
 
-	//draw poly points
-	for(auto i = m_polypoints.cbegin(); i != m_polypoints.cend(); ++i)
-		m_debugShape.append(sf::Vertex(*i + m_position, colour));
+	for(auto& p : m_polypoints)
+		m_debugShape.AddVertex(sf::Vertex(p, colour));
 	
-	if(m_shape != Polyline)
-	{
-		//close shape by copying first point to end
-		m_debugShape.append(m_debugShape[0]);
-	}
+	if(m_shape != Polyline) m_debugShape.CloseShape();
+
+	m_debugShape.setPosition(m_position);
 
 	//precompute shape values for intersection testing
 	m_CalcTestValues();
@@ -167,10 +157,6 @@ void MapObject::CreateDebugShape(const sf::Color& colour)
 void MapObject::DrawDebugShape(sf::RenderTarget& rt) const
 {
 	rt.draw(m_debugShape);
-	sf::Text text(m_name, m_debugFont, 14u);
-	text.setPosition(m_position);
-	text.setColor(sf::Color::Black);
-	rt.draw(text);
 }
 
 sf::Vector2f MapObject::FirstPoint() const

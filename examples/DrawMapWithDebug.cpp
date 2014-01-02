@@ -40,6 +40,9 @@ int main()
 	tmx::MapLoader ml("maps/");
 	ml.Load("desert.tmx");
 
+	bool showDebug = false;
+	sf::Clock frameClock;
+
 	//-----------------------------------//
 
 	while(renderWindow.isOpen())
@@ -50,13 +53,26 @@ int main()
 		{
 			if (event.type == sf::Event::Closed)
 				renderWindow.close();
+			if(event.type == sf::Event::KeyReleased)
+			{
+				switch(event.key.code)
+				{
+				case sf::Keyboard::D:
+					showDebug = !showDebug;
+					break;
+				default: break;
+				}
+			}
         }
 
 		//draw
+		frameClock.restart();
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		ml.Draw(renderWindow, tmx::MapLayer::Debug);//draw with debug information shown
+		if(showDebug) ml.Draw(renderWindow, tmx::MapLayer::Debug);//draw with debug information shown
 		renderWindow.display();
+
+		renderWindow.setTitle("Press D to Toggle debug shapes. " + std::to_string(1.f / frameClock.getElapsedTime().asSeconds()));
 	}
 
 	return 0;

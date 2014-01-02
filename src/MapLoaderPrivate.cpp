@@ -597,11 +597,16 @@ bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
 			//create bounding poly
 			float width = static_cast<float>(info.Size.x);
 			float height = static_cast<float>(info.Size.y);
+
 			object.AddPoint(sf::Vector2f());
 			object.AddPoint(sf::Vector2f(width, 0.f));
 			object.AddPoint(sf::Vector2f(width, height));
 			object.AddPoint(sf::Vector2f(0.f, height));
 			object.SetSize(sf::Vector2f(width, height));
+
+			//move object if tile not map tile size
+			if(info.Size.y != m_tileHeight)
+				object.Move(0.f, static_cast<float>(m_tileHeight - info.Size.y) / 2.f);
 		}
 		object.SetParent(layer.name);
 
@@ -764,7 +769,8 @@ void MapLoader::m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug)
 	if(debug && layer.type == ObjectGroup)
 	{
 		for(auto& object : layer.objects)		
-			object.DrawDebugShape(rt);
+			if(m_bounds.intersects(object.GetAABB()))
+				object.DrawDebugShape(rt);
 	}
 }
 
