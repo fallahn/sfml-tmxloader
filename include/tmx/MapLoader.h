@@ -102,7 +102,7 @@ namespace tmx
 			std::array<sf::Vector2f, 4> Coords;
 			sf::Vector2f Size;
 			sf::Uint16 TileSetId;
-			sf::IntRect SubRect;
+			sf::IntRect SubRect; //is this still relevant?
 			TileInfo();
 			TileInfo(const sf::IntRect& rect, const sf::Vector2f& size, sf::Uint16 tilesetId);
 		};

@@ -595,9 +595,11 @@ bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
 
 			std::cerr << "Found object with tile GID " << gid << std::endl;
 
+			object.Move(0.f, static_cast<float>(-m_tileHeight)); //offset for tile origins being at the bottom in Tiled
 			const sf::Uint16 x = static_cast<sf::Uint16>(object.GetPosition().x / m_tileWidth);
 			const sf::Uint16 y = static_cast<sf::Uint16>(object.GetPosition().y / m_tileHeight);
-			sf::Vector2f offset(object.GetPosition().x - (x * m_tileWidth), object.GetPosition().y - (y * m_tileHeight));
+			
+			sf::Vector2f offset(object.GetPosition().x - (x * m_tileWidth), (object.GetPosition().y - (y * m_tileHeight)));
 			m_AddTileToLayer(layer, x, y, gid, offset);
 			object.SetShapeType(Tile);
 
