@@ -152,7 +152,12 @@ std::vector<MapObject*> MapLoader::QueryQuadTree(const sf::FloatRect& testArea)
 	return m_rootNode.Retrieve(testArea);
 }
 
-std::vector<MapLayer>& MapLoader::GetLayers(void)
+std::vector<MapLayer>& MapLoader::GetLayers()
+{
+	return m_layers;
+}
+
+const std::vector<MapLayer>& MapLoader::GetLayers() const
 {
 	return m_layers;
 }
@@ -187,13 +192,14 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type)
 		}
 		break;
 	case MapLayer::Debug:
-		m_SetDrawingBounds(rt.getView());
+		//m_SetDrawingBounds(rt.getView());
 		for(auto layer : m_layers)
 		{
 			if(layer.type == ObjectGroup)
 			{
-				for(auto& object : layer.objects)		
-					object.DrawDebugShape(rt);
+				for(auto& object : layer.objects)
+					if (m_bounds.intersects(object.GetAABB()))
+						object.DrawDebugShape(rt);
 			}
 		}
 		rt.draw(m_gridVertices);

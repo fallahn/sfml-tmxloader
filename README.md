@@ -145,13 +145,22 @@ by your sprite's bounds. You can then proceed to perform any collision testing a
 Some utility functions are providied in tmx2box2d.h/cpp. If you use box2D for physics then add these 
 files to you project and then create box2D physics bodies using:
 
-	tmx::BodyCreator::Add(mapObject, b2World);
+	b2Body* body = tmx::BodyCreator::Add(mapObject, b2World);
 	
-where b2World is a pointer to a valid box2D physics world.
+where b2World is a reference to a valid box2D physics world. As box2D uses a different coordinate
+system to SFML there are 4 functions for converting from one space to another:
+
+        b2Vec2 SfToBoxVec(const sf::Vector2f& vec);
+        sf::Vector2f BoxToSfVec(const b2Vec2& vec);
+        float SfToBoxFloat(float val);
+        float BoxToSfFloat(float val);
+
+You should use these whenever you are trying to draw with SFML based on the physics output, or set
+box2D parameters in SFML world values.
 
 
 
-For more detailed examples see the source for the included demos, and the wiki on github:
+For more detailed examples see the source in the examples folder, and the wiki on github:
 https://github.com/fallahn/sfml-tmxloader/wiki
 
 

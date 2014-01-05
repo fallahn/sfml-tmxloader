@@ -61,7 +61,8 @@ namespace tmx
 		//or intersecting testArea
 		std::vector<MapObject*> QueryQuadTree(const sf::FloatRect& testArea);
 		//returns a vector of map layers
-		std::vector<MapLayer>& GetLayers(void);
+		std::vector<MapLayer>& GetLayers();
+		const std::vector<MapLayer>& GetLayers() const;
 		//draws visible tiles to given target, optionally draw outline of objects for debugging
 		//along with any quadTree debug bounds. Uses vertex arrays for performance
 		void Draw(sf::RenderTarget& rt);

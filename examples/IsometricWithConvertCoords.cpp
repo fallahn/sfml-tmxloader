@@ -36,6 +36,7 @@ it freely, subject to the following restrictions:
 int main()
 {
 	sf::RenderWindow renderWindow(sf::VideoMode(800u, 600u), "TMX Loader");
+	renderWindow.setVerticalSyncEnabled(true);
 
 	//create map loader and load map
 	tmx::MapLoader ml("maps/");

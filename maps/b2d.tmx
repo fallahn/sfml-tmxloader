@@ -41,5 +41,11 @@
   <object x="863" y="228" width="256" height="256">
    <ellipse/>
   </object>
+  <object x="151" y="310" width="73" height="73">
+   <ellipse/>
+  </object>
+  <object x="880" y="492" width="49" height="49">
+   <ellipse/>
+  </object>
  </objectgroup>
 </map>

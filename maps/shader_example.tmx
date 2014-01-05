@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="10" height="10" tilewidth="64" tileheight="64">
+ <tileset firstgid="1" name="forest_tileset" tilewidth="64" tileheight="64">
+  <image source="forest_tileset.png" width="1024" height="576"/>
+ </tileset>
+ <layer name="Water" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYKAc8EMxLj66WnR12NSTq45Y92GTJ1YdMebjcgshAABXkwHD
+  </data>
+ </layer>
+ <layer name="Grass" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjZmBgYKYQxwBxOBI/BI2PjMOQ2EFAnAzEwUjqC3Goi4TiWDzmheGwE+SeUCzqCpHkg7GYj25eEJo5MBwFxPFofJg5iSSGJQAtzwxM
+  </data>
+ </layer>
+ <layer name="Detail" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYEAANgbsACbOjkMcBDJx6CUFOOIQT0WTD4TS3FjUsiLJI4MkAnanEqEGBtDDIRmLGlx+AQHkcEN2K8jtAO7uBEw=
+  </data>
+ </layer>
+</map>
