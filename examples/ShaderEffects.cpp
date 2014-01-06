@@ -180,7 +180,7 @@ int main()
 	sf::Shader waterEffect;
 	waterEffect.loadFromMemory(waterShader, sf::Shader::Fragment);
 
-	ml.GetLayers()[0].States.shader = &waterEffect;
+	ml.SetLayerShader(0u, waterEffect);
 
 	//-----------------------------------//
 

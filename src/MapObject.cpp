@@ -53,14 +53,11 @@ bool MapObject::Segment::Intersects(const MapObject::Segment& segment)
 
 
 
-
-
 ///------map object-------///
 
 //ctor
 MapObject::MapObject()
 	 : m_visible	(true),
-	 m_rotation		(0.f),
 	 m_shape		(Rectangle),
 	 m_furthestPoint(0.f)
 {
@@ -106,6 +103,9 @@ void MapObject::Move(const sf::Vector2f& distance)
 
 	//set new position
 	m_position += distance;
+
+	//TODO if object is of type tile move vertex data
+
 }
 
 bool MapObject::Contains(sf::Vector2f point) const

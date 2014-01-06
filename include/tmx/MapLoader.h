@@ -93,6 +93,7 @@ namespace tmx
 		std::map<std::string, std::string> m_properties;
 
 		mutable sf::FloatRect m_bounds; //bounding area of tiles visible on screen
+		mutable sf::Vector2f m_lastViewPos; //save recalc bounds if view not moved
 		std::vector<std::string> m_searchPaths; //additional paths to search for tileset files
 
 		std::vector<MapLayer> m_layers; //layers of map, including image and object layers
@@ -103,7 +104,6 @@ namespace tmx
 			std::array<sf::Vector2f, 4> Coords;
 			sf::Vector2f Size;
 			sf::Uint16 TileSetId;
-			sf::IntRect SubRect; //is this still relevant?
 			TileInfo();
 			TileInfo(const sf::IntRect& rect, const sf::Vector2f& size, sf::Uint16 tilesetId);
 		};

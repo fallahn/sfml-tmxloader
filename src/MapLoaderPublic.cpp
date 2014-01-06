@@ -172,6 +172,7 @@ void MapLoader::Draw(sf::RenderTarget& rt)
 
 void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type)
 {
+	m_SetDrawingBounds(rt.getView());
 	switch(type)
 	{
 	default:
@@ -192,7 +193,6 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type)
 		}
 		break;
 	case MapLayer::Debug:
-		//m_SetDrawingBounds(rt.getView());
 		for(auto layer : m_layers)
 		{
 			if(layer.type == ObjectGroup)
@@ -261,8 +261,7 @@ MapLoader::TileInfo::TileInfo()
 
 MapLoader::TileInfo::TileInfo(const sf::IntRect& rect, const sf::Vector2f& size, sf::Uint16 tilesetId)
 	: Size		(size),
-	TileSetId	(tilesetId),
-	SubRect		(rect)
+	TileSetId	(tilesetId)
 {
 	Coords[0] = sf::Vector2f(static_cast<float>(rect.left), static_cast<float>(rect.top));
 	Coords[1] = sf::Vector2f(static_cast<float>(rect.left + rect.width), static_cast<float>(rect.top));

@@ -95,8 +95,6 @@ namespace tmx
 		std::string GetType() const {return m_type;};
 		//returns the name of the object's parent layer
 		std::string GetParent() const {return m_parent;};
-		//returns the object's rotation in degrees
-		float GetRotation() const {return m_rotation;};
 		//returns the objects AABB in world coordinates
 		sf::FloatRect GetAABB() const {return m_AABB;};
 		//returns visibility
@@ -116,8 +114,6 @@ namespace tmx
 		void SetType(const std::string& type){m_type = type;};
 		//sets the name of the object's parent layer
 		void SetParent(const std::string& parent){m_parent = parent;};
-		//sets the rotation of the object in degrees
-		void SetRotation(const float angle){m_rotation = angle;};
 		//sets the shape type
 		void SetShapeType(MapObjectShape shape){m_shape = shape;};
 		//sets visibility
@@ -157,7 +153,6 @@ private:
 		//sf::FloatRect m_rect; //width / height property of object plus position in world space
 		sf::Vector2f m_position, m_size;
 		std::map <std::string, std::string> m_properties;//map of custom name/value properties
-		float m_rotation; //not yet implemented in official TILED release
 		bool m_visible;
 		std::vector<sf::Vector2f> m_polypoints; //list of points defining any polygonal shape
 		MapObjectShape m_shape;
@@ -165,7 +160,7 @@ private:
 		sf::Vector2f m_centrePoint;
 
 		std::vector<Segment> m_polySegs; //segments which make up shape, if any
-
+		
 		float m_furthestPoint; //furthest distance from centre of object to vertex - used for intersection testing
 		//AABB created from polygonal shapes, used for adding MapObjects to a QuadTreeNode.
 		//Note that the position of this box many not necessarily match the MapObject's position, as polygonal

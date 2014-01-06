@@ -46,19 +46,22 @@ void MapLoader::m_Unload()
 
 void MapLoader::m_SetDrawingBounds(const sf::View& view)
 {
-	sf::FloatRect bounds;
-	bounds.left = view.getCenter().x - (view.getSize().x / 2.f);
-	bounds.top = view.getCenter().y - (view.getSize().y / 2.f);
-	bounds.width = view.getSize().x;
-	bounds.height = view.getSize().y;
+	if(view.getCenter() != m_lastViewPos)
+	{
+		sf::FloatRect bounds;
+		bounds.left = view.getCenter().x - (view.getSize().x / 2.f);
+		bounds.top = view.getCenter().y - (view.getSize().y / 2.f);
+		bounds.width = view.getSize().x;
+		bounds.height = view.getSize().y;
 
-	//add a tile border to prevent gaps appearing
-	bounds.left -= static_cast<float>(m_tileWidth);
-	bounds.top -= static_cast<float>(m_tileHeight);
-	bounds.width += static_cast<float>(m_tileWidth * 2);
-	bounds.height += static_cast<float>(m_tileHeight * 2);
-
-	m_bounds = bounds;
+		//add a tile border to prevent gaps appearing
+		bounds.left -= static_cast<float>(m_tileWidth);
+		bounds.top -= static_cast<float>(m_tileHeight);
+		bounds.width += static_cast<float>(m_tileWidth * 2);
+		bounds.height += static_cast<float>(m_tileHeight * 2);
+		m_bounds = bounds;
+	}
+	m_lastViewPos = view.getCenter();
 }
 
 bool MapLoader::m_ParseMapNode(const pugi::xml_node& mapNode)
@@ -587,7 +590,7 @@ bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
 		//set object properties
 		if(objectNode.attribute("name")) object.SetName(objectNode.attribute("name").as_string());
 		if(objectNode.attribute("type")) object.SetType(objectNode.attribute("type").as_string());
-		if(objectNode.attribute("rotation")) object.SetRotation(objectNode.attribute("rotation").as_float());
+		//if(objectNode.attribute("rotation")) {} //TODO handle rotation attribute
 		if(objectNode.attribute("visible")) object.SetVisible(objectNode.attribute("visible").as_bool());
 		if(objectNode.attribute("gid"))
 		{		
@@ -802,19 +805,22 @@ std::string MapLoader::m_FileFromPath(const std::string& path)
 void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 {
 	sf::View view  = rt.getView();
-	sf::FloatRect bounds;
-	bounds.left = view.getCenter().x - (view.getSize().x / 2.f);
-	bounds.top = view.getCenter().y - (view.getSize().y / 2.f);
-	bounds.width = view.getSize().x;
-	bounds.height = view.getSize().y;
+	if(view.getCenter() != m_lastViewPos)
+	{
+		sf::FloatRect bounds;
+		bounds.left = view.getCenter().x - (view.getSize().x / 2.f);
+		bounds.top = view.getCenter().y - (view.getSize().y / 2.f);
+		bounds.width = view.getSize().x;
+		bounds.height = view.getSize().y;
 
-	//add a tile border to prevent gaps appearing
-	bounds.left -= static_cast<float>(m_tileWidth);
-	bounds.top -= static_cast<float>(m_tileHeight);
-	bounds.width += static_cast<float>(m_tileWidth * 2);
-	bounds.height += static_cast<float>(m_tileHeight * 2);
-	m_bounds = bounds;
-
+		//add a tile border to prevent gaps appearing
+		bounds.left -= static_cast<float>(m_tileWidth);
+		bounds.top -= static_cast<float>(m_tileHeight);
+		bounds.width += static_cast<float>(m_tileWidth * 2);
+		bounds.height += static_cast<float>(m_tileHeight * 2);
+		m_bounds = bounds;
+	}
+	m_lastViewPos = view.getCenter();
 
 	for(auto&& layer : m_layers)
 	{
