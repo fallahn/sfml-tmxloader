@@ -135,11 +135,11 @@ void MapLoader::AddSearchPath(const std::string& path)
 void MapLoader::UpdateQuadTree(const sf::FloatRect& rootArea)
 {
 	m_rootNode.Clear(rootArea);
-	for(auto layer = m_layers.begin(); layer != m_layers.end(); ++layer)
+	for(const auto& layer : m_layers)
 	{
-		for(auto object = layer->objects.begin(); object != layer->objects.end(); ++object)
+		for(const auto& object : layer.objects)
 		{
-			m_rootNode.Insert(*object);
+			m_rootNode.Insert(object);
 		}
 	}
 	m_quadTreeAvailable = true;
@@ -169,19 +169,19 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 	{
 	default:
 	case MapLayer::All:
-		for(auto& l : m_layers)
+		for(const auto& l : m_layers)
 			rt.draw(l);
 		break;
 	case MapLayer::Back:
 		{
 		//remember front of vector actually draws furthest back
-		MapLayer& layer = m_layers.front();
+		const MapLayer& layer = m_layers.front();
 		m_DrawLayer(rt, layer, debug);
 		}
 		break;
 	case MapLayer::Front:
 		{
-		MapLayer& layer = m_layers.back();
+		const MapLayer& layer = m_layers.back();
 		m_DrawLayer(rt, layer, debug);
 		}
 		break;
@@ -190,7 +190,7 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 		{
 			if(layer.type == ObjectGroup)
 			{
-				for(auto& object : layer.objects)
+				for(const auto& object : layer.objects)
 					if (m_bounds.intersects(object.GetAABB()))
 						object.DrawDebugShape(rt);
 			}

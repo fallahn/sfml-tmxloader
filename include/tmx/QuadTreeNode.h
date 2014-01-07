@@ -54,7 +54,7 @@ namespace tmx
 		//appear in quads which are contained or intersect bounds.
 		std::vector<MapObject*> Retrieve(const sf::FloatRect& bounds, sf::Uint16& currentDepth);
 		//inserts a reference to the object into the node's object list
-		void Insert(MapObject& object);
+		void Insert(const MapObject& object);
 	protected:
 		//maximum objects per node before splitting
 		const sf::Uint16 MAX_OBJECTS;

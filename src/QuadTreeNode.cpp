@@ -92,7 +92,7 @@ std::vector<MapObject*> QuadTreeNode::Retrieve(const sf::FloatRect& bounds, sf::
 	return foundObjects;
 }
 
-void QuadTreeNode::Insert(MapObject& object)
+void QuadTreeNode::Insert(const MapObject& object)
 {	
 	//check if an object falls completely outside a node
 	if(!object.GetAABB().intersects(m_bounds)) return;
@@ -109,7 +109,7 @@ void QuadTreeNode::Insert(MapObject& object)
 		}
 	}
 	//else add object to this node
-	m_objects.push_back(&object);
+	m_objects.push_back(const_cast<MapObject*>(&object));
 
 
 	//check number of objects in this node, and split if necessary

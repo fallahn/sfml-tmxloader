@@ -299,8 +299,7 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 			}
 			else //uncompressed
 			{
-				for(auto i = data.cbegin(); i != data.cend(); ++i)
-					byteArray.push_back(*i);
+				byteArray.insert(byteArray.end(), data.begin(), data.end());
 			}
 
 			//extract tile GIDs using bitshift (See https://github.com/bjorn/tiled/wiki/TMX-Map-Format#data) and add the tiles to layer
@@ -760,13 +759,13 @@ void MapLoader::m_SetIsometricCoords(MapLayer& layer)
 	}
 }
 
-void MapLoader::m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug)
+void MapLoader::m_DrawLayer(sf::RenderTarget& rt, const MapLayer& layer, bool debug)
 {
 	rt.draw(layer);
 
 	if(debug && layer.type == ObjectGroup)
 	{
-		for(auto& object : layer.objects)		
+		for(const auto& object : layer.objects)		
 			if(m_bounds.intersects(object.GetAABB()))
 				object.DrawDebugShape(rt);
 	}
@@ -835,23 +834,24 @@ bool MapLoader::m_Decompress(const char* source, std::vector<unsigned char>& des
 	}
 
 	int currentSize = expectedSize;
-	unsigned char* byteArray = new unsigned char[expectedSize / sizeof(unsigned char)];
+	//TODO switch to std::make_unique when Visual Studio users have caught up
+	std::unique_ptr<unsigned char[]> byteArray = std::unique_ptr<unsigned char[]>(new unsigned char[expectedSize / sizeof(unsigned char)]);
 	z_stream stream;
 	stream.zalloc = Z_NULL;
 	stream.zfree = Z_NULL;
 	stream.opaque = Z_NULL;
 	stream.next_in = (Bytef*)source;
 	stream.avail_in = inSize;
-	stream.next_out = (Bytef*)byteArray;
+	stream.next_out = (Bytef*)byteArray.get();
 	stream.avail_out = expectedSize;
 
 	if(inflateInit2(&stream, 15 + 32) != Z_OK)
 	{
 		std::cerr << "inflate 2 failed" << std::endl;
-		return false;//retVal;
+		return false;
 	}
 
-	int result;
+	int result = 0;
 	do
 	{
 		result = inflate(&stream, Z_SYNC_FLUSH);
@@ -872,12 +872,11 @@ bool MapLoader::m_Decompress(const char* source, std::vector<unsigned char>& des
 		{
 			int oldSize = currentSize;
 			currentSize *= 2;
-			unsigned char* newArray = new unsigned char[currentSize / sizeof(unsigned char)];
-			std::memcpy(newArray, byteArray, currentSize / 2);
-			delete[] byteArray;
-			byteArray = newArray;
-
-			stream.next_out = (Bytef*)(byteArray + oldSize);
+			std::unique_ptr<unsigned char[]> newArray = std::unique_ptr<unsigned char[]>(new unsigned char[currentSize / sizeof(unsigned char)]);
+			std::memcpy(newArray.get(), byteArray.get(), currentSize / 2);
+			byteArray = std::move(newArray);
+			
+			stream.next_out = (Bytef*)(byteArray.get() + oldSize);
 			stream.avail_out = oldSize;
 
 		}
@@ -894,25 +893,23 @@ bool MapLoader::m_Decompress(const char* source, std::vector<unsigned char>& des
 	const int outSize = currentSize - stream.avail_out;
 	inflateEnd(&stream);
 
-	unsigned char* newArray = new unsigned char[outSize / sizeof(unsigned char)];
-	std::memcpy(newArray, byteArray, outSize);
-	delete[] byteArray;
-	byteArray = newArray;
+	std::unique_ptr<unsigned char[]> newArray = std::unique_ptr<unsigned char[]>(new unsigned char[outSize / sizeof(unsigned char)]);
+	std::memcpy(newArray.get(), byteArray.get(), outSize);
+	byteArray = std::move(newArray);
 
 	//copy bytes to vector
-	int length = currentSize / sizeof(unsigned char);
-	for(int i = 0; i < length; i++)
-		dest.push_back(byteArray[i]);
-	delete[] byteArray;
+	int length = currentSize / sizeof(unsigned char);	
+	dest.insert(dest.begin(), &byteArray[0], &byteArray[length]);
+
 	return true;
 }
 
 sf::Image& MapLoader::m_LoadImage(const std::string& imageName)
 {
-	for(auto& p : m_searchPaths)
+	for(const auto& p : m_searchPaths)
 	{
-		auto i = m_cachedImages.find(p + imageName);
-		if(i != m_cachedImages.end())
+		const auto i = m_cachedImages.find(p + imageName);
+		if(i != m_cachedImages.cend())
 			return *i->second;
 	}
 
@@ -922,7 +919,7 @@ sf::Image& MapLoader::m_LoadImage(const std::string& imageName)
 	//try other paths first
 	bool loaded = false;
 	std::string path;
-	for(auto& p : m_searchPaths)
+	for(const auto& p : m_searchPaths)
 	{
 		path = p + imageName;		
 		loaded = newImage->loadFromFile(path);
@@ -936,7 +933,7 @@ sf::Image& MapLoader::m_LoadImage(const std::string& imageName)
 	}
 
 	m_cachedImages[path] = newImage;
-	return *m_cachedImages[path];//newImage;
+	return *m_cachedImages[path];
 }
 
 //base64 decode function taken from:

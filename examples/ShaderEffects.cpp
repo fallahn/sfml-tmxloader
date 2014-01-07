@@ -32,6 +32,16 @@ it freely, subject to the following restrictions:
 #include <SFML/Graphics.hpp>
 #include <tmx/MapLoader.h>
 
+const char sinShader[] =
+"#version 120\n"
+
+"void main(void)"
+"{"
+"const float sinWidth = 0.08;"
+"const float val = (sin(gl_FragCoord.x * sinWidth) + sin(gl_FragCoord.y * sinWidth)) * 0.5 + 0.5;"
+"gl_FragColor = vec4(vec3(val), 1.0);"
+"}";
+
 const char waterShader[] =
 "#version 120\n"
 "uniform sampler2D baseTexture;"
