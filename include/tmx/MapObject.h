@@ -34,6 +34,7 @@ it freely, subject to the following restrictions:
 #include <vector>
 #include <map>
 #include <iostream>
+#include <memory>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -53,6 +54,8 @@ it freely, subject to the following restrictions:
 
 namespace tmx
 {
+	class TileQuad;
+
 	enum MapObjectShape
 	{
 		Rectangle,
@@ -64,7 +67,7 @@ namespace tmx
 	};
 
 	//map object class.
-	class MapObject
+	class MapObject final
 	{
 	private:
 		struct Segment
@@ -102,6 +105,7 @@ namespace tmx
 		//sets a property value, or adds it if property doesn't exist
 		void SetProperty(const std::string& name, const std::string& value);
 		//sets the object position in world coords
+		void SetPosition(float x, float y);
 		void SetPosition(const sf::Vector2f& position);
 		//moves the object by given amount
 		void Move(float x, float y);
@@ -146,6 +150,8 @@ namespace tmx
 		const std::vector<sf::Vector2f>& PolyPoints() const;
 		//reversing winding of object points
 		void ReverseWinding();
+		//sets the quad used to draw the tile for tile objects
+		void SetQuad(std::shared_ptr<TileQuad> quad);
 
 private:
 		//object properties, reflects those which are part of the tmx format
@@ -160,6 +166,7 @@ private:
 		sf::Vector2f m_centrePoint;
 
 		std::vector<Segment> m_polySegs; //segments which make up shape, if any
+		std::shared_ptr<TileQuad> m_tileQuad;
 		
 		float m_furthestPoint; //furthest distance from centre of object to vertex - used for intersection testing
 		//AABB created from polygonal shapes, used for adding MapObjects to a QuadTreeNode.
@@ -178,7 +185,7 @@ private:
 	typedef std::vector<MapObject> MapObjects;
 
 	//represents a single tile on a layer
-	struct MapTile
+	struct MapTile final
 	{
 		//returns the base centre point of sprite / tile
 		sf::Vector2f GetBase() const
@@ -191,38 +198,6 @@ private:
 		sf::RenderStates renderStates; //used to perform any rendering with custom shaders or blend mode
 	};
 	typedef std::vector<MapTile> MapTiles;
-
-	//used to query the type of layer, for example when looking for layers containing collision objects
-	enum MapLayerType
-	{
-		Layer,
-		ObjectGroup,
-		ImageLayer
-	};
-
-	//represents a layer of tiles, corresponding to a tmx layer, object group or image layer
-	struct MapLayer
-	{
-		MapLayer(MapLayerType layerType) : opacity(1.f), visible(true), dynamic(false), type(layerType){};
-		std::string name;
-		float opacity; //range 0 - 1
-		bool visible, dynamic; //dynamic layers contain sprites which need their order sorting, such as players / NPCs
-		MapTiles tiles;
-		MapObjects objects; //vector of objects if layer is object group
-		MapLayerType type;
-		std::map <std::string, std::string> properties;
-		std::vector<sf::VertexArray> vertexArrays;
-		sf::RenderStates States;
-
-		//used for drawing specific layers
-		enum DrawType
-		{
-			Front,
-			Back,
-			Debug,
-			All
-		};
-	};
 };
 
 #endif //MAP_OBJECT_H

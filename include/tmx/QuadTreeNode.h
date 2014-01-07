@@ -44,7 +44,7 @@ it freely, subject to the following restrictions:
 
 namespace tmx
 {
-	class QuadTreeNode
+	class QuadTreeNode : public sf::Drawable
 	{
 	public:
 		QuadTreeNode(sf::Uint16 level = 0, const sf::FloatRect& bounds = sf::FloatRect(0.f, 0.f, 1.f, 1.f));
@@ -55,8 +55,6 @@ namespace tmx
 		std::vector<MapObject*> Retrieve(const sf::FloatRect& bounds, sf::Uint16& currentDepth);
 		//inserts a reference to the object into the node's object list
 		void Insert(MapObject& object);
-		//draws the node and any child nodes to given target
-		void DebugDraw(sf::RenderTarget& rt);
 	protected:
 		//maximum objects per node before splitting
 		const sf::Uint16 MAX_OBJECTS;
@@ -77,10 +75,12 @@ namespace tmx
 		//divides node by creating 4 children
 		void m_Split(void);
 
+	private:
+		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
 	};
 
 	//specialisation of QuadTreeNode for counting tree depth
-	class QuadTreeRoot : public QuadTreeNode
+	class QuadTreeRoot final : public QuadTreeNode
 	{
 	public:
 		QuadTreeRoot(sf::Uint16 level = 0, const sf::FloatRect& bounds = sf::FloatRect(0.f, 0.f, 1.f, 1.f))

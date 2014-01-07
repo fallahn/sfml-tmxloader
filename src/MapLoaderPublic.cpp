@@ -148,7 +148,7 @@ void MapLoader::UpdateQuadTree(const sf::FloatRect& rootArea)
 std::vector<MapObject*> MapLoader::QueryQuadTree(const sf::FloatRect& testArea)
 {
 	//quad tree must be updated at least once with UpdateQuadTree before we can call this
-	if(!m_quadTreeAvailable) throw;
+	assert(m_quadTreeAvailable);
 	return m_rootNode.Retrieve(testArea);
 }
 
@@ -162,34 +162,27 @@ const std::vector<MapLayer>& MapLoader::GetLayers() const
 	return m_layers;
 }
 
-void MapLoader::Draw(sf::RenderTarget& rt)
-{
-	m_SetDrawingBounds(rt.getView());
-
-	for(auto&& layer : m_layers)
-		m_DrawLayer(rt, layer);
-}
-
-void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type)
+void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 {
 	m_SetDrawingBounds(rt.getView());
 	switch(type)
 	{
 	default:
 	case MapLayer::All:
-		Draw(rt);
+		for(auto& l : m_layers)
+			rt.draw(l);
 		break;
 	case MapLayer::Back:
 		{
 		//remember front of vector actually draws furthest back
 		MapLayer& layer = m_layers.front();
-		m_DrawLayer(rt, layer);
+		m_DrawLayer(rt, layer, debug);
 		}
 		break;
 	case MapLayer::Front:
 		{
 		MapLayer& layer = m_layers.back();
-		m_DrawLayer(rt, layer);
+		m_DrawLayer(rt, layer, debug);
 		}
 		break;
 	case MapLayer::Debug:
@@ -203,7 +196,7 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type)
 			}
 		}
 		rt.draw(m_gridVertices);
-		//m_rootNode.DebugDraw(rt);
+		rt.draw(m_rootNode);
 		break;
 	}
 }
@@ -243,7 +236,7 @@ std::string MapLoader::GetPropertyString(const std::string& name)
 
 void MapLoader::SetLayerShader(sf::Uint16 layerId, const sf::Shader& shader)
 {
-	m_layers[layerId].States.shader = &shader;
+	m_layers[layerId].SetShader(shader);
 }
 
 bool MapLoader::QuadTreeAvailable() const

@@ -31,10 +31,13 @@ it freely, subject to the following restrictions:
 #define MAP_LOADER_H_
 
 #include <tmx/QuadTreeNode.h>
-#include <iostream>
+#include <tmx/MapLayer.h>
+
 #include <pugixml/pugixml.hpp>
+
+#include <iostream>
 #include <array>
-#include <assert.h>
+#include <cassert>
 
 namespace tmx
 {
@@ -45,7 +48,7 @@ namespace tmx
 		SteppedIsometric
 	};
 
-	class MapLoader : public sf::Drawable, private sf::NonCopyable
+	class MapLoader final : public sf::Drawable, private sf::NonCopyable
 	{
 	public:
 		MapLoader(const std::string& mapDirectory);
@@ -64,10 +67,7 @@ namespace tmx
 		std::vector<MapLayer>& GetLayers();
 		const std::vector<MapLayer>& GetLayers() const;
 		//draws visible tiles to given target, optionally draw outline of objects for debugging
-		//along with any quadTree debug bounds. Uses vertex arrays for performance
-		void Draw(sf::RenderTarget& rt);
-		//overload for drawing layer by type / position
-		void Draw(sf::RenderTarget& rt, MapLayer::DrawType type);
+		void Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug = false);
 		//overload for drawing layer by index
 		void Draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug = false);
 		//projects orthogonal world coords to isometric world coords if available, else return original value
@@ -124,7 +124,7 @@ namespace tmx
 		bool m_ParseTileSets(const pugi::xml_node& mapNode);
 		bool m_ProcessTiles(const pugi::xml_node& tilesetNode);
 		bool m_ParseLayer(const pugi::xml_node& layerNode);
-		void m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid, const sf::Vector2f& offset = sf::Vector2f());
+		TileQuad::Ptr m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid, const sf::Vector2f& offset = sf::Vector2f());
 		bool m_ParseObjectgroup(const pugi::xml_node& groupNode);
 		bool m_ParseImageLayer(const pugi::xml_node& imageLayerNode);
 		void m_ParseLayerProperties(const pugi::xml_node& propertiesNode, MapLayer& destLayer);

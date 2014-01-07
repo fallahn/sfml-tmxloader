@@ -256,10 +256,6 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 	if(layerNode.attribute("opacity")) layer.opacity = layerNode.attribute("opacity").as_float();
 	if(layerNode.attribute("visible")) layer.visible = layerNode.attribute("visible").as_bool();
 
-	//make sure there are enough vertex arrays for tile sets
-	for(auto arr = m_tilesetTextures.begin(); arr != m_tilesetTextures.end(); ++arr)
-		layer.vertexArrays.push_back(sf::VertexArray(sf::Quads));
-
 	pugi::xml_node dataNode;
 	if(!(dataNode = layerNode.child("data")))
 	{
@@ -396,12 +392,12 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 	return true;
 }
 
-void MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid, const sf::Vector2f& offset)
+TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid, const sf::Vector2f& offset)
 {
 	sf::Uint8 opacity = static_cast<sf::Uint8>(255.f * layer.opacity);
 	sf::Color colour = sf::Color(255u, 255u, 255u, opacity);
 
-	//update the layer's vertex array(s)
+	//update the layer's tile set(s)
 	sf::Vertex v0, v1, v2, v3;
 
 	//applying half pixel trick avoids artifacting when scrolling
@@ -451,10 +447,15 @@ void MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf
 	v2.position += offset;
 	v3.position += offset;
 
-	layer.vertexArrays[m_tileInfo[gid].TileSetId].append(v0);
-	layer.vertexArrays[m_tileInfo[gid].TileSetId].append(v1);
-	layer.vertexArrays[m_tileInfo[gid].TileSetId].append(v2);
-	layer.vertexArrays[m_tileInfo[gid].TileSetId].append(v3);
+	sf::Uint16 id = m_tileInfo[gid].TileSetId;
+	if(layer.layerSets.find(id) == layer.layerSets.end())
+	{
+		//create a new layerset for texture
+		layer.layerSets[id] = std::make_shared<LayerSet>(m_tilesetTextures[id]);
+	}
+
+	//add tile to set
+	return layer.layerSets[id]->AddTile(v0, v1, v2, v3);
 }
 
 bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
@@ -470,8 +471,7 @@ bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
 
 	//add layer to map layers
 	MapLayer layer(ObjectGroup);
-	for (auto i : m_tilesetTextures)
-		layer.vertexArrays.push_back(sf::VertexArray(sf::Quads));
+
 	layer.name = groupNode.attribute("name").as_string();
 	if(groupNode.attribute("opacity")) layer.opacity = groupNode.attribute("opacity").as_float();
 	if(pugi::xml_node propertiesNode = groupNode.child("properties"))
@@ -603,7 +603,7 @@ bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)
 			const sf::Uint16 y = static_cast<sf::Uint16>(object.GetPosition().y / m_tileHeight);
 			
 			sf::Vector2f offset(object.GetPosition().x - (x * m_tileWidth), (object.GetPosition().y - (y * m_tileHeight)));
-			m_AddTileToLayer(layer, x, y, gid, offset);
+			object.SetQuad(m_AddTileToLayer(layer, x, y, gid, offset));
 			object.SetShapeType(Tile);
 
 			TileInfo info = m_tileInfo[gid];
@@ -762,23 +762,8 @@ void MapLoader::m_SetIsometricCoords(MapLayer& layer)
 
 void MapLoader::m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug)
 {
-	if(!layer.visible) return; //skip invisible layers
+	rt.draw(layer);
 
-	for(unsigned i = 0; i < layer.vertexArrays.size(); i++)
-	{
-		if(layer.vertexArrays[i].getBounds().intersects(m_bounds))
-		{
-			layer.States.texture = &m_tilesetTextures[i];
-			rt.draw(layer.vertexArrays[i], layer.States);
-		}
-	}
-	if(layer.type == ImageLayer) //drawn using a single sprite
-	{
-		for(auto tile = layer.tiles.begin(); tile != layer.tiles.end(); ++tile)
-		{
-			rt.draw(tile->sprite, tile->renderStates);			
-		}
-	}
 	if(debug && layer.type == ObjectGroup)
 	{
 		for(auto& object : layer.objects)		
@@ -822,28 +807,8 @@ void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 	}
 	m_lastViewPos = view.getCenter();
 
-	for(auto&& layer : m_layers)
-	{
-		if(!layer.visible) continue; //skip invisible layers
-
-		for(unsigned i = 0; i < layer.vertexArrays.size(); i++)
-		{
-			if(layer.vertexArrays[i].getBounds().intersects(m_bounds))
-			{
-				states = layer.States;
-				states.texture = &m_tilesetTextures[i];
-				rt.draw(layer.vertexArrays[i], states);
-			}
-		}
-		if(layer.type == ImageLayer)
-		{
-			//draw tiles used on objects
-			for(auto tile = layer.tiles.begin(); tile != layer.tiles.end(); ++tile)
-			{
-				rt.draw(tile->sprite, tile->renderStates);
-			}
-		}
-	}	
+	for(auto& layer : m_layers)
+		rt.draw(layer);
 }
 
 //decoding and utility functions

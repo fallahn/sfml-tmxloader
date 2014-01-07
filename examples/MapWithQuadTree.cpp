@@ -59,7 +59,7 @@ int main()
 		//get a vector of MapObjects contained in the quads intersected by query area
 		sf::Vector2f mousePos = renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow));
 		//NOTE quad tree MUST be updated before attempting to query it
-		std::vector<tmx::MapObject*> objects = ml.QueryQuadTree(sf::FloatRect(mousePos.x, mousePos.y, 20.f, 20.f));
+		std::vector<tmx::MapObject*> objects = ml.QueryQuadTree(sf::FloatRect(mousePos.x - 10.f, mousePos.y - 10.f, 20.f, 20.f));
 
 		//do stuff with returned objects
 		std::stringstream stream;

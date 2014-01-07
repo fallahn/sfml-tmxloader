@@ -27,6 +27,7 @@ it freely, subject to the following restrictions:
    source distribution.
 *********************************************************************/
 #include <tmx/MapObject.h>
+#include <tmx/MapLayer.h>
 
 using namespace tmx;
 
@@ -78,6 +79,11 @@ void MapObject::SetProperty(const std::string& name, const std::string& value)
 	m_properties[name] = value;
 }
 
+void MapObject::SetPosition(float x, float y)
+{
+	SetPosition(sf::Vector2f(x, y));
+}
+
 void MapObject::SetPosition(const sf::Vector2f& position)
 {
 	sf::Vector2f distance = position - m_position;
@@ -104,8 +110,8 @@ void MapObject::Move(const sf::Vector2f& distance)
 	//set new position
 	m_position += distance;
 
-	//TODO if object is of type tile move vertex data
-
+	//if object is of type tile move vertex data
+	if(m_tileQuad) m_tileQuad->Move(distance);
 }
 
 bool MapObject::Contains(sf::Vector2f point) const
@@ -266,6 +272,11 @@ const std::vector<sf::Vector2f>& MapObject::PolyPoints()const
 void MapObject::ReverseWinding()
 {
 	std::reverse(m_polypoints.begin(), m_polypoints.end());
+}
+
+void MapObject::SetQuad(std::shared_ptr<TileQuad> quad)
+{
+	m_tileQuad = quad;
 }
 
 //private
