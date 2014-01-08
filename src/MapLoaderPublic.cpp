@@ -47,11 +47,6 @@ MapLoader::MapLoader(const std::string& mapDirectory)
 
 	AddSearchPath(mapDirectory);
 }
-//dtor
-MapLoader::~MapLoader()
-{
-
-}
 
 bool MapLoader::Load(const std::string& map)
 {

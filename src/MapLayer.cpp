@@ -32,6 +32,7 @@ it freely, subject to the following restrictions:
 using namespace tmx;
 ///------TileQuad-----///
 TileQuad::TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3)
+	: m_needsUpdate	(false)
 {
 	m_indices[0] = i0;
 	m_indices[1] = i1;
@@ -42,6 +43,7 @@ TileQuad::TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3)
 void TileQuad::Move(const sf::Vector2f& distance)
 {
 	m_movement = distance;
+	m_needsUpdate = true;
 }
 
 
@@ -71,13 +73,13 @@ void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 {
 	for(auto& q : m_quads)
 	{
-		if(q->m_movement != sf::Vector2f())
+		if(q->m_needsUpdate)
 		{
 			for(auto& i : q->m_indices)
 			{
 				m_vertices[i].position += q->m_movement;
 			}
-			q->m_movement = sf::Vector2f();
+			q->m_needsUpdate = false;
 		}
 	}
 	

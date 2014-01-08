@@ -47,6 +47,7 @@ namespace tmx
 	private:
 		std::array<sf::Uint16, 4u> m_indices;
 		sf::Vector2f m_movement;
+		bool m_needsUpdate;
 	};
 
 	//drawable composed of vertices representing a set of tiles on a layer

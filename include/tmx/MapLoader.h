@@ -52,7 +52,6 @@ namespace tmx
 	{
 	public:
 		MapLoader(const std::string& mapDirectory);
-		~MapLoader();
 		//loads a given tmx file, returns false on failure
 		bool Load(const std::string& mapFile);
 		//adds give path to list of directories to search for assets, such as tile sets
