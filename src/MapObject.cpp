@@ -217,7 +217,7 @@ sf::Vector2f MapObject::CollisionNormal(const sf::Vector2f& start, const sf::Vec
 			return Helpers::Vectors::Normalize(n);
 		}
 	}
-	return Helpers::Vectors::Normalize(end - start);
+	return Helpers::Vectors::Normalize(sf::Vector2f(end - start));
 }
 
 void MapObject::CreateSegments()

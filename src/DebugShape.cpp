@@ -31,13 +31,24 @@ source distribution.
 #include <SFML/Graphics/RenderTarget.hpp>
 
 DebugShape::DebugShape()
-: m_array(sf::LinesStrip)
+: m_array	(sf::LinesStrip),
+m_closed	(false)
 {}
 
 //public
 void DebugShape::AddVertex(const sf::Vertex& v)
 {
-	m_array.append(v);
+	if(m_closed)
+	{
+		sf::Uint16 i = m_array.getVertexCount() - 1;
+		sf::Vertex vt = m_array[i];
+		m_array[i] = v;
+		m_array.append(vt);
+	}
+	else
+	{
+		m_array.append(v);
+	}
 }
 
 void DebugShape::Reset()
@@ -48,7 +59,10 @@ void DebugShape::Reset()
 void DebugShape::CloseShape()
 {
 	if(m_array.getVertexCount())
+	{
 		m_array.append(m_array[0]);
+		m_closed = true;
+	}
 }
 
 //private

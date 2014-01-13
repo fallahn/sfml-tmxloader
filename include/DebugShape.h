@@ -41,9 +41,10 @@ public:
 	void AddVertex(const sf::Vertex& vert);
 	void Reset();
 	void CloseShape();
+
 private:
 
-	
+	bool m_closed;
 	sf::VertexArray m_array;
 	void draw(sf::RenderTarget& rt, sf::RenderStates states)const;
 
