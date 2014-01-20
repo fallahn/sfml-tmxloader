@@ -49,6 +49,8 @@ namespace tmx
 	sf::Vector2f BoxToSfVec(const b2Vec2& vec);
 	float SfToBoxFloat(float val);
 	float BoxToSfFloat(float val);
+	float SfToBoxAngle(float degrees);
+	float BoxToSfAngle(float rads);
 
 	class BodyCreator
 	{
