@@ -75,6 +75,17 @@ float tmx::BoxToSfFloat(float val)
 {
 	return val * worldScale;
 }
+
+float tmx::SfToBoxAngle(float degrees)
+{
+	return -degrees * 0.0174533f;
+}
+
+float tmx::BoxToSfAngle(float rads)
+{
+	return rads * 57.29578f;
+}
+
 //----------------------------------------------
 
 using namespace tmx;
