@@ -83,7 +83,7 @@ float tmx::SfToBoxAngle(float degrees)
 
 float tmx::BoxToSfAngle(float rads)
 {
-	return rads * 57.29578f;
+	return -rads * 57.29578f;
 }
 
 //----------------------------------------------
@@ -107,12 +107,12 @@ b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bod
 	{
 		bodyDef.position.Set(0.f, 0.f);
 		bodyDef.position = SfToBoxVec(object.GetPosition());
-		body = world.CreateBody(&bodyDef);		
-		
+		body = world.CreateBody(&bodyDef);
+
 		const Shape& shape = object.PolyPoints();
 		b2FixtureDef f;
 		f.density = 1.f;
-		
+
 		if (pointCount < 3)
 		{
 			b2EdgeShape es;
@@ -130,7 +130,7 @@ b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bod
 			cs.CreateChain(vertices.get(), pointCount);
 			f.shape = &cs;
 			body->CreateFixture(&f);
-		}	
+		}
 	}
 	else if (shapeType == Circle ||
 		(object.Convex() && pointCount <= b2_maxPolygonVertices))
@@ -174,9 +174,9 @@ b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bod
 		bodyDef.position = SfToBoxVec(object.GetPosition());
 		body = world.CreateBody(&bodyDef);
 
-		m_Split(object, body);		
+		m_Split(object, body);
 	}
-	
+
 	return body;
 }
 
@@ -184,15 +184,15 @@ b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bod
 void BodyCreator::m_Split(const MapObject& object, b2Body* body)
 {
 	//check object shapes is valid
-	if (!m_CheckShape(const_cast<MapObject&>(object))) return;	
-	
+	if (!m_CheckShape(const_cast<MapObject&>(object))) return;
+
 	const Shape& points = object.PolyPoints();
 	Shapes shapes;
 	if (object.Convex())
 		shapes = m_ProcessConvex(points);
 	else
-		shapes = m_ProcessConcave(points);	
-	
+		shapes = m_ProcessConcave(points);
+
 	for (auto& shape : shapes)
 	{
 		sf::Uint16 s = shape.size();
@@ -279,9 +279,9 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 				sf::Int16 k = 0;
 				sf::Vector2f hitPoint;
 
-				for (auto j = 0u; j < s; j++) 
+				for (auto j = 0u; j < s; j++)
 				{
-					if (j != i1 && j != i2) 
+					if (j != i1 && j != i2)
 					{
 						j1 = j;
 						j2 = (j < s - 1u) ? j + 1u : 0;
@@ -299,7 +299,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 
 							float t = Helpers::Vectors::Dot(dist, dist); //aka length squared
 
-							if (t < minLen) 
+							if (t < minLen)
 							{
 								h = j1;
 								k = j2;
@@ -360,7 +360,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 
 				h = -1;
 				k = i2;
-				while (true) 
+				while (true)
 				{
 					if (k != j1)
 					{
@@ -381,7 +381,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 					{
 						k = 0;
 					}
-					else 
+					else
 					{
 						k++;
 					}
@@ -430,7 +430,7 @@ bool BodyCreator::m_OnLine(const sf::Vector2f& p, const sf::Vector2f& start, con
 
 bool BodyCreator::m_OnSeg(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end)
 {
-	bool a = (start.x + pointTolerance >= p.x && p.x >= end.x - pointTolerance) 
+	bool a = (start.x + pointTolerance >= p.x && p.x >= end.x - pointTolerance)
 		|| (start.x - pointTolerance <= p.x && p.x <= end.x + pointTolerance);
 	bool b = (start.y + pointTolerance >= p.y && p.y >= end.y - pointTolerance)
 		|| (start.y - pointTolerance <= p.y && p.y <= end.y + pointTolerance);
@@ -466,7 +466,7 @@ void BodyCreator::m_CreateFixture(const Shape& points, b2Body* body)
 	b2FixtureDef f;
 	f.density = 1.f;
 	f.shape = &ps;
-	
+
 	body->CreateFixture(&f);
 }
 
@@ -484,7 +484,7 @@ bool BodyCreator::m_CheckShape(MapObject& object)
 
 		for (auto j = 0; j < s; j++)
 		{
-			if (j != i && j != i2) 
+			if (j != i && j != i2)
 			{
 				if (!b1)
 				{
