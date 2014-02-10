@@ -324,11 +324,11 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 		{
 			std::cerr << "CSV encoded layer data found." << std::endl;
 
-			std::vector<int> tileGIDs;
+            std::vector<sf::Uint32> tileGIDs;
 			std::stringstream datastream(data);
 
 			//parse csv string into vector of IDs
-			int i;
+            sf::Uint32 i;
 			while (datastream >> i)
 			{
 
@@ -377,7 +377,8 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
             gid=resolveRotation(gid);
 
 
-            m_AddTileToLayer(layer, x, y, gid);
+			m_AddTileToLayer(layer, x, y, gid);
+
 			tileNode = tileNode.next_sibling("tile");
 			x++;
 			if(x == m_width)
@@ -406,6 +407,7 @@ std::vector<unsigned char> MapLoader::intToBytes(sf::Uint32 paramInt)
      return arrayOfByte;
 }
 
+
 sf::Uint32 MapLoader::resolveRotation(sf::Uint32 gid)
 {
     std::vector<unsigned char> bytes = intToBytes(gid);
@@ -425,7 +427,8 @@ sf::Uint32 MapLoader::resolveRotation(unsigned char *bytes)
                             FLIPPED_DIAGONALLY_FLAG);
     return tileGID;
 }
-TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid, const sf::Vector2f& offset)
+
+TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset)
 {
 	sf::Uint8 opacity = static_cast<sf::Uint8>(255.f * layer.opacity);
 	sf::Color colour = sf::Color(255u, 255u, 255u, opacity);
