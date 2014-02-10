@@ -82,8 +82,9 @@ namespace tmx
 		//sets the shader property of a layer's rendering states member
 		void SetLayerShader(sf::Uint16 layerId, const sf::Shader& shader);
 		//so we can test if QuadTree is available
-		bool QuadTreeAvailable() const;
-	private:
+        bool QuadTreeAvailable() const;
+
+    private:
 		//properties which correspond to tmx
 		sf::Uint16 m_width, m_height; //tile count
 		sf::Uint16 m_tileWidth, m_tileHeight; //width / height of tiles
@@ -146,6 +147,14 @@ namespace tmx
 		sf::Image& m_LoadImage(const std::string& imageName);
 		std::map<std::string, std::shared_ptr<sf::Image> >m_cachedImages;
 		bool m_failedImage;
+
+        const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+        const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+        const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+
+        std::vector<unsigned char> intToBytes(sf::Uint32 paramInt);
+        sf::Uint32 resolveRotation(sf::Uint32 gid);
+        sf::Uint32 resolveRotation(unsigned char *bytes);
 	};
 
 

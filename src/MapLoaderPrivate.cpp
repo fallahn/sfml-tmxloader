@@ -307,7 +307,9 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 			x = y = 0;
 			for(int i = 0; i < expectedSize - 3; i +=4)
 			{
-				int tileGID = byteArray[i] | byteArray[i + 1] << 8 | byteArray[i + 2] << 16 | byteArray[i + 3] << 24;
+                //sf::Uint32 tileGID = byteArray[i] | byteArray[i + 1] << 8 | byteArray[i + 2] << 16 | byteArray[i + 3] << 24;
+                sf::Uint32 tileGID = resolveRotation(&byteArray[i]);
+
 				m_AddTileToLayer(layer, x, y, tileGID);
 
 				x++;
@@ -329,7 +331,8 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 			int i;
 			while (datastream >> i)
 			{
-				tileGIDs.push_back(i);
+
+                tileGIDs.push_back(i);
 				if(datastream.peek() == ',')
 					datastream.ignore();
 			}
@@ -339,7 +342,8 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 			x = y = 0;
 			for(unsigned int i = 0; i < tileGIDs.size(); i++)
 			{
-				m_AddTileToLayer(layer, x, y, tileGIDs[i]);
+                sf::Uint32 gid=resolveRotation(tileGIDs[i]);
+                m_AddTileToLayer(layer, x, y, gid);
 				x++;
 				if(x == m_width)
 				{
@@ -368,8 +372,12 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 		x = y = 0;
 		while(tileNode)
 		{
-			sf::Uint16 gid = tileNode.attribute("gid").as_int();
-			m_AddTileToLayer(layer, x, y, gid);
+            sf::Uint32 gid = tileNode.attribute("gid").as_uint();
+
+            gid=resolveRotation(gid);
+
+
+            m_AddTileToLayer(layer, x, y, gid);
 			tileNode = tileNode.next_sibling("tile");
 			x++;
 			if(x == m_width)
@@ -390,7 +398,33 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 	m_layers.push_back(layer);
 	return true;
 }
+std::vector<unsigned char> MapLoader::intToBytes(sf::Uint32 paramInt)
+{
+     std::vector<unsigned char> arrayOfByte(4);
+     for (int i = 0; i < 4; i++)
+         arrayOfByte[i] = (paramInt >> (i * 8));
+     return arrayOfByte;
+}
 
+sf::Uint32 MapLoader::resolveRotation(sf::Uint32 gid)
+{
+    std::vector<unsigned char> bytes = intToBytes(gid);
+    return resolveRotation(&bytes[0]);
+}
+sf::Uint32 MapLoader::resolveRotation(unsigned char *bytes)
+{
+
+    sf::Uint32 tileGID = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
+
+    bool flipped_horizontally = !(tileGID & FLIPPED_HORIZONTALLY_FLAG);
+    bool flipped_vertically = !(tileGID & FLIPPED_VERTICALLY_FLAG);
+    bool flipped_diagonally = !(tileGID & FLIPPED_DIAGONALLY_FLAG);
+
+    tileGID &= ~(FLIPPED_HORIZONTALLY_FLAG |
+                            FLIPPED_VERTICALLY_FLAG |
+                            FLIPPED_DIAGONALLY_FLAG);
+    return tileGID;
+}
 TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid, const sf::Vector2f& offset)
 {
 	sf::Uint8 opacity = static_cast<sf::Uint8>(255.f * layer.opacity);
