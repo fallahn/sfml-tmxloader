@@ -1,7 +1,8 @@
 project(tmx-loader)
 cmake_minimum_required(VERSION 2.8)
 include_directories(${CMAKE_SOURCE_DIR}/include)
-
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 set(pugi_HDRS
         include/pugixml/pugiconfig.hpp
         include/pugixml/pugixml.hpp
@@ -33,7 +34,7 @@ set(tmx_SRCS
 add_library(${PROJECT_NAME} ${tmx_HDRS} ${tmx_SRCS})
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-find_package(SFML 2 REQUIRED system windows graphics)
+find_package(SFML 2 REQUIRED system window graphics)
 find_package(ZLIB REQUIRED)
 find_package(BOX2D)
 
