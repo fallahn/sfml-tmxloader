@@ -307,7 +307,10 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 			x = y = 0;
 			for(int i = 0; i < expectedSize - 3; i +=4)
 			{
-				int tileGID = byteArray[i] | byteArray[i + 1] << 8 | byteArray[i + 2] << 16 | byteArray[i + 3] << 24;
+                sf::Uint32 tileGID = byteArray[i] | byteArray[i + 1] << 8 | byteArray[i + 2] << 16 | byteArray[i + 3] << 24;
+//                sf::Uint32 tileGID = resolveRotation(&byteArray[i]);
+
+
 				m_AddTileToLayer(layer, x, y, tileGID);
 
 				x++;
@@ -322,14 +325,15 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 		{
 			std::cerr << "CSV encoded layer data found." << std::endl;
 
-			std::vector<int> tileGIDs;
+            std::vector<sf::Uint32> tileGIDs;
 			std::stringstream datastream(data);
 
 			//parse csv string into vector of IDs
-			int i;
+            sf::Uint32 i;
 			while (datastream >> i)
 			{
-				tileGIDs.push_back(i);
+
+                tileGIDs.push_back(i);
 				if(datastream.peek() == ',')
 					datastream.ignore();
 			}
@@ -339,7 +343,8 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 			x = y = 0;
 			for(unsigned int i = 0; i < tileGIDs.size(); i++)
 			{
-				m_AddTileToLayer(layer, x, y, tileGIDs[i]);
+//                sf::Uint32 gid=resolveRotation(tileGIDs[i]);
+                m_AddTileToLayer(layer, x, y, tileGIDs[i]);
 				x++;
 				if(x == m_width)
 				{
@@ -368,8 +373,13 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 		x = y = 0;
 		while(tileNode)
 		{
-			sf::Uint16 gid = tileNode.attribute("gid").as_int();
+            sf::Uint32 gid = tileNode.attribute("gid").as_uint();
+
+//            gid=resolveRotation(gid);
+
+
 			m_AddTileToLayer(layer, x, y, gid);
+
 			tileNode = tileNode.next_sibling("tile");
 			x++;
 			if(x == m_width)
@@ -390,20 +400,150 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 	m_layers.push_back(layer);
 	return true;
 }
+std::vector<unsigned char> MapLoader::m_IntToBytes(sf::Uint32 paramInt)
+{
+     std::vector<unsigned char> arrayOfByte(4);
+     for (int i = 0; i < 4; i++)
+         arrayOfByte[i] = (paramInt >> (i * 8));
+     return arrayOfByte;
+}
 
-TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint16 gid, const sf::Vector2f& offset)
+
+std::pair<sf::Uint32, std::bitset<3> > MapLoader::m_ResolveRotation(sf::Uint32 gid)
+{
+    const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+    const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+    const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+
+    std::vector<unsigned char> bytes = m_IntToBytes(gid);
+    sf::Uint32 tileGID = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
+
+    bool flipped_diagonally = (tileGID & FLIPPED_DIAGONALLY_FLAG);
+    bool flipped_horizontally = (tileGID & FLIPPED_HORIZONTALLY_FLAG);
+    bool flipped_vertically = (tileGID & FLIPPED_VERTICALLY_FLAG);
+
+    std::bitset<3> b;
+    b.set(0,flipped_vertically);
+    b.set(1,flipped_horizontally);
+    b.set(2,flipped_diagonally);
+
+    tileGID &= ~(FLIPPED_HORIZONTALLY_FLAG |
+                            FLIPPED_VERTICALLY_FLAG |
+                            FLIPPED_DIAGONALLY_FLAG);
+    return std::pair<sf::Uint32, std::bitset<3> >(tileGID,b);
+}
+
+void MapLoader::m_FlipY(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3)
+{
+    //Flip Y
+    sf::Vector2f tmp = *v0;
+    v0->y = v2->y;
+    v1->y = v2->y;
+    v2->y = tmp.y ;
+    v3->y = v2->y  ;
+}
+
+void MapLoader::m_FlipX(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3)
+{
+    //Flip X
+    sf::Vector2f tmp = *v0;
+    v0->x = v1->x;
+    v1->x = tmp.x;
+    v2->x = v3->x;
+    v3->x = v0->x ;
+}
+
+void MapLoader::m_FlipD(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3)
+{
+    //Diaganol flip
+    sf::Vector2f tmp = *v1;
+    v1->x = v3->x;
+    v1->y = v3->y;
+    v3->x = tmp.x;
+    v3->y = tmp.y;
+}
+
+void MapLoader::m_DoFlips(std::bitset<3> bits, sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3)
+{
+    //000 = no change
+    //001 = vertical = swap y axis
+    //010 = horizontal = swap x axis
+    //011 = horiz + vert = swap both axes = horiz+vert = rotate 180 degrees
+    //100 = diag = rotate 90 degrees right and swap x axis
+    //101 = diag+vert = rotate 270 degrees right
+    //110 = horiz+diag = rotate 90 degrees right
+    //111 = horiz+vert+diag = rotate 90 degrees right and swap y axis
+
+    if(!bits.test(0) && !bits.test(1) && !bits.test(2))
+    {
+        //Shortcircuit tests for nothing to do
+        return;
+    }
+    else if(bits.test(0) && !bits.test(1) && !bits.test(2))
+    {
+        //001
+        m_FlipY(v0,v1,v2,v3);
+    }
+    else if(!bits.test(0) && bits.test(1) && !bits.test(2))
+    {
+        //010
+        m_FlipX(v0,v1,v2,v3);
+    }
+    else if(bits.test(0) && bits.test(1) && !bits.test(2))
+    {
+        //011
+        m_FlipY(v0,v1,v2,v3);
+        m_FlipX(v0,v1,v2,v3);
+    }
+    else if(!bits.test(0) && !bits.test(1) && bits.test(2))
+    {
+        //100
+        m_FlipD(v0,v1,v2,v3);
+    }
+    else if(bits.test(0) && !bits.test(1) && bits.test(2))
+    {
+        //101
+        m_FlipX(v0,v1,v2,v3);
+        m_FlipD(v0,v1,v2,v3);
+
+
+    }
+    else if(!bits.test(0) && bits.test(1) && bits.test(2))
+    {
+        //110
+        m_FlipY(v0,v1,v2,v3);
+        m_FlipD(v0,v1,v2,v3);
+
+    }
+    else if(bits.test(0) && bits.test(1) && bits.test(2))
+    {
+        //111
+        m_FlipY(v0,v1,v2,v3);
+        m_FlipX(v0,v1,v2,v3);
+        m_FlipD(v0,v1,v2,v3);
+    }
+}
+
+TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset)
 {
 	sf::Uint8 opacity = static_cast<sf::Uint8>(255.f * layer.opacity);
 	sf::Color colour = sf::Color(255u, 255u, 255u, opacity);
 
+    //Get bits and tile id
+    std::pair<sf::Uint32, std::bitset<3> > idAndFlags = m_ResolveRotation(gid);
+    gid = idAndFlags.first;
+
 	//update the layer's tile set(s)
-	sf::Vertex v0, v1, v2, v3;
+    sf::Vertex v0, v1, v2, v3;
 
 	//applying half pixel trick avoids artifacting when scrolling
 	v0.texCoords = m_tileInfo[gid].Coords[0] + sf::Vector2f(0.5f, 0.5f);
 	v1.texCoords = m_tileInfo[gid].Coords[1] + sf::Vector2f(-0.5f, 0.5f);
 	v2.texCoords = m_tileInfo[gid].Coords[2] + sf::Vector2f(-0.5f, -0.5f);
 	v3.texCoords = m_tileInfo[gid].Coords[3] + sf::Vector2f(0.5f, -0.5f);
+
+    //flip texture coordinates according to bits set
+    m_DoFlips(idAndFlags.second,&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
 
 	v0.position = sf::Vector2f(static_cast<float>(m_tileWidth * x), static_cast<float>(m_tileHeight * y));
 	v1.position = sf::Vector2f(static_cast<float>(m_tileWidth * x) + m_tileInfo[gid].Size.x, static_cast<float>(m_tileHeight * y));
@@ -933,8 +1073,10 @@ sf::Image& MapLoader::m_LoadImage(const std::string& imageName)
 	}
 
 	m_cachedImages[path] = newImage;
-	return *m_cachedImages[path];
+    return *m_cachedImages[path];
 }
+
+
 
 //base64 decode function taken from:
 /*
