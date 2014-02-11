@@ -411,6 +411,10 @@ std::vector<unsigned char> MapLoader::m_IntToBytes(sf::Uint32 paramInt)
 
 std::pair<sf::Uint32, std::bitset<3> > MapLoader::m_ResolveRotation(sf::Uint32 gid)
 {
+    const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+    const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+    const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+
     std::vector<unsigned char> bytes = m_IntToBytes(gid);
     sf::Uint32 tileGID = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
 
