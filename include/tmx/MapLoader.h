@@ -153,14 +153,16 @@ namespace tmx
         const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
         const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
 
+        //Reading the flipped bits
         std::vector<unsigned char> m_IntToBytes(sf::Uint32 paramInt);
         std::pair<sf::Uint32, std::bitset<3> > m_ResolveRotation(sf::Uint32 gid);
-        std::pair<sf::Uint32, std::bitset<3> > m_ResolveRotation(unsigned char *bytes);
 
         //Image flip functions
         void m_FlipY(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
         void m_FlipX(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
         void m_FlipD(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+
+        void m_DoFlips(std::bitset<3> bits,sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
 	};
 
 
