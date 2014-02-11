@@ -307,8 +307,9 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 			x = y = 0;
 			for(int i = 0; i < expectedSize - 3; i +=4)
 			{
-                //sf::Uint32 tileGID = byteArray[i] | byteArray[i + 1] << 8 | byteArray[i + 2] << 16 | byteArray[i + 3] << 24;
-                sf::Uint32 tileGID = resolveRotation(&byteArray[i]);
+                sf::Uint32 tileGID = byteArray[i] | byteArray[i + 1] << 8 | byteArray[i + 2] << 16 | byteArray[i + 3] << 24;
+//                sf::Uint32 tileGID = resolveRotation(&byteArray[i]);
+
 
 				m_AddTileToLayer(layer, x, y, tileGID);
 
@@ -342,8 +343,8 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 			x = y = 0;
 			for(unsigned int i = 0; i < tileGIDs.size(); i++)
 			{
-                sf::Uint32 gid=resolveRotation(tileGIDs[i]);
-                m_AddTileToLayer(layer, x, y, gid);
+//                sf::Uint32 gid=resolveRotation(tileGIDs[i]);
+                m_AddTileToLayer(layer, x, y, tileGIDs[i]);
 				x++;
 				if(x == m_width)
 				{
@@ -374,7 +375,7 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 		{
             sf::Uint32 gid = tileNode.attribute("gid").as_uint();
 
-            gid=resolveRotation(gid);
+//            gid=resolveRotation(gid);
 
 
 			m_AddTileToLayer(layer, x, y, gid);
@@ -399,7 +400,7 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 	m_layers.push_back(layer);
 	return true;
 }
-std::vector<unsigned char> MapLoader::intToBytes(sf::Uint32 paramInt)
+std::vector<unsigned char> MapLoader::m_IntToBytes(sf::Uint32 paramInt)
 {
      std::vector<unsigned char> arrayOfByte(4);
      for (int i = 0; i < 4; i++)
@@ -408,39 +409,99 @@ std::vector<unsigned char> MapLoader::intToBytes(sf::Uint32 paramInt)
 }
 
 
-sf::Uint32 MapLoader::resolveRotation(sf::Uint32 gid)
+std::pair<sf::Uint32, std::bitset<3> > MapLoader::m_ResolveRotation(sf::Uint32 gid)
 {
-    std::vector<unsigned char> bytes = intToBytes(gid);
-    return resolveRotation(&bytes[0]);
+    std::vector<unsigned char> bytes = m_IntToBytes(gid);
+    return m_ResolveRotation(&bytes[0]);
 }
-sf::Uint32 MapLoader::resolveRotation(unsigned char *bytes)
+std::pair<sf::Uint32, std::bitset<3> > MapLoader::m_ResolveRotation(unsigned char *bytes)
 {
+    //Three bits = 8 unique combinations.. now just to work out what they are
 
+    //000 = no change
+    //001 = vertical = swap y axis
+    //010 = horizontal = swap x axis
+    //011 = horiz + vert = swap both axes = horiz+vert = rotate 180 degrees
+    //100 = diag = rotate 90 degrees right and swap x axis
+    //101 = diag+vert = rotate 270 degrees right
+    //110 = horiz+diag = rotate 90 degrees right
+    //111 = horiz+vert+diag = rotate 90 degrees right and swap y axis
+    //
     sf::Uint32 tileGID = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
 
-    bool flipped_horizontally = !(tileGID & FLIPPED_HORIZONTALLY_FLAG);
-    bool flipped_vertically = !(tileGID & FLIPPED_VERTICALLY_FLAG);
-    bool flipped_diagonally = !(tileGID & FLIPPED_DIAGONALLY_FLAG);
+//    sf::Uint8 flags = tileGID << 4 & 0x0;
+
+
+    bool flipped_diagonally = (tileGID & FLIPPED_DIAGONALLY_FLAG);
+    bool flipped_horizontally = (tileGID & FLIPPED_HORIZONTALLY_FLAG);
+    bool flipped_vertically = (tileGID & FLIPPED_VERTICALLY_FLAG);
+
+    std::bitset<3> b;
+    b.set(0,flipped_vertically);
+    b.set(1,flipped_horizontally);
+    b.set(2,flipped_diagonally);
 
     tileGID &= ~(FLIPPED_HORIZONTALLY_FLAG |
                             FLIPPED_VERTICALLY_FLAG |
                             FLIPPED_DIAGONALLY_FLAG);
-    return tileGID;
+    return std::pair<sf::Uint32, std::bitset<3> >(tileGID,b);
+}
+
+void MapLoader::m_FlipY(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3)
+{
+    sf::FloatRect fr(v1->x,
+                     v0->y,
+                     v1->x-v0->x,
+                     v2->y-v1->y);
+    sf::Vector2f tmp = *v0;
+    v0->y = v2->y;
+    v1->y = v2->y;
+    v2->y = tmp.y ;
+    v3->y = v2->y  ;
+}
+
+void MapLoader::m_FlipX(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3)
+{
+    sf::FloatRect fr(v1->x,
+                     v0->y,
+                     v1->x-v0->x,
+                     v2->y-v1->y);
+    sf::Vector2f tmp = *v0;
+    v0->x = v1->x;
+    v1->x = tmp.x;
+    v2->x = v3->x;
+    v3->x = v0->x ;
+}
+
+void MapLoader::m_FlipD(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3)
+{
+    //Diaganol flip
+    sf::Vector2f tmp = *v1;
+    v1->x = v3->x;
+    v1->y = v3->y;
+    v3->x = tmp.x;
+    v3->y = tmp.y;
 }
 
 TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset)
 {
 	sf::Uint8 opacity = static_cast<sf::Uint8>(255.f * layer.opacity);
 	sf::Color colour = sf::Color(255u, 255u, 255u, opacity);
-
+    std::pair<sf::Uint32, std::bitset<3> > idAndFlags = m_ResolveRotation(gid);
+//    std::cout << idAndFlags.second << std::endl << idAndFlags.first << std::endl;
+    gid = idAndFlags.first;
 	//update the layer's tile set(s)
-	sf::Vertex v0, v1, v2, v3;
+    sf::Vertex v0, v1, v2, v3;
 
 	//applying half pixel trick avoids artifacting when scrolling
 	v0.texCoords = m_tileInfo[gid].Coords[0] + sf::Vector2f(0.5f, 0.5f);
 	v1.texCoords = m_tileInfo[gid].Coords[1] + sf::Vector2f(-0.5f, 0.5f);
 	v2.texCoords = m_tileInfo[gid].Coords[2] + sf::Vector2f(-0.5f, -0.5f);
 	v3.texCoords = m_tileInfo[gid].Coords[3] + sf::Vector2f(0.5f, -0.5f);
+
+
+
+
 
 	v0.position = sf::Vector2f(static_cast<float>(m_tileWidth * x), static_cast<float>(m_tileHeight * y));
 	v1.position = sf::Vector2f(static_cast<float>(m_tileWidth * x) + m_tileInfo[gid].Size.x, static_cast<float>(m_tileHeight * y));
@@ -478,10 +539,119 @@ TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uin
 	v2.color = colour;
 	v3.color = colour;
 
+    if(idAndFlags.second.test(0) && !idAndFlags.second.test(1) && !idAndFlags.second.test(2))
+    {
+        //001
+        m_FlipY(&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
+    }
+    if(!idAndFlags.second.test(0) && idAndFlags.second.test(1) && !idAndFlags.second.test(2))
+    {
+        //010
+        m_FlipX(&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
+    }
+    if(idAndFlags.second.test(0) && idAndFlags.second.test(1) && !idAndFlags.second.test(2))
+    {
+        //011
+        m_FlipY(&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
+        m_FlipX(&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
+    }
+    if(!idAndFlags.second.test(0) && !idAndFlags.second.test(1) && idAndFlags.second.test(2))
+    {
+        //100
+        m_FlipD(&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
+    }
+    if(idAndFlags.second.test(0) && !idAndFlags.second.test(1) && idAndFlags.second.test(2))
+    {
+        //101
+//        m_FlipY(&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
+        m_FlipX(&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
+        m_FlipD(&v0.texCoords,&v1.texCoords,&v2.texCoords,&v3.texCoords);
+
+
+    }
+//    if(!idAndFlags.second.test(0) && idAndFlags.second.test(1) && idAndFlags.second.test(2))
+//    {
+
+//    }
+
+
+
+//    if(!idAndFlags.second.test(0) && idAndFlags.second.test(1) && idAndFlags.second.test(2))
+//    {
+//        std::cout << "0::"<<v0.texCoords.x<<"::"<<v0.texCoords.y<<std::endl;
+//        std::cout << "1::"<<v1.texCoords.x<<"::"<<v1.texCoords.y<<std::endl;
+//        std::cout << "2::"<<v2.texCoords.x<<"::"<<v2.texCoords.y<<std::endl;
+//        std::cout << "3::"<<v3.texCoords.x<<"::"<<v3.texCoords.y<<std::endl;
+//        //rotate 90
+////        sf::Transformable rot;
+////        rot.setOrigin(16,16);
+////        rot.rotate(90);
+
+////        sf::FloatRect r(v0.texCoords.x,v0.texCoords.y,v2.texCoords.x-v0.texCoords.x,v2.texCoords.y-v0.texCoords.y);
+////        r = rot.getTransform().transformRect(r);
+//        vTemp = v0;
+//        v0.texCoords.x = v1.texCoords.x;
+//        v0.texCoords.y = v1.texCoords.y;
+//        v1.texCoords.x = v2.texCoords.x;
+//        v1.texCoords.y = v2.texCoords.y;
+//        v2.texCoords.x = v3.texCoords.x;
+//        v2.texCoords.y = v3.texCoords.y;
+//        v3.texCoords.x = vTemp.texCoords.x;
+//        v3.texCoords.y = vTemp.texCoords.y;
+
+//        std::cout << "NEW"<<std::endl;
+//        std::cout << "0::"<<v0.texCoords.x<<"::"<<v0.texCoords.y<<std::endl;
+//        std::cout << "1::"<<v1.texCoords.x<<"::"<<v1.texCoords.y<<std::endl;
+//        std::cout << "2::"<<v2.texCoords.x<<"::"<<v2.texCoords.y<<std::endl;
+//        std::cout << "3::"<<v3.texCoords.x<<"::"<<v3.texCoords.y<<std::endl;
+//    }
+
+//        sf::Transformable rotation;
+////        rotation.setOrigin(16,16);
+//        rotation.rotate(45);
+////            v0.texCoords=rotation.transformPoint(v0.texCoords);
+////            v1.texCoords=rotation.transformPoint(v1.texCoords);
+////            v2.texCoords=rotation.transformPoint(v2.texCoords);
+////            v3.texCoords=rotation.transformPoint(v3.texCoords);
+//            sf::FloatRect rect = rotation.getTransform().transformRect(sf::FloatRect(v0.texCoords.x, v0.texCoords.y, v2.texCoords.x, v2.texCoords.y));
+//            v0.texCoords.x = rect.width;
+//            v0.texCoords.y = rect.height;
+//            v1.texCoords.x = rect.left;
+//            v1.texCoords.y = rect.height;
+//            v2.texCoords.x = rect.left;
+//            v2.texCoords.y = rect.top;
+//            v3.texCoords.x = rect.width;
+//            v3.texCoords.y = rect.top;
+
+////        sf::FloatRect rect = rotation.getTransform().transformRect(sf::FloatRect(v0.position.x, v0.position.y, v2.position.x, v2.position.y));
+////        v0.position.x = rect.width;
+////        v0.position.y = rect.height;
+////        v1.position.x = rect.left;
+////        v1.position.y = rect.height;
+////        v2.position.x = rect.left;
+////        v2.position.y = rect.top;
+////        v3.position.x = rect.width;
+////        v3.position.y = rect.top;
+
+////            v0.position=rotation.transformPoint(v0.position);
+////            v1.position=rotation.transformPoint(v1.position);
+////            v2.position=rotation.transformPoint(v2.position);
+////            v3.position=rotation.transformPoint(v3.position);
+
+//    }
+
 	v0.position += offset;
 	v1.position += offset;
 	v2.position += offset;
 	v3.position += offset;
+
+
+
+
+//        std::cout << "P0::"<<v0.position.x<<"::"<<v0.position.y<<std::endl;
+//        std::cout << "P1::"<<v1.position.x<<"::"<<v1.position.y<<std::endl;
+//        std::cout << "P2::"<<v2.position.x<<"::"<<v2.position.y<<std::endl;
+//        std::cout << "P3::"<<v3.position.x<<"::"<<v3.position.y<<std::endl;
 
 	sf::Uint16 id = m_tileInfo[gid].TileSetId;
 	if(layer.layerSets.find(id) == layer.layerSets.end())
@@ -970,8 +1140,10 @@ sf::Image& MapLoader::m_LoadImage(const std::string& imageName)
 	}
 
 	m_cachedImages[path] = newImage;
-	return *m_cachedImages[path];
+    return *m_cachedImages[path];
 }
+
+
 
 //base64 decode function taken from:
 /*
