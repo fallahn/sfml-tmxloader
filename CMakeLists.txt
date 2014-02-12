@@ -31,7 +31,7 @@ add_library(pugi SHARED ${pugi_HDRS} ${pugi_SRCS})
 add_library(${PROJECT_NAME} SHARED ${tmx_HDRS} ${tmx_SRCS})
 install(TARGETS pugi ${PROJECT_NAME} LIBRARY DESTINATION lib)
 install(FILES ${tmx_HDRS} DESTINATION include/tmx)
-install(FILES &{pugi_HDRS} DESTINATION include/pugixml)
+install(FILES ${pugi_HDRS} DESTINATION include/pugixml)
 
 FILE(GLOB maps "${CMAKE_CURRENT_SOURCE_DIR}/maps/*")
 install(FILES ${maps} DESTINATION share/tmx/examples/maps)
