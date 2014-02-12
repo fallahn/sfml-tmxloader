@@ -49,8 +49,8 @@ it freely, subject to the following restrictions:
 
 #include <SFML/System/NonCopyable.hpp>
 
-#include <Helpers.h>
-#include <DebugShape.h>
+#include <tmx/Helpers.h>
+#include <tmx/DebugShape.h>
 
 namespace tmx
 {
