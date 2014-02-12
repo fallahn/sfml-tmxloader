@@ -1,0 +1,44 @@
+pkgname=sfml-tmxloader-git
+pkgver=20120831
+pkgrel=1
+pkgdesc='SFML 2.x based tmx tilemap parser for files created with Tiled tile map editor.'
+arch=('i686' 'x86_64')
+url='https://github.com/fallahn/sfml-tmxloader'
+license=('ZLIB')
+depends=('sfml>=2.0')
+makedepends=('git')
+provides=('sfml-tmxloader' 'pugixml')
+
+_gitroot='https://github.com/fallahn/sfml-tmxloader.git'
+_gitname='sfml-tmxloader'
+
+build() {
+  cd "$srcdir"
+  msg "Connecting to GIT server...."
+
+  if [ -d $_gitname ] ; then
+    cd $_gitname && git pull origin
+    msg "The local files are updated."
+  else
+    git clone $_gitroot
+    cd $_gitname
+  fi
+
+  msg "GIT checkout done or server timeout"
+  msg "Starting make..."
+
+  rm -rf "$srcdir/$_gitname-build"
+  mkdir "$srcdir/$_gitname-build"
+  cd "$srcdir/$_gitname-build"
+
+  cmake -DCMAKE_INSTALL_PREFIX=/usr "../$_gitname"
+  make
+}
+
+package() {
+  cd "$srcdir/$_gitname-build"
+
+  make DESTDIR="$pkgdir/" install
+}
+
+# vim:set ts=2 sts=2 sw=2 et:
