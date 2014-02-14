@@ -27,7 +27,7 @@ and must not be misrepresented as being the original software.
 source distribution.
 *********************************************************************/
 
-#include <DebugShape.h>
+#include <tmx/DebugShape.h>
 #include <SFML/Graphics/RenderTarget.hpp>
 
 DebugShape::DebugShape()
