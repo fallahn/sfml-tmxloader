@@ -400,6 +400,7 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 	m_layers.push_back(layer);
 	return true;
 }
+
 std::vector<unsigned char> MapLoader::m_IntToBytes(sf::Uint32 paramInt)
 {
      std::vector<unsigned char> arrayOfByte(4);
@@ -407,7 +408,6 @@ std::vector<unsigned char> MapLoader::m_IntToBytes(sf::Uint32 paramInt)
          arrayOfByte[i] = (paramInt >> (i * 8));
      return arrayOfByte;
 }
-
 
 std::pair<sf::Uint32, std::bitset<3> > MapLoader::m_ResolveRotation(sf::Uint32 gid)
 {
@@ -974,8 +974,8 @@ bool MapLoader::m_Decompress(const char* source, std::vector<unsigned char>& des
 	}
 
 	int currentSize = expectedSize;
-	//TODO switch to std::make_unique when Visual Studio users have caught up
-	std::unique_ptr<unsigned char[]> byteArray = std::unique_ptr<unsigned char[]>(new unsigned char[expectedSize / sizeof(unsigned char)]);
+	//TODO switch to std::make_unique when compatible with all compilers
+	std::unique_ptr<unsigned char[]> byteArray(new unsigned char[expectedSize / sizeof(unsigned char)]);
 	z_stream stream;
 	stream.zalloc = Z_NULL;
 	stream.zfree = Z_NULL;
@@ -1012,7 +1012,7 @@ bool MapLoader::m_Decompress(const char* source, std::vector<unsigned char>& des
 		{
 			int oldSize = currentSize;
 			currentSize *= 2;
-			std::unique_ptr<unsigned char[]> newArray = std::unique_ptr<unsigned char[]>(new unsigned char[currentSize / sizeof(unsigned char)]);
+			std::unique_ptr<unsigned char[]> newArray(new unsigned char[currentSize / sizeof(unsigned char)]);
 			std::memcpy(newArray.get(), byteArray.get(), currentSize / 2);
 			byteArray = std::move(newArray);
 			
@@ -1033,7 +1033,7 @@ bool MapLoader::m_Decompress(const char* source, std::vector<unsigned char>& des
 	const int outSize = currentSize - stream.avail_out;
 	inflateEnd(&stream);
 
-	std::unique_ptr<unsigned char[]> newArray = std::unique_ptr<unsigned char[]>(new unsigned char[outSize / sizeof(unsigned char)]);
+	std::unique_ptr<unsigned char[]> newArray(new unsigned char[outSize / sizeof(unsigned char)]);
 	std::memcpy(newArray.get(), byteArray.get(), outSize);
 	byteArray = std::move(newArray);
 
@@ -1054,7 +1054,7 @@ sf::Image& MapLoader::m_LoadImage(const std::string& imageName)
 	}
 
 	//else attempt to load
-	std::shared_ptr<sf::Image> newImage = std::shared_ptr<sf::Image>(new sf::Image());
+	std::shared_ptr<sf::Image> newImage = std::make_shared<sf::Image>();
 
 	//try other paths first
 	bool loaded = false;

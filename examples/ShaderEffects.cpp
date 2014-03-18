@@ -151,16 +151,16 @@ const char waterShader[] =
 
 	"vec2 coord = gl_TexCoord[0].xy;"
 
-	"const float offsetX = sin(gl_FragCoord.y * sinWidth + time * sinTime) * 0.5 + 0.5;"
+	"float offsetX = sin(gl_FragCoord.y * sinWidth + time * sinTime) * 0.5 + 0.5;"
 	"coord.x += offsetX * sinHeight / 2.0;"
 
-	"const float offsetY = sin(gl_FragCoord.x * sinWidth + time * sinTime) * 0.5 + 0.5;"
+	"float offsetY = sin(gl_FragCoord.x * sinWidth + time * sinTime) * 0.5 + 0.5;"
 	"coord.y += offsetY * sinHeight;"
 
 	"float highlight = snoise(vec3(gl_FragCoord.xy * 0.04, time)) * 0.1;"
 
 	//add colour for highlight
-	"vec3 colour = texture2D(baseTexture, coord);"
+	"vec3 colour = texture2D(baseTexture, coord).rgb;"
 	"colour = clamp(colour + highlight, 0.0, 1.0);"
 	"gl_FragColor = vec4(colour, 1.0);"
 "}";
