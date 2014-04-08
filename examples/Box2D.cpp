@@ -36,7 +36,7 @@ source distribution.
 #include <tmx/MapLoader.h>
 #include <tmx/tmx2box2d.h>
 
-#include <DebugShape.h>
+#include <tmx/DebugShape.h>
 
 #include <Box2D/Collision/Shapes/b2PolygonShape.h>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>

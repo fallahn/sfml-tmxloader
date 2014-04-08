@@ -81,6 +81,19 @@ namespace Helpers
 			return std::atan2(source.y , source.x) * 180.f / 3.14159265f;
 		}
 	};
+	
+	namespace Math
+	{
+		static float Clamp(float x, float a, float b)
+		{
+			return x < a ? a : (x > b ? b : x);
+		}
+
+		static float Round(float val)
+		{
+			return std::floor(val + 0.5f);
+		}
+	};
 };
 
 #endif
