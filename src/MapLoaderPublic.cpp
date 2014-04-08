@@ -170,13 +170,13 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 	case MapLayer::Back:
 		{
 		//remember front of vector actually draws furthest back
-		const MapLayer& layer = m_layers.front();
+		MapLayer& layer = m_layers.front();
 		m_DrawLayer(rt, layer, debug);
 		}
 		break;
 	case MapLayer::Front:
 		{
-		const MapLayer& layer = m_layers.back();
+		MapLayer& layer = m_layers.back();
 		m_DrawLayer(rt, layer, debug);
 		}
 		break;

@@ -899,8 +899,9 @@ void MapLoader::m_SetIsometricCoords(MapLayer& layer)
 	}
 }
 
-void MapLoader::m_DrawLayer(sf::RenderTarget& rt, const MapLayer& layer, bool debug)
+void MapLoader::m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug)
 {
+	layer.Cull(m_bounds);
 	rt.draw(layer);
 
 	if(debug && layer.type == ObjectGroup)

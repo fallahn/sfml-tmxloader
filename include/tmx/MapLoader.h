@@ -130,7 +130,7 @@ namespace tmx
 		bool m_ParseImageLayer(const pugi::xml_node& imageLayerNode);
 		void m_ParseLayerProperties(const pugi::xml_node& propertiesNode, MapLayer& destLayer);
 		void m_SetIsometricCoords(MapLayer& layer);
-		void m_DrawLayer(sf::RenderTarget& rt, const MapLayer& layer, bool debug = false);
+		void m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug = false);
 		std::string m_FileFromPath(const std::string& path);
 
 		//sf::drawable

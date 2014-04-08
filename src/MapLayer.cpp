@@ -51,7 +51,8 @@ void TileQuad::Move(const sf::Vector2f& distance)
 
 //public
 LayerSet::LayerSet(const sf::Texture& texture)
-	: m_texture	(texture)
+	: m_texture	(texture),
+	m_visible	(true)
 {
 
 }
@@ -65,7 +66,23 @@ TileQuad::Ptr LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, 
 
 	sf::Uint16 i = m_vertices.size() - 4u;
 	m_quads.push_back(std::make_shared<TileQuad>(i, i + 1, i + 2, i + 3));
+
+	m_UpdateAABB(vt0.position, vt2.position);
+
 	return m_quads.back();
+}
+
+void LayerSet::Cull(const sf::FloatRect& bounds)
+{
+	if(	bounds.contains(m_boundingBox.left, m_boundingBox.top) ||
+		bounds.contains(m_boundingBox.width, m_boundingBox.height))
+	{
+		m_visible = true;
+	}
+	else
+	{
+		m_visible = false;
+	}
 }
 
 //private
@@ -83,13 +100,34 @@ void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 		}
 	}
 	
-	if(!m_vertices.empty())
+	if(!m_vertices.empty() && m_visible)
 	{
 		states.texture = &m_texture;
 		rt.draw(&m_vertices[0], static_cast<unsigned int>(m_vertices.size()), sf::Quads, states);
 	}
 }
 
+void LayerSet::m_UpdateAABB(sf::Vector2f position, sf::Vector2f size)
+{
+	if(m_boundingBox.width == 0.f)
+	{
+		//not been set yet so take on initial size
+		m_boundingBox = sf::FloatRect(position, size);
+		return;
+	}
+
+	if(position.x < m_boundingBox.left)
+		m_boundingBox.left = position.x;
+
+	if(position.y < m_boundingBox.top)
+		m_boundingBox.top = position.y;
+
+	if(size.x > m_boundingBox.width)
+		m_boundingBox.width = size.x;
+
+	if(size.y > m_boundingBox.height)
+		m_boundingBox.height = size.y;
+}
 
 ///------MapLayer-----///
 
@@ -106,13 +144,19 @@ void MapLayer::SetShader(const sf::Shader& shader)
 	m_shader = &shader;
 }
 
+void MapLayer::Cull(const sf::FloatRect& bounds)
+{
+	for(auto& ls : layerSets)
+		ls.second->Cull(bounds);
+}
+
 //private
 void MapLayer::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 {
 	if(!visible) return; //skip invisible layers
 
 	states.shader = m_shader;
-	for(auto& ls : layerSets)
+	for(const auto& ls : layerSets)
 	{
 		rt.draw(*ls.second, states);
 	}
@@ -120,7 +164,7 @@ void MapLayer::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 	if(type == ImageLayer)
 	{
 		//draw tiles used on objects
-		for(auto& tile : tiles)
+		for(const auto& tile : tiles)
 		{
 			rt.draw(tile.sprite, tile.renderStates);
 		}
