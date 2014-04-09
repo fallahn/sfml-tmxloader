@@ -75,7 +75,9 @@ TileQuad::Ptr LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, 
 void LayerSet::Cull(const sf::FloatRect& bounds)
 {
 	if(	bounds.contains(m_boundingBox.left, m_boundingBox.top) ||
-		bounds.contains(m_boundingBox.width, m_boundingBox.height))
+		bounds.contains(m_boundingBox.width, m_boundingBox.height) ||
+		m_boundingBox.contains(bounds.left, bounds.top) ||
+		m_boundingBox.contains(bounds.left + bounds.width, bounds.top + bounds.height))
 	{
 		m_visible = true;
 	}
@@ -122,11 +124,11 @@ void LayerSet::m_UpdateAABB(sf::Vector2f position, sf::Vector2f size)
 	if(position.y < m_boundingBox.top)
 		m_boundingBox.top = position.y;
 
-	if(size.x > m_boundingBox.width)
-		m_boundingBox.width = size.x;
+	if(size.x > m_boundingBox.left + m_boundingBox.width)
+		m_boundingBox.width = size.x - m_boundingBox.left;
 
-	if(size.y > m_boundingBox.height)
-		m_boundingBox.height = size.y;
+	if(size.y > m_boundingBox.top + m_boundingBox.height)
+		m_boundingBox.height = size.y - m_boundingBox.top;
 }
 
 ///------MapLayer-----///
