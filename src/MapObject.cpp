@@ -167,7 +167,7 @@ void MapObject::CreateDebugShape(const sf::Color& colour)
 	//reset any existing shapes incase new points have been added
 	m_debugShape.Reset();
 
-	for(auto& p : m_polypoints)
+	for(const auto& p : m_polypoints)
 		m_debugShape.AddVertex(sf::Vertex(p, colour));
 	
 	if(m_shape != Polyline) m_debugShape.CloseShape();

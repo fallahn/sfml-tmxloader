@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="40" height="40" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" source="desert.tsx"/>
+ <tileset firstgid="49" name="Sewer" tilewidth="24" tileheight="24">
+  <image source="sewer_tileset.png" trans="ff00ff" width="192" height="217"/>
+  <tile id="33">
+   <properties>
+    <property name="tileprop" value="sd"/>
+   </properties>
+  </tile>
+  <tile id="44">
+   <properties>
+    <property name="tileproperty" value="tobeparsed"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Ground" width="40" height="40">
+  <properties>
+   <property name="dummy property" value="44"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJztmNkKwjAQRVP74AbWBVxRq3Xf6v9/nSM2VIbQJjEZR+nDwQZScrwztoOBEGLhkQ4QAV3P59hwU/gtGXj9Sn7PrIbACBgz8FERADUgRN4+zpoAUwNmQBNoAW2CLFbA2oDEo9+hwG8DnIDtF/2K8ks086Tw2zH0uyMv7HcRr/6/EvvhnsPrsrxwX7rwU/0ODig/eV3mh3N1ld8eraWPaX6+64s9McesfrqcHfjVMxoifxcVEWruk8w/9ItEPl/I71pEW3Of6j4bv5HI54se0C9hoLlPdZ/P3qMmFuo5h5NnTOhjM5tReN2yT51n5/v7J3F0vi46fk+ne7aX0i9l6If7mpufTX3f5wsqv9TAD2fJLT9VrTn7UeZnM5tR+v0LMQOHXwFnxe2/warGFRWf8QAOGrey
+  </data>
+ </layer>
+ <objectgroup color="#00a49f" name="Objects" width="40" height="40">
+  <properties>
+   <property name="dfsd" value="345"/>
+  </properties>
+  <object gid="31" x="83" y="294"/>
+  <object gid="38" x="41" y="335"/>
+  <object gid="38" x="30" y="271"/>
+  <object gid="38" x="115" y="39"/>
+  <object gid="38" x="84" y="123"/>
+ </objectgroup>
+</map>
