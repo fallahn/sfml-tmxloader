@@ -34,59 +34,107 @@ it freely, subject to the following restrictions:
 
 #include <sstream>
 
+
+sf::Vector2f getViewMovement(float dt)
+{
+
+    sf::Vector2f movement;
+
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        movement.x = -1.f;
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        movement.x = 1.f;
+
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        movement.y = -1.f;
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        movement.y = 1.f;
+
+    movement = Helpers::Vectors::Normalize(movement) * 500.f * dt;
+    return movement;
+}
+
+
+void handleWindowEvent(sf::RenderWindow& renderWindow){
+        sf::Event event;
+        while(renderWindow.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                renderWindow.close();
+        }
+}
+
+sf::Font loadFont(){
+    //setup fonts
+    sf::Font font;
+    if (!font.loadFromFile("fonts/Ubuntu-M.ttf"))
+    {
+        std::cout << "font not loaded for fps count" << std::endl;
+        //do nothing its just a test
+    }
+    return font;
+}
+
+sf::Text getFpsText(const sf::Font& font){
+    sf::Text fpsText;
+    fpsText.setFont(font);
+    fpsText.setColor(sf::Color::White);
+    fpsText.setCharacterSize(25);
+    return fpsText;
+}
+
 int main()
 {
-	sf::RenderWindow renderWindow(sf::VideoMode(800u, 600u), "TMX Loader");
+    sf::RenderWindow renderWindow(sf::VideoMode(800u, 600u), "TMX Loader");
+    sf::Font font = loadFont();
+    sf::Text fpsText = getFpsText(font);
 
-	//create map loader and load map
-	tmx::MapLoader ml("maps/");
-	ml.Load("desert.tmx");
+    //create map loader and load map
+    tmx::MapLoader ml("maps/");
+    ml.Load("desert.tmx");
 
-	sf::Clock deltaClock, frameClock;
+    sf::Clock deltaClock, frameClock;
 
-	//-----------------------------------//
+    const float dt = 0.01f;
 
-	while(renderWindow.isOpen())
-	{
-		//poll input
-		sf::Event event;
-		while(renderWindow.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				renderWindow.close();
+    float previousUpdateTime = deltaClock.getElapsedTime().asSeconds();
+    float accumulator = 0.0f;
+
+    while(renderWindow.isOpen())
+    {
+
+        handleWindowEvent(renderWindow);
+
+        //update
+        float currentTime = deltaClock.getElapsedTime().asSeconds();
+        float frameTime = currentTime - previousUpdateTime;
+        previousUpdateTime = currentTime;
+        accumulator += frameTime;
+
+        sf::Vector2f movement;
+        while ( accumulator >= dt )
+        {
+            movement = getViewMovement(dt);
+            accumulator -= dt;
         }
 
-		//allow moving of view
-		sf::View view = renderWindow.getView();
-		sf::Vector2f movement;
+        //allow moving of view
+        sf::View view = renderWindow.getView();
+        view.move(movement);
+        renderWindow.setView(view);
 
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-			movement.x = -1.f;
-		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-			movement.x = 1.f;
+        //show fps
+        float fpsCount = (1/frameClock.restart().asSeconds());
+        fpsText.setString( "FPS: " + (std::to_string(fpsCount)) );
+        fpsText.move(movement);
 
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-			movement.y = -1.f;
-		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-			movement.y = 1.f;
+        //draw
+        renderWindow.clear();
+        renderWindow.draw(ml);
+        renderWindow.draw(fpsText);
+        renderWindow.display();
 
-		float dt = deltaClock.restart().asSeconds();
-		movement = Helpers::Vectors::Normalize(movement) * 300.f * dt;
-		view.move(movement);
-		renderWindow.setView(view);
+    }
 
-		frameClock.restart();
-
-		//draw
-		renderWindow.clear();
-		renderWindow.draw(ml);
-		renderWindow.display();
-
-		const float time = 1.f / frameClock.getElapsedTime().asSeconds();
-		std::stringstream stream;
-		stream << "Use the cursor keys to move the view. Current fps: " << time << std::endl;
-		renderWindow.setTitle(stream.str());
-	}
-
-	return 0;
+    return 0;
 }
