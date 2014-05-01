@@ -27,6 +27,9 @@ set(tmx_SRCS
         src/MapObject.cpp
         src/QuadTreeNode.cpp)
 
+set(maps_SRCS "${PROJECT_SOURCE_DIR}/maps/")
+set(fonts_SRCS "${PROJECT_SOURCE_DIR}/fonts/")
+
 add_library(pugi SHARED ${pugi_HDRS} ${pugi_SRCS})
 add_library(${PROJECT_NAME} SHARED ${tmx_HDRS} ${tmx_SRCS})
 install(TARGETS pugi ${PROJECT_NAME} LIBRARY DESTINATION lib)
@@ -87,5 +90,8 @@ if (SFML_FOUND)
 		install(TARGETS Box2D RUNTIME DESTINATION share/tmx/examples)
 		
 	endif (BOX2D_FOUND)
+
+	file(COPY ${maps_SRCS} DESTINATION "maps")
+	file(COPY ${fonts_SRCS} DESTINATION "fonts")
 	
 endif (SFML_FOUND)
