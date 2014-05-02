@@ -32,7 +32,6 @@ it freely, subject to the following restrictions:
 #include <SFML/Graphics.hpp>
 #include <tmx/MapLoader.h>
 
-#include <sstream>
 
 
 sf::Vector2f getViewMovement(float dt)
@@ -55,7 +54,8 @@ sf::Vector2f getViewMovement(float dt)
 }
 
 
-void handleWindowEvent(sf::RenderWindow& renderWindow){
+void handleWindowEvent(sf::RenderWindow& renderWindow)
+{
         sf::Event event;
         while(renderWindow.pollEvent(event))
         {
@@ -64,7 +64,8 @@ void handleWindowEvent(sf::RenderWindow& renderWindow){
         }
 }
 
-sf::Font loadFont(){
+sf::Font loadFont()
+{
     //setup fonts
     sf::Font font;
     if (!font.loadFromFile("fonts/Ubuntu-M.ttf"))
@@ -75,7 +76,8 @@ sf::Font loadFont(){
     return font;
 }
 
-sf::Text getFpsText(const sf::Font& font){
+sf::Text getFpsText(const sf::Font& font)
+{
     sf::Text fpsText;
     fpsText.setFont(font);
     fpsText.setColor(sf::Color::White);

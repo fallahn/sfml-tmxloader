@@ -95,7 +95,8 @@ int main()
 				case sf::Keyboard::D:
 					if(objectLayer.objects.size())
 					{
-						objectLayer.objects.pop_back();
+						//objectLayer.objects.pop_back();
+						objectLayer.objects.erase(objectLayer.objects.end() - 1);
 					}
 					break;
 				default: break;
