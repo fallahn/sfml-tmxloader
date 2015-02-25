@@ -15,6 +15,11 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
+# on MacOSX you need to use the correct stdlib for c++11 features
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
+
 # Make sure that the runtime library gets link statically
 if(TMX_STATIC_STD_LIBS)
 	if(NOT SFML_STATIC_LIBS)
