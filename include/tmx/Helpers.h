@@ -28,7 +28,7 @@ it freely, subject to the following restrictions:
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
-#include <math.h>
+#include <cmath>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
