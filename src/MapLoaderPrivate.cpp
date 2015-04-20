@@ -209,9 +209,9 @@ bool MapLoader::m_ProcessTiles(const pugi::xml_node& tilesetNode)
 		sourceImage.createMaskFromColor(m_ColourFromHex(imageNode.attribute("trans").as_string()));
 
 	//store image as a texture for drawing with vertex array
-	sf::Texture tileset;
-	tileset.loadFromImage(sourceImage);
-	m_tilesetTextures.push_back(tileset);
+	std::unique_ptr<sf::Texture> tileset(new sf::Texture);
+	tileset->loadFromImage(sourceImage);
+	m_tilesetTextures.push_back(std::move(tileset));
 
 	//parse offset node if it exists - TODO store somewhere tileset info can be referenced
 	sf::Vector2u offset;
@@ -592,7 +592,7 @@ TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uin
 	if(layer.layerSets.find(id) == layer.layerSets.end())
 	{
 		//create a new layerset for texture
-		layer.layerSets[id] = std::make_shared<LayerSet>(m_tilesetTextures[id]);
+		layer.layerSets[id] = std::make_shared<LayerSet>(*m_tilesetTextures[id]);
 	}
 
 	//add tile to set
@@ -819,13 +819,13 @@ bool MapLoader::m_ParseImageLayer(const pugi::xml_node& imageLayerNode)
 	}
 
 	//load image to texture
-	sf::Texture texture;
-	texture.loadFromImage(image);
-	m_imageLayerTextures.push_back(texture);
+	std::unique_ptr<sf::Texture> texture(new sf::Texture);
+	texture->loadFromImage(image);
+	m_imageLayerTextures.push_back(std::move(texture));
 
 	//add texture to layer as sprite, set layer properties
 	MapTile tile;
-	tile.sprite.setTexture(m_imageLayerTextures.back());
+	tile.sprite.setTexture(*m_imageLayerTextures.back());
 	MapLayer layer(ImageLayer);
 	layer.name = imageLayerNode.attribute("name").as_string();
 	if(imageLayerNode.attribute("opacity"))

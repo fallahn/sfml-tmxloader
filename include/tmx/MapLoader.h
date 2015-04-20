@@ -100,8 +100,8 @@ namespace tmx
 		std::vector<std::string> m_searchPaths; //additional paths to search for tileset files
 
 		std::vector<MapLayer> m_layers; //layers of map, including image and object layers
-		std::vector<sf::Texture> m_imageLayerTextures;
-		std::vector<sf::Texture> m_tilesetTextures; //textures created from complete sets used when drawing vertex arrays
+		std::vector<std::unique_ptr<sf::Texture>> m_imageLayerTextures;
+		std::vector<std::unique_ptr<sf::Texture>> m_tilesetTextures; //textures created from complete sets used when drawing vertex arrays
 		struct TileInfo //holds texture coords and tileset id of a tile
 		{
 			std::array<sf::Vector2f, 4> Coords;
