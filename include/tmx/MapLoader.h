@@ -76,6 +76,8 @@ namespace tmx
 		//returns orthogonal world coords from projected coords
 		//eg: use to find the orthogonal world coordinates currently under the mouse cursor
 		sf::Vector2f OrthogonalToIsometric(const sf::Vector2f& worldCoords);
+		//returns the size of an individual tile in pixels
+		sf::Vector2u GetTileSize() const;
 		//returns the map size in pixels
 		sf::Vector2u GetMapSize() const;
 		//returns empty string if property not found

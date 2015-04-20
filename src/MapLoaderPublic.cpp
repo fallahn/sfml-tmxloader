@@ -218,6 +218,11 @@ sf::Vector2f MapLoader::OrthogonalToIsometric(const sf::Vector2f& worldCoords)
 							(worldCoords.y - (worldCoords.x / m_tileRatio)));
 }
 
+sf::Vector2u MapLoader::GetTileSize() const
+{
+	return sf::Vector2u(m_tileWidth, m_tileHeight);
+}
+
 sf::Vector2u MapLoader::GetMapSize() const
 {
 	return sf::Vector2u(m_width * m_tileWidth, m_height * m_tileHeight);
