@@ -54,7 +54,8 @@ set(tmx_HDRS
         include/tmx/MapObject.h
         include/tmx/QuadTreeNode.h
         include/tmx/DebugShape.h
-        include/tmx/Helpers.h)
+        include/tmx/Helpers.h
+        include/tmx/Log.h)
 
 set(tmx_SRCS
 		src/DebugShape.cpp
@@ -138,7 +139,7 @@ install(
     ARCHIVE DESTINATION lib COMPONENT dev
 )
 
-# INstall tmx-loader
+# Install tmx-loader
 install(
     TARGETS tmx-loader
     RUNTIME DESTINATION bin COMPONENT bin

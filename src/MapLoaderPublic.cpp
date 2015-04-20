@@ -28,6 +28,7 @@ it freely, subject to the following restrictions:
 *********************************************************************/
 
 #include <tmx/MapLoader.h>
+#include <tmx/Log.h>
 
 using namespace tmx;
 
@@ -58,8 +59,8 @@ bool MapLoader::Load(const std::string& map)
 	pugi::xml_parse_result result = mapDoc.load_file(mapPath.c_str());
 	if(!result)
 	{
-		std::cerr << "Failed to open " << map << std::endl;
-		std::cerr << "Reason: " << result.description() << std::endl;
+		LOG("Failed to open " + map, Logger::Type::Error);
+		LOG("Reason: " + std::string(result.description()), Logger::Type::Error);
 		return m_mapLoaded = false;
 	}
 
@@ -67,7 +68,7 @@ bool MapLoader::Load(const std::string& map)
 	pugi::xml_node mapNode = mapDoc.child("map");
 	if(!mapNode)
 	{
-		std::cerr << "Map node not found. Map " << map << " not loaded." << std::endl;
+		LOG("Map node not found. Map " + map + " not loaded.", Logger::Type::Error);
 		return m_mapLoaded = false;
 	}
 	if(!(m_mapLoaded = m_ParseMapNode(mapNode))) return false;
@@ -103,14 +104,13 @@ bool MapLoader::Load(const std::string& map)
 				return false;
 			}
 		}
-		//std::cerr << name << std::endl;
 		currentNode = currentNode.next_sibling();
 	}
 
 	m_CreateDebugGrid();
 
-	std::cerr << "Parsed " << m_layers.size() << " layers." << std::endl;
-	std::cerr << "Loaded " << map << " successfully." << std::endl;
+	LOG("Parsed " + std::to_string(m_layers.size()) + " layers.", Logger::Type::Info);
+	LOG("Loaded " + map + " successfully.", Logger::Type::Info);
 
 	return m_mapLoaded = true;
 }

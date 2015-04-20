@@ -28,6 +28,7 @@ it freely, subject to the following restrictions:
 *********************************************************************/
 #include <tmx/MapObject.h>
 #include <tmx/MapLayer.h>
+#include <tmx/Log.h>
 
 using namespace tmx;
 
@@ -159,8 +160,8 @@ void MapObject::CreateDebugShape(const sf::Color& colour)
 {
 	if(m_polypoints.size() == 0)
 	{
-		std::cerr << "Unable to create debug shape, object data missing." << std::endl;
-		std::cerr << "Check image file paths referenced by tmx file." << std::endl;
+		LOG("Unable to create debug shape, object data missing.", Logger::Type::Error);
+		LOG("Check image file paths referenced by tmx file.", Logger::Type::Error);
 		return;
 	}
 
@@ -225,8 +226,8 @@ void MapObject::CreateSegments()
 {
 	if(m_polypoints.size() == 0)
 	{
-		std::cerr << "Unable to object segments, object data missing." << std::endl;
-		std::cerr << "Check image file paths referenced by tmx file." << std::endl;
+		LOG("Unable to object segments, object data missing.", Logger::Type::Error);
+		LOG("Check image file paths referenced by tmx file.", Logger::Type::Error);
 		return;
 	}
 	
@@ -237,7 +238,7 @@ void MapObject::CreateSegments()
 	if(m_shape != Polyline) //close shape
 		m_polySegs.push_back(Segment(*(m_polypoints.end() - 1), *m_polypoints.begin()));
 
-	std::cerr << "Added " << m_polySegs.size() << " segments to Map Object" << std::endl;
+	LOG("Added " + std::to_string(m_polySegs.size()) + " segments to Map Object", Logger::Type::Info);
 }
 
 bool MapObject::Convex() const
