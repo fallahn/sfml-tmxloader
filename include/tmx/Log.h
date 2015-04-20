@@ -39,6 +39,7 @@ source distribution.
 #include <iostream>
 #include <fstream>
 
+//to enable logging define one of these in your preprocessor directives
 #ifdef LOG_OUTPUT_ALL
 #define LOG(m, t) tmx::Logger::Log(m, t, tmx::Logger::Output::All)
 #elif defined LOG_OUTPUT_CONSOLE
@@ -65,11 +66,11 @@ namespace tmx
             All
         };
 
-        enum class Type
+        enum Type
         {
-            Info,
-            Warning,
-            Error
+            Info	= (1 << 0),
+            Warning = (1 << 1),
+            Error	= (1 << 2)
         };
 
         //logs a message to a given destination.
@@ -78,6 +79,8 @@ namespace tmx
         //output: can be the console via cout, a log file on disk, or both
         static void Log(const std::string& message, Type type = Type::Info, Output output = Output::Console)
         {
+			if(!(m_logFilter & type)) return;
+
             std::string outstring;
             switch (type)
             {
@@ -122,6 +125,14 @@ namespace tmx
             }
         }
 
+		//sets the level of logging via a bit mask
+		//made up from Logger::Info, Logger::Warning and Logger::Error
+		static void SetLogLevel(int level)
+		{
+			m_logFilter = level;
+		}
+	private:
+		static int m_logFilter;
     };
 }
 

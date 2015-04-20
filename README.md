@@ -103,12 +103,12 @@ screen space:
 
 to Isometric space:
 
-      0
-     / \
-    /   \
-   /     \
-  /       \
- Y         X
+         0
+        / \
+       /   \
+      /     \
+     /       \
+    Y         X
 
 Layer information can be accessed through MapLoader::GetLayers()
     
@@ -158,6 +158,26 @@ system to SFML there are 4 functions for converting from one space to another:
 You should use these whenever you are trying to draw with SFML based on the physics output, or set
 box2D parameters in SFML world values.
 
+
+Debugging output can be enabled with one of the following preprocessor directives:
+
+    #define LOG_OUTPUT_CONSOLE
+
+all output is directed to the console window
+	
+    #define LOG_OUTPUT_FILE
+
+all output is written to a file named output.log in the executable directory
+	
+    #define OUT_OUTPUT_ALL
+
+log output is directed to both the console and output.log
+	
+Logging is diabled by default. The level of log information can be set with
+    Logger::SetLogLevel()
+by providing a bitmask for the level required. For instance to only log warnings
+and errors use:
+    Logger::SetLogLevel(Logger::Warning | Logger::Error);
 
 
 For more detailed examples see the source in the examples folder, and the wiki on github:

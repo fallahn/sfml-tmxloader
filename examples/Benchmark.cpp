@@ -31,7 +31,7 @@ it freely, subject to the following restrictions:
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <tmx/MapLoader.h>
-
+#include <tmx/Log.h>
 
 
 sf::Vector2f getViewMovement(float dt)
@@ -90,6 +90,9 @@ int main()
     sf::RenderWindow renderWindow(sf::VideoMode(800u, 600u), "TMX Loader");
     sf::Font font = loadFont();
     sf::Text fpsText = getFpsText(font);
+
+	//set the debugging output mode
+	tmx::Logger::SetLogLevel(tmx::Logger::Info | tmx::Logger::Error);
 
     //create map loader and load map
     tmx::MapLoader ml("maps/");

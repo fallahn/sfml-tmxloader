@@ -1167,4 +1167,5 @@ static std::string base64_decode(std::string const& encoded_string)
 
 	return ret;
 }
+int Logger::m_logFilter = (Type::Error | Type::Info | Type::Warning);
 };
