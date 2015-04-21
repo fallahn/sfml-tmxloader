@@ -151,7 +151,7 @@ namespace tmx
 		//reversing winding of object points
 		void ReverseWinding();
 		//sets the quad used to draw the tile for tile objects
-		void SetQuad(std::shared_ptr<TileQuad> quad);
+		void SetQuad(TileQuad* quad);
 
 private:
 		//object properties, reflects those which are part of the tmx format
@@ -166,7 +166,7 @@ private:
 		sf::Vector2f m_centrePoint;
 
 		std::vector<Segment> m_polySegs; //segments which make up shape, if any
-		std::shared_ptr<TileQuad> m_tileQuad;
+		TileQuad* m_tileQuad;
 		
 		float m_furthestPoint; //furthest distance from centre of object to vertex - used for intersection testing
 		//AABB created from polygonal shapes, used for adding MapObjects to a QuadTreeNode.

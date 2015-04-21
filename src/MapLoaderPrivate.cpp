@@ -62,6 +62,9 @@ void MapLoader::m_SetDrawingBounds(const sf::View& view)
 		bounds.width += static_cast<float>(m_tileWidth * 2);
 		bounds.height += static_cast<float>(m_tileHeight * 2);
 		m_bounds = bounds;
+
+		for(auto& layer : m_layers)
+			layer.Cull(m_bounds);
 	}
 	m_lastViewPos = view.getCenter();
 }
@@ -526,7 +529,7 @@ void MapLoader::m_DoFlips(std::bitset<3> bits, sf::Vector2f *v0, sf::Vector2f *v
     }
 }
 
-TileQuad::Ptr MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset)
+TileQuad* MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset)
 {
 	sf::Uint8 opacity = static_cast<sf::Uint8>(255.f * layer.opacity);
 	sf::Color colour = sf::Color(255u, 255u, 255u, opacity);
@@ -903,7 +906,6 @@ void MapLoader::m_SetIsometricCoords(MapLayer& layer)
 
 void MapLoader::m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug)
 {
-	layer.Cull(m_bounds);
 	rt.draw(layer);
 
 	if(debug && layer.type == ObjectGroup)
@@ -946,6 +948,9 @@ void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 		bounds.width += static_cast<float>(m_tileWidth * 2);
 		bounds.height += static_cast<float>(m_tileHeight * 2);
 		m_bounds = bounds;
+
+		for(auto& layer : m_layers)
+			layer.Cull(m_bounds);
 	}
 	m_lastViewPos = view.getCenter();
 

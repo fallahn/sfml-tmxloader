@@ -41,27 +41,29 @@ namespace tmx
 	{
 		friend class LayerSet;
 	public:
-		typedef std::shared_ptr<TileQuad> Ptr;
+		typedef std::unique_ptr<TileQuad> Ptr;
 		TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3);
 		void Move(const sf::Vector2f& distance);
 	private:
 		std::array<sf::Uint16, 4u> m_indices;
 		sf::Vector2f m_movement;
-		bool m_needsUpdate;
+		LayerSet* m_parentSet;
 	};
 
 	//drawable composed of vertices representing a set of tiles on a layer
 	class LayerSet final : public sf::Drawable
 	{
+		friend class TileQuad;
 	public:	
 
 		LayerSet(const sf::Texture& texture);
-		TileQuad::Ptr AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3);
+		TileQuad* AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3);
 		void Cull(const sf::FloatRect& bounds);
 
 	private:
 		const sf::Texture& m_texture;
-		mutable std::vector<TileQuad::Ptr> m_quads;
+		std::vector<TileQuad::Ptr> m_quads;
+		mutable std::vector<TileQuad*> m_dirtyQuads;
 		mutable std::vector<sf::Vertex> m_vertices;
 		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
 

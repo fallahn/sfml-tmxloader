@@ -61,6 +61,7 @@ bool MapObject::Segment::Intersects(const MapObject::Segment& segment)
 MapObject::MapObject()
 	 : m_visible	(true),
 	 m_shape		(Rectangle),
+	 m_tileQuad		(nullptr),
 	 m_furthestPoint(0.f)
 {
 
@@ -276,7 +277,7 @@ void MapObject::ReverseWinding()
 	std::reverse(m_polypoints.begin(), m_polypoints.end());
 }
 
-void MapObject::SetQuad(std::shared_ptr<TileQuad> quad)
+void MapObject::SetQuad(TileQuad* quad)
 {
 	m_tileQuad = quad;
 }

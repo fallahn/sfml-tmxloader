@@ -33,58 +33,61 @@ it freely, subject to the following restrictions:
 #include <tmx/MapLoader.h>
 #include <tmx/Log.h>
 
-
-sf::Vector2f getViewMovement(float dt)
+namespace
 {
+	sf::Vector2f getViewMovement(float dt)
+	{
 
-    sf::Vector2f movement;
+		sf::Vector2f movement;
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-        movement.x = -1.f;
-    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-        movement.x = 1.f;
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			movement.x = -1.f;
+		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			movement.x = 1.f;
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-        movement.y = -1.f;
-    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-        movement.y = 1.f;
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+			movement.y = -1.f;
+		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			movement.y = 1.f;
 
-    movement = Helpers::Vectors::Normalize(movement) * 500.f * dt;
-    return movement;
+		movement = Helpers::Vectors::Normalize(movement) * 500.f * dt;
+		return movement;
+	}
+
+	void handleWindowEvent(sf::RenderWindow& renderWindow)
+	{
+			sf::Event event;
+			while(renderWindow.pollEvent(event))
+			{
+				if (event.type == sf::Event::Closed
+					|| (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape))
+				{
+					renderWindow.close();
+				}
+			}
+	}
+
+	sf::Font loadFont()
+	{
+		//setup fonts
+		sf::Font font;
+		if (!font.loadFromFile("fonts/Ubuntu-M.ttf"))
+		{
+			std::cout << "font not loaded for fps count" << std::endl;
+			//do nothing its just a test
+		}
+		return font;
+	}
+
+	sf::Text getFpsText(const sf::Font& font)
+	{
+		sf::Text fpsText;
+		fpsText.setFont(font);
+		fpsText.setColor(sf::Color::White);
+		fpsText.setCharacterSize(25);
+		return fpsText;
+	}
 }
-
-
-void handleWindowEvent(sf::RenderWindow& renderWindow)
-{
-        sf::Event event;
-        while(renderWindow.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                renderWindow.close();
-        }
-}
-
-sf::Font loadFont()
-{
-    //setup fonts
-    sf::Font font;
-    if (!font.loadFromFile("fonts/Ubuntu-M.ttf"))
-    {
-        std::cout << "font not loaded for fps count" << std::endl;
-        //do nothing its just a test
-    }
-    return font;
-}
-
-sf::Text getFpsText(const sf::Font& font)
-{
-    sf::Text fpsText;
-    fpsText.setFont(font);
-    fpsText.setColor(sf::Color::White);
-    fpsText.setCharacterSize(25);
-    return fpsText;
-}
-
 int main()
 {
     sf::RenderWindow renderWindow(sf::VideoMode(800u, 600u), "TMX Loader");
@@ -130,7 +133,7 @@ int main()
 
         //show fps
         float fpsCount = (1/frameClock.restart().asSeconds());
-        fpsText.setString( "FPS: " + (std::to_string(fpsCount)) );
+        fpsText.setString( "FPS: " + (std::to_string(fpsCount)));
         fpsText.move(movement);
 
         //draw

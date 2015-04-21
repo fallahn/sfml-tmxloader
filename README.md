@@ -1,4 +1,5 @@
 /*********************************************************************
+
 Matt Marchant 2013 - 2014
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 
@@ -24,6 +25,7 @@ it freely, subject to the following restrictions:
 
 3. This notice may not be removed or altered from any
    source distribution.
+
 *********************************************************************/
 
 This class is designed to load TILED .tmx format maps, compatible with
@@ -169,15 +171,19 @@ all output is directed to the console window
 
 all output is written to a file named output.log in the executable directory
 	
-    #define OUT_OUTPUT_ALL
+    #define LOG_OUTPUT_ALL
 
 log output is directed to both the console and output.log
 	
 Logging is diabled by default. The level of log information can be set with
+
     Logger::SetLogLevel()
+    
 by providing a bitmask for the level required. For instance to only log warnings
 and errors use:
+
     Logger::SetLogLevel(Logger::Warning | Logger::Error);
+
 
 
 For more detailed examples see the source in the examples folder, and the wiki on github:

@@ -32,7 +32,7 @@ it freely, subject to the following restrictions:
 using namespace tmx;
 ///------TileQuad-----///
 TileQuad::TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3)
-	: m_needsUpdate	(false)
+	: m_parentSet	(nullptr)
 {
 	m_indices[0] = i0;
 	m_indices[1] = i1;
@@ -43,7 +43,10 @@ TileQuad::TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3)
 void TileQuad::Move(const sf::Vector2f& distance)
 {
 	m_movement = distance;
-	m_needsUpdate = true;
+	if(m_parentSet)
+	{
+		m_parentSet->m_dirtyQuads.push_back(this);
+	}
 }
 
 
@@ -57,7 +60,7 @@ LayerSet::LayerSet(const sf::Texture& texture)
 
 }
 
-TileQuad::Ptr LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3)
+TileQuad* LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3)
 {
 	m_vertices.push_back(vt0);
 	m_vertices.push_back(vt1);
@@ -65,43 +68,31 @@ TileQuad::Ptr LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, 
 	m_vertices.push_back(vt3);
 
 	sf::Uint16 i = m_vertices.size() - 4u;
-	m_quads.push_back(std::make_shared<TileQuad>(i, i + 1, i + 2, i + 3));
+	m_quads.emplace_back(TileQuad::Ptr(new TileQuad(i, i + 1, i + 2, i + 3)));
+	m_quads.back()->m_parentSet = this;
 
 	m_UpdateAABB(vt0.position, vt2.position);
 
-	return m_quads.back();
+	return m_quads.back().get();
 }
 
 void LayerSet::Cull(const sf::FloatRect& bounds)
 {
-	if(	bounds.contains(m_boundingBox.left, m_boundingBox.top) ||
-		bounds.contains(m_boundingBox.width, m_boundingBox.height) ||
-		m_boundingBox.contains(bounds.left, bounds.top) ||
-		m_boundingBox.contains(bounds.left + bounds.width, bounds.top + bounds.height))
-	{
-		m_visible = true;
-	}
-	else
-	{
-		m_visible = false;
-	}
+	m_visible = m_boundingBox.intersects(bounds);
 }
 
 //private
 void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 {
-	for(auto& q : m_quads)
+	for(const auto& q : m_dirtyQuads)
 	{
-		if(q->m_needsUpdate)
+		for(const auto& p : q->m_indices)
 		{
-			for(auto& i : q->m_indices)
-			{
-				m_vertices[i].position += q->m_movement;
-			}
-			q->m_needsUpdate = false;
+			m_vertices[p].position += q->m_movement;
 		}
 	}
-	
+	m_dirtyQuads.clear();
+
 	if(!m_vertices.empty() && m_visible)
 	{
 		states.texture = &m_texture;
