@@ -32,6 +32,20 @@ it freely, subject to the following restrictions:
 using namespace tmx;
 
 //ctor
+MapLoader::MapLoader()
+	: m_width(1u),
+	m_height(1u),
+	m_tileWidth(1u),
+	m_tileHeight(1u),
+	m_tileRatio(1.f),
+	m_mapLoaded(false),
+	m_quadTreeAvailable(false),
+	m_failedImage(false)
+{
+	//reserve some space to help reduce reallocations
+	m_layers.reserve(10);
+}
+
 MapLoader::MapLoader(const std::string& mapDirectory)
 	: m_width			(1u),
 	m_height			(1u),
@@ -218,6 +232,16 @@ sf::Vector2f MapLoader::OrthogonalToIsometric(const sf::Vector2f& worldCoords)
 							(worldCoords.y - (worldCoords.x / m_tileRatio)));
 }
 
+sf::Uint16 MapLoader::GetTileWidth() const
+{
+	return m_tileWidth;
+}
+
+sf::Uint16 MapLoader::GetTileHeight() const
+{
+	return m_tileHeight;
+}
+
 sf::Vector2u MapLoader::GetMapSize() const
 {
 	return sf::Vector2u(m_width * m_tileWidth, m_height * m_tileHeight);
@@ -238,8 +262,6 @@ bool MapLoader::QuadTreeAvailable() const
 {
 	return m_quadTreeAvailable;
 }
-
-
 
 MapLoader::TileInfo::TileInfo()
 	: TileSetId (0u)

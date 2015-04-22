@@ -51,7 +51,8 @@ namespace tmx
 
 	class MapLoader final : public sf::Drawable, private sf::NonCopyable
 	{
-	public:
+		public:
+		MapLoader();
 		MapLoader(const std::string& mapDirectory);
 		//loads a given tmx file, returns false on failure
 		bool Load(const std::string& mapFile);
@@ -76,6 +77,10 @@ namespace tmx
 		//returns orthogonal world coords from projected coords
 		//eg: use to find the orthogonal world coordinates currently under the mouse cursor
 		sf::Vector2f OrthogonalToIsometric(const sf::Vector2f& worldCoords);
+		//returns tile width in pixels
+		sf::Uint16 GetTileWidth() const;
+		//returns tile height in pixels
+		sf::Uint16 GetTileHeight() const;
 		//returns the map size in pixels
 		sf::Vector2u GetMapSize() const;
 		//returns empty string if property not found
