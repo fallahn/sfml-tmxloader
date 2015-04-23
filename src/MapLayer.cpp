@@ -107,14 +107,42 @@ void LayerSet::Cull(const sf::FloatRect& bounds)
 //private
 void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 {
+	//std::vector<sf::Int32> dirtyPatches; //TODO prevent patches being duplicated
 	for(const auto& q : m_dirtyQuads)
 	{
 		for(const auto& p : q->m_indices)
 		{
 			m_patches[q->m_patchIndex][p].position += q->m_movement;
 		}
+		//mark AABB as dirty if patch size has changed - TODO this doesn't shrink AABB :/
+		//if(!m_boundingBox.contains(m_patches[q->m_patchIndex][0].position)
+		//	|| !m_boundingBox.contains(m_patches[q->m_patchIndex][0].position))
+		//{
+		//	//we only need to check first and 3rd - not all 4
+		//	dirtyPatches.push_back(q->m_patchIndex);
+		//}
 	}
 	m_dirtyQuads.clear();
+
+	//for(auto p : dirtyPatches)
+	//{
+	//	//update AABB
+	//	sf::Vector2f min, max;
+	//	const auto& verts = m_patches[p];
+	//	for(auto i = 0; i < verts.size(); i += 2) //only check extents
+	//	{
+	//		if(verts[i].position.x < min.x) min.x = verts[i].position.x;
+	//		else if(verts[i].position.x > max.x) max.x = verts[i].position.x;
+	//		if(verts[i].position.y < min.y) min.y = verts[i].position.y;
+	//		else if(verts[i].position.y > max.y) max.y = verts[i].position.y;
+	//	}
+
+	//	//TODO this doesn't shrink the AABB!
+	//	if(m_boundingBox.left > min.x) m_boundingBox.left = min.x;
+	//	if(m_boundingBox.top > min.y) m_boundingBox.top = min.y;
+	//	if(std::fabs(m_boundingBox.left) + m_boundingBox.width < max.x) m_boundingBox.width = std::fabs(m_boundingBox.left) + max.x;
+	//	if(std::fabs(m_boundingBox.top) + m_boundingBox.height < max.y) m_boundingBox.width = std::fabs(m_boundingBox.top) + max.y;
+	//}
 
 	if(!m_visible) return;
 

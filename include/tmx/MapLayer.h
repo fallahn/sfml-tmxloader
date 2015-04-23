@@ -76,7 +76,7 @@ namespace tmx
 
 		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
 
-		sf::FloatRect m_boundingBox;
+		mutable sf::FloatRect m_boundingBox;
 		void m_UpdateAABB(sf::Vector2f position, sf::Vector2f size);
 		bool m_visible;
 	};

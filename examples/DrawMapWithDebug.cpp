@@ -35,7 +35,7 @@ it freely, subject to the following restrictions:
 int main()
 {
 	sf::RenderWindow renderWindow(sf::VideoMode(800u, 600u), "TMX Loader");
-	renderWindow.setVerticalSyncEnabled(true);
+	//renderWindow.setVerticalSyncEnabled(true);
 
 	//create map loader and load map
 	tmx::MapLoader ml("maps\\");
@@ -76,7 +76,7 @@ int main()
 			{
 				for(auto& o : l.objects)
 				{
-					o.Move(0.f, 1.f);
+					o.Move(0.f, 60.f * frameClock.getElapsedTime().asSeconds());
 					if(o.GetPosition().y > 600.f)
 					{
 						o.SetPosition(o.GetPosition().x, 0.f);
