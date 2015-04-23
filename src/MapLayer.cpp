@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2015
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -32,7 +32,8 @@ it freely, subject to the following restrictions:
 using namespace tmx;
 ///------TileQuad-----///
 TileQuad::TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3)
-	: m_parentSet	(nullptr)
+	: m_parentSet	(nullptr),
+	m_patchIndex	(-1)
 {
 	m_indices[0] = i0;
 	m_indices[1] = i1;
@@ -53,23 +54,32 @@ void TileQuad::Move(const sf::Vector2f& distance)
 ///------LayerSet-----///
 
 //public
-LayerSet::LayerSet(const sf::Texture& texture)
+LayerSet::LayerSet(const sf::Texture& texture, sf::Uint8 patchSize, const sf::Vector2u& mapSize, const sf::Vector2u tileSize)
 	: m_texture	(texture),
+	m_patchSize	(patchSize),
+	m_mapSize	(mapSize),
+	m_tileSize	(tileSize),
+	m_patchCount(std::ceil(static_cast<float>(mapSize.x) / patchSize), std::ceil(static_cast<float>(mapSize.y) / patchSize)),
 	m_visible	(true)
 {
-
+	m_patches.resize(m_patchCount.x * m_patchCount.y);
 }
 
-TileQuad* LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3)
+TileQuad* LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3, sf::Uint16 x, sf::Uint16 y)
 {
-	m_vertices.push_back(vt0);
-	m_vertices.push_back(vt1);
-	m_vertices.push_back(vt2);
-	m_vertices.push_back(vt3);
+	sf::Int32 patchX = static_cast<sf::Int32>(std::ceil(x / m_patchSize));
+	sf::Int32 patchY = static_cast<sf::Int32>(std::ceil(y / m_patchSize));
+	sf::Int32 patchIndex = m_patchCount.x * patchY + patchX;
 
-	sf::Uint16 i = m_vertices.size() - 4u;
+	m_patches[patchIndex].push_back(vt0);
+	m_patches[patchIndex].push_back(vt1);
+	m_patches[patchIndex].push_back(vt2);
+	m_patches[patchIndex].push_back(vt3);
+
+	sf::Uint16 i = m_patches[patchIndex].size() - 4u;
 	m_quads.emplace_back(TileQuad::Ptr(new TileQuad(i, i + 1, i + 2, i + 3)));
 	m_quads.back()->m_parentSet = this;
+	m_quads.back()->m_patchIndex = patchIndex;
 
 	m_UpdateAABB(vt0.position, vt2.position);
 
@@ -79,6 +89,19 @@ TileQuad* LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::
 void LayerSet::Cull(const sf::FloatRect& bounds)
 {
 	m_visible = m_boundingBox.intersects(bounds);
+
+	//update visible patch indices
+	m_visiblePatchStart.x = static_cast<int>(std::floor((bounds.left / m_tileSize.x) / m_patchSize));
+	m_visiblePatchStart.y = static_cast<int>(std::floor((bounds.top / m_tileSize.y) / m_patchSize));
+	if(m_visiblePatchStart.x < 0) m_visiblePatchStart.x = 0;
+	if(m_visiblePatchStart.y < 0) m_visiblePatchStart.y = 0;
+
+	m_visiblePatchEnd.x = static_cast<int>(std::ceil((bounds.width / m_tileSize.x) / m_patchSize));
+	m_visiblePatchEnd.y = static_cast<int>(std::ceil((bounds.height / m_tileSize.y) / m_patchSize));
+	if(m_visiblePatchEnd.x > m_patchCount.x) m_visiblePatchEnd.x = m_patchCount.x;
+	if(m_visiblePatchEnd.y > m_patchCount.y) m_visiblePatchEnd.y = m_patchCount.y;
+
+	m_visiblePatchEnd += m_visiblePatchStart;
 }
 
 //private
@@ -88,15 +111,24 @@ void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 	{
 		for(const auto& p : q->m_indices)
 		{
-			m_vertices[p].position += q->m_movement;
+			m_patches[q->m_patchIndex][p].position += q->m_movement;
 		}
 	}
 	m_dirtyQuads.clear();
 
-	if(!m_vertices.empty() && m_visible)
+	if(!m_visible) return;
+
+	for(auto x = m_visiblePatchStart.x; x <= m_visiblePatchEnd.x; ++x)
 	{
-		states.texture = &m_texture;
-		rt.draw(&m_vertices[0], static_cast<unsigned int>(m_vertices.size()), sf::Quads, states);
+		for(auto y = m_visiblePatchStart.y; y <= m_visiblePatchEnd.y; ++y)
+		{
+			auto index = y * m_patchCount.x + x;
+			if(index < m_patches.size() && !m_patches[index].empty())
+			{
+				states.texture = &m_texture;
+				rt.draw(m_patches[index].data(), static_cast<unsigned>(m_patches[index].size()), sf::Quads, states);
+			}
+		}
 	}
 }
 
@@ -115,11 +147,11 @@ void LayerSet::m_UpdateAABB(sf::Vector2f position, sf::Vector2f size)
 	if(position.y < m_boundingBox.top)
 		m_boundingBox.top = position.y;
 
-	if(size.x > m_boundingBox.left + m_boundingBox.width)
-		m_boundingBox.width = size.x - m_boundingBox.left;
+	if(size.x > m_boundingBox.width + std::fabs(m_boundingBox.left))
+		m_boundingBox.width = size.x + std::fabs(m_boundingBox.left);
 
-	if(size.y > m_boundingBox.top + m_boundingBox.height)
-		m_boundingBox.height = size.y - m_boundingBox.top;
+	if(size.y > m_boundingBox.height + std::fabs(m_boundingBox.top))
+		m_boundingBox.height = size.y + std::fabs(m_boundingBox.top);
 }
 
 ///------MapLayer-----///

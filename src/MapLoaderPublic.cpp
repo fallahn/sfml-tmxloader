@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2015
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -30,23 +30,27 @@ it freely, subject to the following restrictions:
 #include <tmx/MapLoader.h>
 #include <tmx/Log.h>
 
+#include <cassert>
+
 using namespace tmx;
 
 //ctor
-MapLoader::MapLoader(const std::string& mapDirectory)
+MapLoader::MapLoader(const std::string& mapDirectory, sf::Uint8 patchSize)
 	: m_width			(1u),
 	m_height			(1u),
 	m_tileWidth			(1u),
 	m_tileHeight		(1u),
 	m_tileRatio			(1.f),
+	m_patchSize			(patchSize),
 	m_mapLoaded			(false),
 	m_quadTreeAvailable	(false),
 	m_failedImage		(false)
 {
 	//reserve some space to help reduce reallocations
 	m_layers.reserve(10);
-
 	AddSearchPath(mapDirectory);
+
+	assert(patchSize > 0);
 }
 
 bool MapLoader::Load(const std::string& map)

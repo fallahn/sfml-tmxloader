@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2015
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 

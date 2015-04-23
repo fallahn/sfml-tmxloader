@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2015
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -226,8 +226,8 @@ bool MapLoader::m_ProcessTiles(const pugi::xml_node& tilesetNode)
 	//TODO parse any tile properties and store with offset above
 
 	//slice into tiles
-	int columns = (sourceImage.getSize().x - margin) / (tileWidth + spacing);
-	int rows = (sourceImage.getSize().y - margin) / (tileHeight + spacing);
+	int columns = (sourceImage.getSize().x - 2u * margin + spacing) / (tileWidth + spacing);
+	int rows = (sourceImage.getSize().y - 2u * margin + spacing) / (tileHeight + spacing);
 
 	for (int y = 0; y < rows; y++)
 	{
@@ -595,11 +595,11 @@ TileQuad* MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 
 	if(layer.layerSets.find(id) == layer.layerSets.end())
 	{
 		//create a new layerset for texture
-		layer.layerSets[id] = std::make_shared<LayerSet>(*m_tilesetTextures[id]);
+		layer.layerSets.insert(std::make_pair(id, std::make_shared<LayerSet>(*m_tilesetTextures[id], m_patchSize, sf::Vector2u(m_width, m_height), sf::Vector2u(m_tileWidth, m_tileHeight))));
 	}
 
 	//add tile to set
-	return layer.layerSets[id]->AddTile(v0, v1, v2, v3);
+	return layer.layerSets[id]->AddTile(v0, v1, v2, v3, x, y);
 }
 
 bool MapLoader::m_ParseObjectgroup(const pugi::xml_node& groupNode)

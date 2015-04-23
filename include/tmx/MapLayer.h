@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2015
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -48,6 +48,7 @@ namespace tmx
 		std::array<sf::Uint16, 4u> m_indices;
 		sf::Vector2f m_movement;
 		LayerSet* m_parentSet;
+		sf::Int32 m_patchIndex;
 	};
 
 	//drawable composed of vertices representing a set of tiles on a layer
@@ -56,15 +57,23 @@ namespace tmx
 		friend class TileQuad;
 	public:	
 
-		LayerSet(const sf::Texture& texture);
-		TileQuad* AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3);
+		LayerSet(const sf::Texture& texture, sf::Uint8 patchSize, const sf::Vector2u& mapSize, const sf::Vector2u tileSize);
+		TileQuad* AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3, sf::Uint16 x, sf::Uint16 y);
 		void Cull(const sf::FloatRect& bounds);
 
 	private:
 		const sf::Texture& m_texture;
+		const sf::Uint8 m_patchSize;
+		const sf::Vector2u m_mapSize;
+		const sf::Vector2u m_patchCount;
+		const sf::Vector2u m_tileSize;
+
 		std::vector<TileQuad::Ptr> m_quads;
 		mutable std::vector<TileQuad*> m_dirtyQuads;
-		mutable std::vector<sf::Vertex> m_vertices;
+
+		sf::Vector2i m_visiblePatchStart, m_visiblePatchEnd;
+		mutable std::vector<std::vector<sf::Vertex>> m_patches;
+
 		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
 
 		sf::FloatRect m_boundingBox;
@@ -96,7 +105,7 @@ namespace tmx
 		};
 
 
-		MapLayer(MapLayerType layerType);
+		explicit MapLayer(MapLayerType layerType);
 		std::string name;
 		float opacity; //range 0 - 1
 		bool visible;

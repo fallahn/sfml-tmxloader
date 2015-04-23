@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2015
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -37,7 +37,6 @@ namespace
 {
 	sf::Vector2f getViewMovement(float dt)
 	{
-
 		sf::Vector2f movement;
 
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
@@ -106,11 +105,10 @@ int main()
     const float dt = 0.01f;
 
     float previousUpdateTime = deltaClock.getElapsedTime().asSeconds();
-    float accumulator = 0.0f;
+    float accumulator = 0.f;
 
     while(renderWindow.isOpen())
     {
-
         handleWindowEvent(renderWindow);
 
         //update
@@ -132,7 +130,7 @@ int main()
         renderWindow.setView(view);
 
         //show fps
-        float fpsCount = (1/frameClock.restart().asSeconds());
+        float fpsCount = (1.f / frameClock.restart().asSeconds());
         fpsText.setString( "FPS: " + (std::to_string(fpsCount)));
         fpsText.move(movement);
 
@@ -141,7 +139,6 @@ int main()
         renderWindow.draw(ml);
         renderWindow.draw(fpsText);
         renderWindow.display();
-
     }
 
     return 0;

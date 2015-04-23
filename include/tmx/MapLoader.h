@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2015
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -35,7 +35,6 @@ it freely, subject to the following restrictions:
 
 #include <pugixml/pugixml.hpp>
 
-#include <iostream>
 #include <array>
 #include <cassert>
 #include <bitset>
@@ -52,7 +51,10 @@ namespace tmx
 	class MapLoader final : public sf::Drawable, private sf::NonCopyable
 	{
 	public:
-		MapLoader(const std::string& mapDirectory);
+		//requires a path to the map directory relative to working directory
+		//and the maximum number of tiles in a single patch along one edge
+		//where 0 does no patch splitting.
+		MapLoader(const std::string& mapDirectory, sf::Uint8 patchSize = 10u);
 		//loads a given tmx file, returns false on failure
 		bool Load(const std::string& mapFile);
 		//adds give path to list of directories to search for assets, such as tile sets
@@ -102,6 +104,7 @@ namespace tmx
 		mutable std::vector<MapLayer> m_layers; //layers of map, including image and object layers
 		std::vector<std::unique_ptr<sf::Texture>> m_imageLayerTextures;
 		std::vector<std::unique_ptr<sf::Texture>> m_tilesetTextures; //textures created from complete sets used when drawing vertex arrays
+		const sf::Uint8 m_patchSize;
 		struct TileInfo //holds texture coords and tileset id of a tile
 		{
 			std::array<sf::Vector2f, 4> Coords;
