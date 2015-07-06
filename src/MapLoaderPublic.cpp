@@ -128,6 +128,8 @@ void MapLoader::AddSearchPath(const std::string& path)
 
 	if(s.size() > 1 && *s.rbegin() != '/')
 		s += '/';
+	else if (s == ".")
+		s = "./";
 	else if(s == "/" || s == "\\") s = "";
 }
 
