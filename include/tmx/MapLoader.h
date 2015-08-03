@@ -41,7 +41,7 @@ it freely, subject to the following restrictions:
 
 namespace tmx
 {
-	enum MapOrientation
+	enum class MapOrientation
 	{
 		Orthogonal,
 		Isometric,
@@ -57,6 +57,8 @@ namespace tmx
 		MapLoader(const std::string& mapDirectory, sf::Uint8 patchSize = 10u);
 		//loads a given tmx file, returns false on failure
 		bool Load(const std::string& mapFile);
+		//loads a map from an xml string in memory
+		bool LoadFromMemory(const std::string& xmlString);
 		//adds give path to list of directories to search for assets, such as tile sets
 		void AddSearchPath(const std::string& path);
 		//updates the map's quad tree. Not necessary when not querying the quad tree
@@ -120,6 +122,8 @@ namespace tmx
 		//root node for quad tree partition
 		QuadTreeRoot m_rootNode;
 
+
+		bool m_LoadFromXmlDoc(const pugi::xml_document& doc);
 		//resets any loaded map properties
 		void m_Unload();
 		//sets the visible area of tiles to be drawn

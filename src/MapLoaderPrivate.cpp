@@ -35,6 +35,59 @@ it freely, subject to the following restrictions:
 
 using namespace tmx;
 
+bool MapLoader::m_LoadFromXmlDoc(const pugi::xml_document& mapDoc)
+{
+	//set map properties
+	pugi::xml_node mapNode = mapDoc.child("map");
+	if(!mapNode)
+	{
+		LOG("Map node not found. Map not loaded.", Logger::Type::Error);
+		return m_mapLoaded = false;
+	}
+	if(!(m_mapLoaded = m_ParseMapNode(mapNode))) return false;
+	//load map textures / tilesets
+	if(!(m_mapLoaded = m_ParseTileSets(mapNode))) return false;
+
+	//actually we need to traverse map node children and parse each layer as found
+	pugi::xml_node currentNode = mapNode.first_child();
+	while(currentNode)
+	{
+		std::string name = currentNode.name();
+		if(name == "layer")
+		{
+			if(!(m_mapLoaded = m_ParseLayer(currentNode)))
+			{
+				m_Unload(); //purge partially loaded data
+				return false;
+			}
+		}
+		else if(name == "imagelayer")
+		{
+			if(!(m_mapLoaded = m_ParseImageLayer(currentNode)))
+			{
+				m_Unload();
+				return false;
+			}
+		}
+		else if(name == "objectgroup")
+		{
+			if(!(m_mapLoaded = m_ParseObjectgroup(currentNode)))
+			{
+				m_Unload();
+				return false;
+			}
+		}
+		currentNode = currentNode.next_sibling();
+	}
+
+	m_CreateDebugGrid();
+
+	LOG("Parsed " + std::to_string(m_layers.size()) + " layers.", Logger::Type::Info);
+	LOG("Loaded tmx file successfully.", Logger::Type::Info);
+
+	return m_mapLoaded = true;
+}
+
 void MapLoader::m_Unload()
 {
 	m_tilesetTextures.clear();
@@ -86,11 +139,11 @@ bool MapLoader::m_ParseMapNode(const pugi::xml_node& mapNode)
 
 	if(orientation == "orthogonal")
 	{
-		m_orientation = Orthogonal;
+		m_orientation = MapOrientation::Orthogonal;
 	}
 	else if(orientation == "isometric")
 	{
-		m_orientation = Isometric;
+		m_orientation = MapOrientation::Isometric;
 		m_tileRatio = static_cast<float>(m_tileWidth) / static_cast<float>(m_tileHeight);
 	}
 	else
@@ -400,7 +453,7 @@ bool MapLoader::m_ParseLayer(const pugi::xml_node& layerNode)
 		m_ParseLayerProperties(propertiesNode, layer);
 
 	//convert layer tile coords to isometric if needed
-	if(m_orientation == Isometric) m_SetIsometricCoords(layer);
+	if(m_orientation == MapOrientation::Isometric) m_SetIsometricCoords(layer);
 
 	m_layers.push_back(layer);
 	return true;
@@ -567,7 +620,7 @@ TileQuad* MapLoader::m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 
 	}
 
 	//adjust position for isometric maps
-	if(m_orientation == Isometric)
+	if(m_orientation == MapOrientation::Isometric)
 	{
 		sf::Vector2f isoOffset(-static_cast<float>(x * (m_tileWidth / 2u)), static_cast<float>(x * (m_tileHeight / 2u)));
 		isoOffset.x -= static_cast<float>(y * (m_tileWidth / 2u));

@@ -68,55 +68,23 @@ bool MapLoader::Load(const std::string& map)
 		return m_mapLoaded = false;
 	}
 
-	//set map properties
-	pugi::xml_node mapNode = mapDoc.child("map");
-	if(!mapNode)
+	return m_LoadFromXmlDoc(mapDoc);
+}
+
+bool MapLoader::LoadFromMemory(const std::string& xmlString)
+{
+	m_Unload();
+
+	pugi::xml_document mapDoc;
+	pugi::xml_parse_result result = mapDoc.load_string(xmlString.c_str());
+	if(!result)
 	{
-		LOG("Map node not found. Map " + map + " not loaded.", Logger::Type::Error);
+		LOG("Failed to open map from string", Logger::Type::Error);
+		LOG("Reason: " + std::string(result.description()), Logger::Type::Error);
 		return m_mapLoaded = false;
 	}
-	if(!(m_mapLoaded = m_ParseMapNode(mapNode))) return false;
-	//load map textures / tilesets
-	if(!(m_mapLoaded = m_ParseTileSets(mapNode))) return false;
 
-	//actually we need to traverse map node children and parse each layer as found
-	pugi::xml_node currentNode = mapNode.first_child();
-	while(currentNode)
-	{
-		std::string name = currentNode.name();
-		if(name == "layer")
-		{
-			if(!(m_mapLoaded = m_ParseLayer(currentNode)))
-			{
-				m_Unload(); //purge partially loaded data
-				return false;
-			}
-		}
-		else if(name == "imagelayer")
-		{
-			if(!(m_mapLoaded = m_ParseImageLayer(currentNode)))
-			{
-				m_Unload();
-				return false;
-			}
-		}
-		else if(name == "objectgroup")
-		{
-			if(!(m_mapLoaded = m_ParseObjectgroup(currentNode)))
-			{
-				m_Unload();
-				return false;
-			}
-		}
-		currentNode = currentNode.next_sibling();
-	}
-
-	m_CreateDebugGrid();
-
-	LOG("Parsed " + std::to_string(m_layers.size()) + " layers.", Logger::Type::Info);
-	LOG("Loaded " + map + " successfully.", Logger::Type::Info);
-
-	return m_mapLoaded = true;
+	return m_LoadFromXmlDoc(mapDoc);
 }
 
 void MapLoader::AddSearchPath(const std::string& path)
@@ -211,14 +179,14 @@ void MapLoader::Draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug)
 sf::Vector2f MapLoader::IsometricToOrthogonal(const sf::Vector2f& projectedCoords)
 {
 	//skip converting if we don't actually have an isometric map loaded
-	if(m_orientation != Isometric) return projectedCoords;
+	if(m_orientation != MapOrientation::Isometric) return projectedCoords;
 
 	return sf::Vector2f(projectedCoords.x - projectedCoords.y, (projectedCoords.x / m_tileRatio) + (projectedCoords.y / m_tileRatio));
 }
 
 sf::Vector2f MapLoader::OrthogonalToIsometric(const sf::Vector2f& worldCoords)
 {
-	if(m_orientation != Isometric) return worldCoords;
+	if(m_orientation != MapOrientation::Isometric) return worldCoords;
 
 	return sf::Vector2f(((worldCoords.x / m_tileRatio) + worldCoords.y),
 							(worldCoords.y - (worldCoords.x / m_tileRatio)));
