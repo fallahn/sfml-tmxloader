@@ -1,6 +1,6 @@
 /*********************************************************************
 
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2015
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 
 The zlib license has been used to make this software fully compatible
@@ -54,10 +54,7 @@ What's not supported / limitations
 ----------------------------------
 
 Parsing of individual tile properties
-Flipping / rotation of map objects
 Staggered isometric maps
-
-
 
 Usage
 -----
