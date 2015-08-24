@@ -29,19 +29,36 @@ it freely, subject to the following restrictions:
 
 #include <tmx/MapLoader.h>
 #include <tmx/Log.h>
-#include <sstream>
-//this is needed with MSVC to prevent unresolved external errors
-//alternatively define this in the zlib project before compiling the zlib library
+
 #ifdef _MSC_VER
 #ifdef LoadImage
 #undef LoadImage
 #endif //Loadimage
+//this is needed with MSVC to prevent unresolved external errors
+//alternatively define this in the zlib project before compiling the zlib library
 #ifndef ZLIB_WINAPI
 #define ZLIB_WINAPI 
 #endif //ZLIB_WINAPI
 #endif //_MSC_VER
 #include <zlib.h>
 #include <cstring>
+#include <sstream>
+#include <functional>
+
+namespace
+{
+    //functor for searching by name
+    struct FindByName
+    {
+        explicit FindByName(const std::string& name) : m_name(name){}
+        bool operator () (pugi::xml_node node)
+        {
+            return node.name() == m_name;
+        }
+    private:
+        const std::string m_name;
+    };
+}
 
 using namespace tmx;
 
@@ -703,12 +720,12 @@ bool MapLoader::ParseObjectgroup(const pugi::xml_node& groupNode)
 		position = IsometricToOrthogonal(position);
 		object.SetPosition(position);
 
-		//set size if specified
+        //set size if specified
 		if(objectNode.attribute("width") && objectNode.attribute("height"))
 		{
 			sf::Vector2f size(objectNode.attribute("width").as_float(),
 							objectNode.attribute("height").as_float());
-			if(objectNode.child("ellipse"))
+			if(objectNode.find_child(FindByName("ellipse")))
 			{
 				//add points to make ellipse
 				const float x = size.x / 2.f;
@@ -734,17 +751,24 @@ bool MapLoader::ParseObjectgroup(const pugi::xml_node& groupNode)
 			object.SetSize(size);
 		}
 		//else parse poly points
-		else if(objectNode.child("polygon") || objectNode.child("polyline"))
+        else if (objectNode.find_child(FindByName("polygon")) || objectNode.find_child(FindByName("polyline")))
 		{
-			if(objectNode.child("polygon"))
-				object.SetShapeType(Polygon);
-			else object.SetShapeType(Polyline);
+            pugi::xml_node child;
+            if (child = objectNode.find_child(FindByName("polygon")))
+            {
+                object.SetShapeType(Polygon);
+            }
+            else
+            {
+                object.SetShapeType(Polyline);
+                child = objectNode.find_child(FindByName("polyline"));
+            }
 
 			//split coords into pairs
-			if(objectNode.first_child().attribute("points"))
+            if (child.attribute("points"))
 			{
 				LOG("Processing poly shape points...", Logger::Type::Info);
-				std::string pointlist = objectNode.first_child().attribute("points").as_string();
+				std::string pointlist = child.attribute("points").as_string();
 				std::stringstream stream(pointlist);
 				std::vector<std::string> points;
 				std::string pointstring;
@@ -780,7 +804,7 @@ bool MapLoader::ParseObjectgroup(const pugi::xml_node& groupNode)
 		}
 
 		//parse object node property values
-		if(pugi::xml_node propertiesNode = objectNode.child("properties"))
+		if(pugi::xml_node propertiesNode = objectNode.find_child(FindByName("properties")))
 		{
 			pugi::xml_node propertyNode = propertiesNode.child("property");
 			while(propertyNode)
