@@ -133,6 +133,7 @@ namespace tmx
 		bool ParseMapNode(const pugi::xml_node& mapNode);
 		bool ParseTileSets(const pugi::xml_node& mapNode);
 		bool ProcessTiles(const pugi::xml_node& tilesetNode);
+        bool ParseCollectionOfImages(const pugi::xml_node& tilesetNode);
 		bool ParseLayer(const pugi::xml_node& layerNode);
         TileQuad* AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset = sf::Vector2f());
 		bool ParseObjectgroup(const pugi::xml_node& groupNode);

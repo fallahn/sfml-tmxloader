@@ -112,6 +112,7 @@ bool MapLoader::LoadFromXmlDoc(const pugi::xml_document& mapDoc)
 	LOG("Parsed " + std::to_string(m_layers.size()) + " layers.", Logger::Type::Info);
 	LOG("Loaded tmx file successfully.", Logger::Type::Info);
 
+    m_cachedImages.clear(); //these should all be loaded into textures now
 	return m_mapLoaded = true;
 }
 
@@ -121,6 +122,7 @@ void MapLoader::Unload()
 	m_tileInfo.clear();
 	m_layers.clear();
 	m_imageLayerTextures.clear();
+    m_cachedImages.clear();
 	m_mapLoaded = false;
 	m_quadTreeAvailable = false;
 	m_failedImage = false;
@@ -207,9 +209,9 @@ bool MapLoader::ParseTileSets(const pugi::xml_node& mapNode)
 	LOG("Caching image files, please wait...",Logger::Type::Info);
 
 	//empty vertex tile
-	m_tileInfo.push_back(TileInfo());
+    m_tileInfo.emplace_back();
 
-	//parse tile sets in order so GUIDs match index
+	//parse tile sets in order so GIDs match index
 	while(tileset)
 	{
 		//if source attrib parse external tsx
@@ -272,9 +274,11 @@ bool MapLoader::ProcessTiles(const pugi::xml_node& tilesetNode)
 	pugi::xml_node imageNode;
 	if(!(imageNode = tilesetNode.child("image")) || !imageNode.attribute("source"))
 	{
-		LOG("Missing image data in tmx file. Map not loaded.", Logger::Type::Error);
-		Unload();
-		return false;
+		//we have a tileset of images
+        return ParseCollectionOfImages(tilesetNode);
+        //LOG("Missing image data in tmx file. Map not loaded.", Logger::Type::Error);
+		//Unload();
+		//return false;
 	}
 
 	//process image from disk
@@ -283,7 +287,7 @@ bool MapLoader::ProcessTiles(const pugi::xml_node& tilesetNode)
 	if(m_failedImage)
 	{
 		LOG("Failed to load image " + imageName, Logger::Type::Error);
-		LOG("Please check image exists and add any external paths with AddSearchPath()", Logger::Type::Error);
+		LOG("Please check image exists and add any external paths with AddSearchPath()", Logger::Type::Warning);
 		return false;
 	}
 
@@ -291,10 +295,10 @@ bool MapLoader::ProcessTiles(const pugi::xml_node& tilesetNode)
 	if(imageNode.attribute("trans"))
 		sourceImage.createMaskFromColor(ColourFromHex(imageNode.attribute("trans").as_string()));
 
-	//store image as a texture for drawing with vertex array
-	std::unique_ptr<sf::Texture> tileset(new sf::Texture);
-	tileset->loadFromImage(sourceImage);
-	m_tilesetTextures.push_back(std::move(tileset));
+    //store image as a texture for drawing with vertex array
+    std::unique_ptr<sf::Texture> tileset(new sf::Texture);
+    tileset->loadFromImage(sourceImage);
+    m_tilesetTextures.push_back(std::move(tileset));
 
 	//parse offset node if it exists - TODO store somewhere tileset info can be referenced
 	sf::Vector2u offset;
@@ -303,6 +307,7 @@ bool MapLoader::ProcessTiles(const pugi::xml_node& tilesetNode)
 		offset.x = (offsetNode.attribute("x")) ? offsetNode.attribute("x").as_uint() : 0u;
 		offset.y = (offsetNode.attribute("y")) ? offsetNode.attribute("y").as_uint() : 0u;
 	}
+
 	//TODO parse any tile properties and store with offset above
 
 	//slice into tiles
@@ -330,6 +335,61 @@ bool MapLoader::ProcessTiles(const pugi::xml_node& tilesetNode)
 
 	LOG("Processed " + imageName, Logger::Type::Info);
 	return true;
+}
+
+bool MapLoader::ParseCollectionOfImages(const pugi::xml_node& tilesetNode)
+{
+    pugi::xml_node tile;
+    if (tile = tilesetNode.child("tile"))
+    {
+        while (tile)
+        {
+            for (const auto& c : tile.children()) //ok so I only just found pugi supports this
+            {
+                if (std::string(c.name()) == "image")
+                {
+                    std::string imageName = FileFromPath(c.attribute("source").as_string());
+                    sf::Image sourceImage = LoadImage(imageName);
+                    if (m_failedImage)
+                    {
+                        LOG("Failed to load image " + imageName, Logger::Type::Error);
+                        LOG("Please check image exists and add any external paths with AddSearchPath()", Logger::Type::Warning);
+                        return false;
+                    }
+
+                    //add transparency mask from colour if it exists (not current in COI sets, but it may get added)
+                    if (c.attribute("trans"))
+                        sourceImage.createMaskFromColor(ColourFromHex(c.attribute("trans").as_string()));
+
+                    //store image as a texture for drawing with vertex array
+                    std::unique_ptr<sf::Texture> tileset(new sf::Texture);
+                    tileset->loadFromImage(sourceImage);
+                    m_tilesetTextures.push_back(std::move(tileset));
+
+                    sf::Uint16 width = c.attribute("width").as_uint();
+                    sf::Uint16 height = c.attribute("height").as_uint();
+
+                    sf::IntRect rect;
+                    rect.height = height;
+                    rect.width = width;
+
+                    //store texture coords and tileset index for vertex array
+                    m_tileInfo.push_back(TileInfo(rect,
+                        sf::Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height)),
+                        m_tilesetTextures.size() - 1u));
+
+                    LOG("Processed " + imageName, Logger::Type::Info);
+                }
+                else if (std::string(c.name()) == "property")
+                {
+                    //need to implement this when implementing with single tilesets above
+                }
+            }
+            tile = tile.next_sibling();
+        }
+    }
+
+    return true;
 }
 
 bool MapLoader::ParseLayer(const pugi::xml_node& layerNode)
