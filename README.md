@@ -44,7 +44,7 @@ Supports conversion between orthogonal and isometric world coords
 Parses all types of layers (normal, object and image), layer properties
 Parses all types of object, object shapes, types, properties
 Option to draw debug output of objects and tile grid
-Supports multiple tile sets, including tsx files
+Supports multiple tile sets, including tsx files and collections of images
 Supports all layer encoding and compression: base64, csv, zlib, gzip and xml (requires zlib library, see /lib directory)
 Quad tree partitioning / querying of map object data
 Optional utility functions for converting tmx map objects into box2D body data
