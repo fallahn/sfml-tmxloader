@@ -41,12 +41,6 @@ QuadTreeNode::QuadTreeNode(sf::Uint16 level, const sf::FloatRect& bounds)
 	m_bounds		(bounds)
 { 
 	m_children.reserve(4); 
-	m_debugShape = sf::RectangleShape(sf::Vector2f(bounds.width, bounds.height));
-	m_debugShape.setPosition(bounds.left, bounds.top);
-	m_debugShape.setFillColor(sf::Color::Transparent);
-	m_debugShape.setOutlineColor(sf::Color::Green);
-	m_debugShape.setOutlineThickness(-2.f);
-
 }
 
 //public functions//
@@ -55,8 +49,6 @@ void QuadTreeRoot::Clear(const sf::FloatRect& newBounds)
 	m_objects.clear();
 	m_children.clear();
 	m_bounds = newBounds;
-	m_debugShape.setPosition(newBounds.left, newBounds.top);
-	m_debugShape.setSize(sf::Vector2f(newBounds.width, newBounds.height));
 
 	m_searchDepth = 0u;
 	m_depth = 0;
@@ -66,7 +58,7 @@ std::vector<MapObject*> QuadTreeNode::Retrieve(const sf::FloatRect& bounds, sf::
 {	
 	searchDepth = m_level;
 	std::vector<MapObject*> foundObjects;
-	sf::Int16 index = m_GetIndex(bounds);
+	sf::Int16 index = GetIndex(bounds);
 
 	//recursively add objects of child node if bounds is fully contained
 	if(!m_children.empty() && index != -1) 
@@ -88,7 +80,7 @@ std::vector<MapObject*> QuadTreeNode::Retrieve(const sf::FloatRect& bounds, sf::
 	}
 	//and append objects in this node
 	foundObjects.insert(foundObjects.end(), m_objects.begin(), m_objects.end());
-	m_debugShape.setOutlineColor(sf::Color::Red);
+
 	return foundObjects;
 }
 
@@ -101,7 +93,7 @@ void QuadTreeNode::Insert(const MapObject& object)
 	//if it fits
 	if(!m_children.empty())
 	{
-		sf::Int16 index = m_GetIndex(object.GetAABB());
+		sf::Int16 index = GetIndex(object.GetAABB());
 		if(index != -1)
 		{
 			m_children[index]->Insert(object);
@@ -117,12 +109,12 @@ void QuadTreeNode::Insert(const MapObject& object)
 	if(m_objects.size() > MAX_OBJECTS && m_level < MAX_LEVELS)
 	{
 		//split if there are no child nodes
-		if(m_children.empty()) m_Split();
+		if(m_children.empty()) Split();
 
 		sf::Uint16 i = 0;
 		while(i < m_objects.size())
 		{
-			sf::Int16 index = m_GetIndex(m_objects[i]->GetAABB());
+			sf::Int16 index = GetIndex(m_objects[i]->GetAABB());
 			if(index != -1)
 			{
 				m_children[index]->Insert(*m_objects[i]);
@@ -137,19 +129,34 @@ void QuadTreeNode::Insert(const MapObject& object)
 	}
 }
 
-
-//private functions//
-void QuadTreeNode::draw(sf::RenderTarget& rt, sf::RenderStates states) const
+void QuadTreeNode::GetVertices(std::vector<sf::Vertex>& vertices)
 {
-	//recursively draw children
-	for(auto& child : m_children)
-		rt.draw(*child);
+    sf::Color colour = sf::Color::Green;
+    vertices.emplace_back(sf::Vector2f(m_bounds.left, m_bounds.top), sf::Color::Transparent); //pad with breaks between quads
+    vertices.emplace_back(sf::Vector2f(m_bounds.left, m_bounds.top), colour);
+    vertices.emplace_back(sf::Vector2f(m_bounds.left + m_bounds.width, m_bounds.top), colour);
+    vertices.emplace_back(sf::Vector2f(m_bounds.left + m_bounds.width, m_bounds.top + m_bounds.height), colour);
+    vertices.emplace_back(sf::Vector2f(m_bounds.left, m_bounds.top + m_bounds.height), colour);
+    vertices.emplace_back(sf::Vector2f(m_bounds.left, m_bounds.top), colour);
+    vertices.emplace_back(sf::Vector2f(m_bounds.left, m_bounds.top), sf::Color::Transparent);
 
-	rt.draw(m_debugShape);
+    for (const auto& c : m_children)
+        c->GetVertices(vertices);
 }
 
 
-void QuadTreeNode::m_Split(void)
+//private functions//
+void QuadTreeRoot::draw(sf::RenderTarget& rt, sf::RenderStates states) const
+{
+    std::vector<sf::Vertex> verts;
+    for (const auto& c : m_children)
+        c->GetVertices(verts);
+
+    rt.draw(verts.data(), verts.size(), sf::PrimitiveType::LinesStrip);
+}
+
+
+void QuadTreeNode::Split(void)
 {
 	const float halfWidth = m_bounds.width / 2.f;
 	const float halfHeight = m_bounds.height / 2.f;
@@ -162,7 +169,7 @@ void QuadTreeNode::m_Split(void)
 	m_children.push_back(std::make_shared<QuadTreeNode>(m_level + 1, sf::FloatRect(x+ halfWidth, y + halfHeight, halfWidth, halfHeight)));
 }
 
-sf::Int16 QuadTreeNode::m_GetIndex(const sf::FloatRect& bounds)
+sf::Int16 QuadTreeNode::GetIndex(const sf::FloatRect& bounds)
 {
 	sf::Int16 index = -1;
 	float verticalMidpoint = m_bounds.left + (m_bounds.width / 2.f);

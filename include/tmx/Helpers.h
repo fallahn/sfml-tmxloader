@@ -37,29 +37,29 @@ namespace Helpers
 {
 	namespace Vectors
 	{
-		//returns length squared
-		static float GetLengthSquared(const sf::Vector2f& source)
+		//calculats dot product of 2 vectors
+		static inline float dot(sf::Vector2f lv, sf::Vector2f rv)
 		{
-			return (source.x * source.x) + (source.y * source.y);
+			return lv.x * rv.x + lv.y * rv.y;
+		}	
+
+        //returns length squared
+        static inline float getLengthSquared(const sf::Vector2f& source)
+		{
+			return dot(source, source);
 		}
 
 		//Returns length of a given vector
-		static float GetLength(const sf::Vector2f& source)
+        static inline float getLength(const sf::Vector2f& source)
 		{
-			return std::sqrt(GetLengthSquared(source));
+			return std::sqrt(getLengthSquared(source));
 		}
 
-		//calculats dot product of 2 vectors
-		static float Dot(sf::Vector2f lv, sf::Vector2f rv)
-		{
-			return lv.x * rv.x + lv.y * rv.y;
-		}
-
-		static float Cross(const sf::Vector2f& lv, const sf::Vector2f& rv)
+        static inline float cross(const sf::Vector2f& lv, const sf::Vector2f& rv)
 		{
 			return lv.x * rv.y - lv.y * rv.x;
 		}
-		static float Cross(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c)
+        static inline float cross(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c)
 		{
 			sf::Vector2f BA = a - b;
 			sf::Vector2f BC = c - b;
@@ -67,16 +67,16 @@ namespace Helpers
 		}
 
 		//Returns a given vector with its length normalized to 1
-		static sf::Vector2f Normalize(sf::Vector2f& source)
+        static inline sf::Vector2f normalize(sf::Vector2f& source)
 		{
-			float length = std::sqrt(Dot(source, source));
+            float length = getLength(source);
 			if (length != 0) source /= length;
 
 			return source;
 		}
 
 		//Returns angle in degrees of a given vector where 0 is horizontal
-		static float GetAngle(const sf::Vector2f& source)
+        static inline float getAngle(const sf::Vector2f& source)
 		{
 			return std::atan2(source.y , source.x) * 180.f / 3.14159265f;
 		}
@@ -84,12 +84,12 @@ namespace Helpers
 	
 	namespace Math
 	{
-		static float Clamp(float x, float a, float b)
+        static inline float clamp(float x, float a, float b)
 		{
 			return x < a ? a : (x > b ? b : x);
 		}
 
-		static float Round(float val)
+        static inline float round(float val)
 		{
 			return std::floor(val + 0.5f);
 		}

@@ -176,11 +176,11 @@ private:
 
 		//returns centre of poly shape if available, else centre of
 		//bounding rectangle in world space
-		sf::Vector2f m_CalcCentre() const;
+		sf::Vector2f CalcCentre() const;
 		//precomputes centre point and furthest point to be used in intersection testing
-		void m_CalcTestValues();
+		void CalcTestValues();
 		//creates an AABB around the object based on its polygonal points, in world space
-		void m_CreateAABB();
+		void CreateAABB();
 	};
 	typedef std::vector<MapObject> MapObjects;
 

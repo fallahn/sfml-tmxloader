@@ -49,7 +49,7 @@ namespace
 		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			movement.y = 1.f;
 
-		movement = Helpers::Vectors::Normalize(movement) * 500.f * dt;
+		movement = Helpers::Vectors::normalize(movement) * 500.f * dt;
 		return movement;
 	}
 

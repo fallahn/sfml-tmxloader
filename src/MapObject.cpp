@@ -144,7 +144,7 @@ bool MapObject::Contains(sf::Vector2f point) const
 bool MapObject::Intersects(const MapObject& object) const
 {
 	//check if distance between objects is less than sum of furthest points
-	float distance = Helpers::Vectors::GetLength(m_centrePoint + object.m_centrePoint);
+	float distance = Helpers::Vectors::getLength(m_centrePoint + object.m_centrePoint);
 	if(distance > (m_furthestPoint + object.m_furthestPoint)) return false;
 
 	//check intersection if either object contains a point of the other
@@ -177,10 +177,10 @@ void MapObject::CreateDebugShape(const sf::Color& colour)
 	m_debugShape.setPosition(m_position);
 
 	//precompute shape values for intersection testing
-	m_CalcTestValues();
+	CalcTestValues();
 
 	//create the AABB for quad tree testing
-	m_CreateAABB();
+	CreateAABB();
 }
 
 void MapObject::DrawDebugShape(sf::RenderTarget& rt) const
@@ -212,15 +212,15 @@ sf::Vector2f MapObject::CollisionNormal(const sf::Vector2f& start, const sf::Vec
 			sf::Vector2f v = s.End - s.Start;
 			sf::Vector2f n(v.y, -v.x);
 			//invert normal if pointing in wrong direction
-			float tAngle = Helpers::Vectors::GetAngle(end - start);
-			float nAngle = Helpers::Vectors::GetAngle(n);
+			float tAngle = Helpers::Vectors::getAngle(end - start);
+			float nAngle = Helpers::Vectors::getAngle(n);
 			if(nAngle - tAngle > 90.f) n =- n;
 
-			return Helpers::Vectors::Normalize(n);
+			return Helpers::Vectors::normalize(n);
 		}
 	}
 	sf::Vector2f rv(end - start);
-	return Helpers::Vectors::Normalize(rv);
+	return Helpers::Vectors::normalize(rv);
 }
 
 void MapObject::CreateSegments()
@@ -256,7 +256,7 @@ bool MapObject::Convex() const
 		b = (a + 1) % n;
 		c = (b + 1) % n;
 		
-		float cross = Helpers::Vectors::Cross(m_polypoints[a], m_polypoints[b], m_polypoints[c]);
+		float cross = Helpers::Vectors::cross(m_polypoints[a], m_polypoints[b], m_polypoints[c]);
 		
 		if(cross < 0.f)
 			negative = true;
@@ -283,7 +283,7 @@ void MapObject::SetQuad(TileQuad* quad)
 }
 
 //private
-sf::Vector2f MapObject::m_CalcCentre() const
+sf::Vector2f MapObject::CalcCentre() const
 {
 	if(m_shape == Polyline) return sf::Vector2f();
 
@@ -334,12 +334,12 @@ sf::Vector2f MapObject::m_CalcCentre() const
 	return centroid;
 }
 
-void MapObject::m_CalcTestValues()
+void MapObject::CalcTestValues()
 {
-	m_centrePoint = m_CalcCentre();
+	m_centrePoint = CalcCentre();
 	for(auto i = m_polypoints.cbegin(); i != m_polypoints.cend(); ++i)
 	{
-		float length = Helpers::Vectors::GetLength(*i - m_centrePoint);
+		float length = Helpers::Vectors::getLength(*i - m_centrePoint);
 		if(m_furthestPoint < length)
 		{
 			m_furthestPoint = length;
@@ -350,7 +350,7 @@ void MapObject::m_CalcTestValues()
 	if(m_shape == Polyline) m_furthestPoint /= 2.f;
 }
 
-void MapObject::m_CreateAABB()
+void MapObject::CreateAABB()
 {
 	if(!m_polypoints.empty())
 	{

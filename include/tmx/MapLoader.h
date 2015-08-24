@@ -123,51 +123,51 @@ namespace tmx
 		QuadTreeRoot m_rootNode;
 
 
-		bool m_LoadFromXmlDoc(const pugi::xml_document& doc);
+		bool LoadFromXmlDoc(const pugi::xml_document& doc);
 		//resets any loaded map properties
-		void m_Unload();
+		void Unload();
 		//sets the visible area of tiles to be drawn
-		void m_SetDrawingBounds(const sf::View& view);
+		void SetDrawingBounds(const sf::View& view);
 
 		//utility functions for parsing map data
-		bool m_ParseMapNode(const pugi::xml_node& mapNode);
-		bool m_ParseTileSets(const pugi::xml_node& mapNode);
-		bool m_ProcessTiles(const pugi::xml_node& tilesetNode);
-		bool m_ParseLayer(const pugi::xml_node& layerNode);
-        TileQuad* m_AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset = sf::Vector2f());
-		bool m_ParseObjectgroup(const pugi::xml_node& groupNode);
-		bool m_ParseImageLayer(const pugi::xml_node& imageLayerNode);
-		void m_ParseLayerProperties(const pugi::xml_node& propertiesNode, MapLayer& destLayer);
-		void m_SetIsometricCoords(MapLayer& layer);
-		void m_DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug = false);
-		std::string m_FileFromPath(const std::string& path);
+		bool ParseMapNode(const pugi::xml_node& mapNode);
+		bool ParseTileSets(const pugi::xml_node& mapNode);
+		bool ProcessTiles(const pugi::xml_node& tilesetNode);
+		bool ParseLayer(const pugi::xml_node& layerNode);
+        TileQuad* AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset = sf::Vector2f());
+		bool ParseObjectgroup(const pugi::xml_node& groupNode);
+		bool ParseImageLayer(const pugi::xml_node& imageLayerNode);
+		void ParseLayerProperties(const pugi::xml_node& propertiesNode, MapLayer& destLayer);
+		void SetIsometricCoords(MapLayer& layer);
+		void DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug = false);
+		std::string FileFromPath(const std::string& path);
 
 		//sf::drawable
 		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
 
 		//utility method for parsing colour values from hex values
-		sf::Color m_ColourFromHex(const char* hexStr) const;
+		sf::Color ColourFromHex(const char* hexStr) const;
 
 		//method for decompressing zlib compressed strings
-		bool m_Decompress(const char* source, std::vector<unsigned char>& dest, int inSize, int expectedSize);
+		bool Decompress(const char* source, std::vector<unsigned char>& dest, int inSize, int expectedSize);
 		//creates a vertex array used to draw grid lines when using debug output
-		void m_CreateDebugGrid(void);
+		void CreateDebugGrid(void);
 
 		//caches loaded images to prevent loading the same tileset more than once
-		sf::Image& m_LoadImage(const std::string& imageName);
+		sf::Image& LoadImage(const std::string& imageName);
 		std::map<std::string, std::shared_ptr<sf::Image> >m_cachedImages;
 		bool m_failedImage;
 
         //Reading the flipped bits
-        std::vector<unsigned char> m_IntToBytes(sf::Uint32 paramInt);
-        std::pair<sf::Uint32, std::bitset<3> > m_ResolveRotation(sf::Uint32 gid);
+        std::vector<unsigned char> IntToBytes(sf::Uint32 paramInt);
+        std::pair<sf::Uint32, std::bitset<3> > ResolveRotation(sf::Uint32 gid);
 
         //Image flip functions
-        void m_FlipY(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
-        void m_FlipX(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
-        void m_FlipD(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+        void FlipY(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+        void FlipX(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+        void FlipD(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
 
-        void m_DoFlips(std::bitset<3> bits,sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+        void DoFlips(std::bitset<3> bits,sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
     };
 
 

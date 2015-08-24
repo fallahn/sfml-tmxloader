@@ -44,8 +44,9 @@ it freely, subject to the following restrictions:
 
 namespace tmx
 {
-	class QuadTreeNode : public sf::Drawable
+	class QuadTreeNode
 	{
+        friend class QuadTreeRoot;
 	public:
 		QuadTreeNode(sf::Uint16 level = 0, const sf::FloatRect& bounds = sf::FloatRect(0.f, 0.f, 1.f, 1.f));
 		virtual ~QuadTreeNode(){};
@@ -65,22 +66,21 @@ namespace tmx
 		sf::FloatRect m_bounds;
 		std::vector<MapObject*> m_objects; //objects contained in current node
 		std::vector< std::shared_ptr<QuadTreeNode> > m_children; //vector of child nodes
-		sf::RectangleShape m_debugShape;
 
 		//returns the index of the child node into which the givens bounds fits.
 		//returns -1 if doesn't completely fit a child. Numbered anti-clockwise
 		//from top right node.
-		sf::Int16 m_GetIndex(const sf::FloatRect& bounds);
+		sf::Int16 GetIndex(const sf::FloatRect& bounds);
 
 		//divides node by creating 4 children
-		void m_Split(void);
+		void Split(void);
 
-	private:
-		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
+        void GetVertices(std::vector<sf::Vertex>&);
+
 	};
 
 	//specialisation of QuadTreeNode for counting tree depth
-	class QuadTreeRoot final : public QuadTreeNode
+    class QuadTreeRoot final : public QuadTreeNode, public sf::Drawable
 	{
 	public:
 		QuadTreeRoot(sf::Uint16 level = 0, const sf::FloatRect& bounds = sf::FloatRect(0.f, 0.f, 1.f, 1.f))
@@ -97,6 +97,8 @@ namespace tmx
 	private:
 		//total depth of tree, and depth reached when querying
 		sf::Uint16 m_depth, m_searchDepth;
+
+        void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
 	};
 };
 

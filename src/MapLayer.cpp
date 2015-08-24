@@ -81,7 +81,7 @@ TileQuad* LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::
 	m_quads.back()->m_parentSet = this;
 	m_quads.back()->m_patchIndex = patchIndex;
 
-	m_UpdateAABB(vt0.position, vt2.position);
+	UpdateAABB(vt0.position, vt2.position);
 
 	return m_quads.back().get();
 }
@@ -160,7 +160,7 @@ void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 	}
 }
 
-void LayerSet::m_UpdateAABB(sf::Vector2f position, sf::Vector2f size)
+void LayerSet::UpdateAABB(sf::Vector2f position, sf::Vector2f size)
 {
 	if(m_boundingBox.width == 0.f)
 	{

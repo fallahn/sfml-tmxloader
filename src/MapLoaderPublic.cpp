@@ -55,8 +55,8 @@ MapLoader::MapLoader(const std::string& mapDirectory, sf::Uint8 patchSize)
 
 bool MapLoader::Load(const std::string& map)
 {
-	std::string mapPath = m_searchPaths[0] + m_FileFromPath(map);
-	m_Unload(); //clear any old data first
+	std::string mapPath = m_searchPaths[0] + FileFromPath(map);
+	Unload(); //clear any old data first
 
 	//parse map xml, return on error
 	pugi::xml_document mapDoc;
@@ -68,12 +68,12 @@ bool MapLoader::Load(const std::string& map)
 		return m_mapLoaded = false;
 	}
 
-	return m_LoadFromXmlDoc(mapDoc);
+	return LoadFromXmlDoc(mapDoc);
 }
 
 bool MapLoader::LoadFromMemory(const std::string& xmlString)
 {
-	m_Unload();
+	Unload();
 
 	pugi::xml_document mapDoc;
 	pugi::xml_parse_result result = mapDoc.load_string(xmlString.c_str());
@@ -84,7 +84,7 @@ bool MapLoader::LoadFromMemory(const std::string& xmlString)
 		return m_mapLoaded = false;
 	}
 
-	return m_LoadFromXmlDoc(mapDoc);
+	return LoadFromXmlDoc(mapDoc);
 }
 
 void MapLoader::AddSearchPath(const std::string& path)
@@ -133,7 +133,7 @@ const std::vector<MapLayer>& MapLoader::GetLayers() const
 
 void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 {
-	m_SetDrawingBounds(rt.getView());
+	SetDrawingBounds(rt.getView());
 	switch(type)
 	{
 	default:
@@ -145,13 +145,13 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 		{
 		//remember front of vector actually draws furthest back
 		MapLayer& layer = m_layers.front();
-		m_DrawLayer(rt, layer, debug);
+		DrawLayer(rt, layer, debug);
 		}
 		break;
 	case MapLayer::Front:
 		{
 		MapLayer& layer = m_layers.back();
-		m_DrawLayer(rt, layer, debug);
+		DrawLayer(rt, layer, debug);
 		}
 		break;
 	case MapLayer::Debug:
@@ -172,8 +172,8 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 
 void MapLoader::Draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug)
 {
-	m_SetDrawingBounds(rt.getView());
-	m_DrawLayer(rt, m_layers[index], debug);
+	SetDrawingBounds(rt.getView());
+	DrawLayer(rt, m_layers[index], debug);
 }
 
 sf::Vector2f MapLoader::IsometricToOrthogonal(const sf::Vector2f& projectedCoords)
