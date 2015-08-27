@@ -83,7 +83,7 @@ or without the trailing '/') so that you only need pass the map name to MapLoade
 images and/or tileset data in another directory you may add it with:
 
     ml.AddSearchPath(path);
-	
+    
 *before* attempting to load the map file.
 
 New maps can be loaded simply by calling the load function again, existing maps will be automatically
@@ -128,14 +128,14 @@ The quad tree is used to reduce the number of MapObjects used during a query. If
 hundreds of objects which are used for collision it makes little sense to test them all if only
 a few are ever within collision range. For example in your update loop first call:
 
-	ml.UpdateQuadTree(myRect);
+    ml.UpdateQuadTree(myRect);
 
 where myRect is the area representing the root node. You will probably only want to start with 
 MapObjects which are visible on screen, so set myRect to your view area. Then query the quad tree
 with another floatRect, representing the area for potential collision. This could be the bounding
 box of your sprite:
 
-	std::vector<MapObject*> objects = ml.QueryQuadTree(mySprite.getGlobalBounds());
+    std::vector<MapObject*> objects = ml.QueryQuadTree(mySprite.getGlobalBounds());
 
 This returns a vector of pointers to MapObjects contained within any quads which are intersected
 by your sprite's bounds. You can then proceed to perform any collision testing as usual.
@@ -144,8 +144,8 @@ by your sprite's bounds. You can then proceed to perform any collision testing a
 Some utility functions are providied in tmx2box2d.h/cpp. If you use box2D for physics then add these 
 files to you project and then create box2D physics bodies using:
 
-	b2Body* body = tmx::BodyCreator::Add(mapObject, b2World);
-	
+    b2Body* body = tmx::BodyCreator::Add(mapObject, b2World);
+    
 where b2World is a reference to a valid box2D physics world. As box2D uses a different coordinate
 system to SFML there are 4 functions for converting from one space to another:
 
@@ -163,15 +163,15 @@ Debugging output can be enabled with one of the following preprocessor directive
     #define LOG_OUTPUT_CONSOLE
 
 all output is directed to the console window
-	
+    
     #define LOG_OUTPUT_FILE
 
 all output is written to a file named output.log in the executable directory
-	
+    
     #define LOG_OUTPUT_ALL
 
 log output is directed to both the console and output.log
-	
+    
 Logging is diabled by default. The level of log information can be set with
 
     Logger::SetLogLevel()
@@ -197,6 +197,17 @@ SFML 2.x (http://sfml-dev.org)
 Minimal C++11 compiler support (tested with VS11 and GCC4.7)
 
 
+Note about CMake file
+---------------------
+
+The tmx map loader was designed to have its source included as part of another project. The
+CMake file is included for linux / mac platforms where building installing libraries is the
+norm. The tmx source doesn't explicitly export any functions, so when building the tmx files
+as a library under Windows (particularly Visual Studio) VC will not generate any lib files.
+To work around this just include the tmx source files in your Visual Studio project (as well
+as pugixml), so that they are compiled as parto f the final executable.
+
+
 Revision History
 ----------------
 
@@ -209,28 +220,28 @@ Revision History
 030713 0.3 Added: rendering of map via vertex array. Old style rendering is still available with Draw2()
 
 190713 0.4 Updated: MapObject::SetPosition and MapObject::Move now update object's debug and AABB properties.
-	   Added: Map layers can be drawn by type (front, back, all or debug) and by index.
-	   Removed: debug param from draw function - debug info is now drawn separately
-	   Updated: minimum version of visual studio required is now VS11
+       Added: Map layers can be drawn by type (front, back, all or debug) and by index.
+       Removed: debug param from draw function - debug info is now drawn separately
+       Updated: minimum version of visual studio required is now VS11
 
 060813 0.5 Updated: tileset images are cached and reused when the same tileset is used more than once
 
 280813 0.6 Updated: optimised draw calls by checking if a tileset vertex array is actually visible before
-		    drawing
-	   Fixed: Textures not properly being flushed when loading new maps causing tile sets to be incorrectly
-		   displayed
+            drawing
+       Fixed: Textures not properly being flushed when loading new maps causing tile sets to be incorrectly
+           displayed
            Added: MapLayer RenderStates property and setter for shader
 
 041013 0.7 Added: Getters for object first / last points
-	   Removed: old Draw2 function
- 	   Updated: constness of some function parameters
-	   Updated: inherited load class from sf::Drawable and sf::NonCopyable
-	   Updated: removed tile caching in favour of drawing objects via sprites with subrects for significantly
-		    improved loading times - particularly with large or multiple tile sets
+       Removed: old Draw2 function
+       Updated: constness of some function parameters
+       Updated: inherited load class from sf::Drawable and sf::NonCopyable
+       Updated: removed tile caching in favour of drawing objects via sprites with subrects for significantly
+            improved loading times - particularly with large or multiple tile sets
 
 291013 0.8 Updated: Refactored object class and cleaned up interface
-	   Added: utility functions to MapObject class for collision calculations
+       Added: utility functions to MapObject class for collision calculations
 
 131113 0.9 Fixed: MapObject::Intersects failed due to const correctness
-	   Rehosted project on GitHub
-	   
+       Rehosted project on GitHub
+       
