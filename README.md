@@ -205,7 +205,7 @@ CMake file is included for linux / mac platforms where building installing libra
 norm. The tmx source doesn't explicitly export any functions, so when building the tmx files
 as a library under Windows (particularly Visual Studio) VC will not generate any lib files.
 To work around this just include the tmx source files in your Visual Studio project (as well
-as pugixml), so that they are compiled as parto f the final executable.
+as pugixml), so that they are compiled as part of the final executable.
 
 
 Revision History
