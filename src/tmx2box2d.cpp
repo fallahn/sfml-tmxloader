@@ -297,7 +297,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 						{
 							sf::Vector2f dist = p2 - hp;
 
-							float t = Helpers::Vectors::Dot(dist, dist); //aka length squared
+							float t = Helpers::Vectors::dot(dist, dist); //aka length squared
 
 							if (t < minLen)
 							{
@@ -409,8 +409,8 @@ sf::Vector2f BodyCreator::m_HitPoint(const sf::Vector2f& p1, const sf::Vector2f&
 	sf::Vector2f g2 = p2 - p1;
 	sf::Vector2f g3 = p4 - p3;
 
-	float t = Helpers::Vectors::Cross(g3, g2);
-	float a = Helpers::Vectors::Cross(g3, g1) / t;
+	float t = Helpers::Vectors::cross(g3, g2);
+	float a = Helpers::Vectors::cross(g3, g1) / t;
 
 	return sf::Vector2f(p1.x + a * g2.x, p1.y + a * g2.y);
 }
