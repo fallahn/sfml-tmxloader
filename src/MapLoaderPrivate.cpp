@@ -29,18 +29,22 @@ it freely, subject to the following restrictions:
 
 #include <tmx/MapLoader.h>
 #include <tmx/Log.h>
+#include <zlib.h>
 
 #ifdef _MSC_VER
 #ifdef LoadImage
 #undef LoadImage
 #endif //Loadimage
-//this is needed with MSVC to prevent unresolved external errors
+#endif //_MSC_VER
+
+//this is needed on windows to prevent unresolved external errors
 //alternatively define this in the zlib project before compiling the zlib library
+#ifdef _WIN32
 #ifndef ZLIB_WINAPI
 #define ZLIB_WINAPI 
 #endif //ZLIB_WINAPI
-#endif //_MSC_VER
-#include <zlib.h>
+#endif //_WIN32
+
 #include <cstring>
 #include <sstream>
 #include <functional>
