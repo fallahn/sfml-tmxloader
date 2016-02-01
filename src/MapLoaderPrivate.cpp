@@ -911,10 +911,6 @@ bool MapLoader::ParseObjectgroup(const pugi::xml_node& groupNode)
 			object.AddPoint(sf::Vector2f(width, height));
 			object.AddPoint(sf::Vector2f(0.f, height));
 			object.SetSize(sf::Vector2f(width, height));
-
-			//move object if tile not map tile size
-			if(info.Size.y != m_tileHeight)
-				object.Move(0.f, static_cast<float>(m_tileHeight - info.Size.y) / 2.f);
 		}
 		object.SetParent(layer.name);
 
