@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -36,7 +36,7 @@ exists by request.
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <tmx/MapLoader.h>
+#include <tmx/MapLoader.hpp>
 
 #include <sstream>
 #include <cassert>
@@ -47,12 +47,12 @@ void AddObject(tmx::MapLayer& layer, const sf::Vector2f& coords)
 	const float height = 64.f;
 	
 	tmx::MapObject mo;
-	mo.SetPosition(coords);
-	mo.AddPoint(sf::Vector2f());
-	mo.AddPoint(sf::Vector2f(width, 0.f));
-	mo.AddPoint(sf::Vector2f(width, height));
-	mo.AddPoint(sf::Vector2f(0.f, height));
-	mo.CreateDebugShape(sf::Color::Magenta); //must always call this after adding points
+	mo.setPosition(coords);
+	mo.addPoint(sf::Vector2f());
+	mo.addPoint(sf::Vector2f(width, 0.f));
+	mo.addPoint(sf::Vector2f(width, height));
+	mo.addPoint(sf::Vector2f(0.f, height));
+	mo.createDebugShape(sf::Color::Magenta); //must always call this after adding points
 											//to properly create bounding properties.
 
 	layer.objects.push_back(mo);
@@ -66,12 +66,12 @@ int main()
 
 	//create map loader and load map
 	tmx::MapLoader ml("maps/");
-	ml.Load("addRemove.tmx");
+	ml.load("addRemove.tmx");
 
 	sf::Clock deltaClock, frameClock;
 
-	assert(ml.GetLayers().size() > 1);
-	auto& objectLayer = ml.GetLayers()[1];
+	assert(ml.getLayers().size() > 1);
+	auto& objectLayer = ml.getLayers()[1];
 
 
 	//-----------------------------------//
@@ -123,7 +123,7 @@ int main()
 		//draw
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		ml.Draw(renderWindow, tmx::MapLayer::Debug);
+		ml.draw(renderWindow, tmx::MapLayer::Debug);
 		renderWindow.display();
 
 		const float time = 1.f / frameClock.getElapsedTime().asSeconds();

@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2014
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -27,27 +27,26 @@ and must not be misrepresented as being the original software.
 source distribution.
 *********************************************************************/
 
-#ifndef DEBUG_SHAPE_H_
-#define DEBUG_SHAPE_H_
+#ifndef DEBUG_SHAPE_HPP_
+#define DEBUG_SHAPE_HPP_
 
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 
-class DebugShape : public sf::Drawable, public sf::Transformable
+class DebugShape final : public sf::Drawable, public sf::Transformable
 {
 public:
 	DebugShape();
-	void AddVertex(const sf::Vertex& vert);
-	void Reset();
-	void CloseShape();
+	void addVertex(const sf::Vertex& vert);
+	void reset();
+	void closeShape();
 
 private:
 
 	bool m_closed;
 	sf::VertexArray m_array;
-	void draw(sf::RenderTarget& rt, sf::RenderStates states)const;
-
+	void draw(sf::RenderTarget& rt, sf::RenderStates states)const override;
 };
 
-#endif
+#endif //DEBUD_SHAPE_HPP_

@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -33,10 +33,10 @@ source distribution.
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <tmx/MapLoader.h>
-#include <tmx/tmx2box2d.h>
+#include <tmx/MapLoader.hpp>
+#include <tmx/tmx2box2d.hpp>
 
-#include <tmx/DebugShape.h>
+#include <tmx/DebugShape.hpp>
 
 #include <Box2D/Collision/Shapes/b2PolygonShape.h>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
@@ -51,17 +51,17 @@ int main()
 
 	//create map loader and load map
 	tmx::MapLoader ml("maps/");
-	ml.Load("b2d.tmx");
+	ml.load("b2d.tmx");
 
 	//create a box2D world
-	b2World world(tmx::SfToBoxVec(sf::Vector2f(0.f, 1000.f)));
+	b2World world(tmx::sfToBoxVec(sf::Vector2f(0.f, 1000.f)));
 
 	//parse map objects
 	std::vector<std::unique_ptr<sf::Shape>> debugBoxes;
 	std::vector<DebugShape> debugShapes;
 	std::map<b2Body*, sf::CircleShape> dynamicShapes; //we can use raw pointers because box2D manages its own memory
 
-	const std::vector<tmx::MapLayer>& layers = ml.GetLayers();
+	const std::vector<tmx::MapLayer>& layers = ml.getLayers();
 	for (const auto& l : layers)
 	{
 		if (l.name == "Static") //static bodies which make up the map geometry
@@ -69,11 +69,11 @@ int main()
 			for (const auto& o : l.objects)
 			{
 				//receive a pointer to the newly created body
-				b2Body* b = tmx::BodyCreator::Add(o, world);
+				b2Body* b = tmx::BodyCreator::add(o, world);
 
 				//iterate over body info to create some visual debugging shapes to help visualise
 				debugBoxes.push_back(std::unique_ptr<sf::RectangleShape>(new sf::RectangleShape(sf::Vector2f(6.f, 6.f))));
-				sf::Vector2f pos = tmx::BoxToSfVec(b->GetPosition());
+				sf::Vector2f pos = tmx::boxToSfVec(b->GetPosition());
 				debugBoxes.back()->setPosition(pos);
 				debugBoxes.back()->setOrigin(3.f, 3.f);
 
@@ -88,15 +88,15 @@ int main()
 
 						int count = ps->GetVertexCount();
 						for (int i = 0; i < count; i++)
-							ds.AddVertex(sf::Vertex(tmx::BoxToSfVec(ps->GetVertex(i)), sf::Color::Green));
+							ds.addVertex(sf::Vertex(tmx::boxToSfVec(ps->GetVertex(i)), sf::Color::Green));
 
-						ds.AddVertex(sf::Vertex(tmx::BoxToSfVec(ps->GetVertex(0)), sf::Color::Green));
+						ds.addVertex(sf::Vertex(tmx::boxToSfVec(ps->GetVertex(0)), sf::Color::Green));
 						debugShapes.push_back(ds);
 					}
 					else if (shapeType == b2Shape::e_circle)
 					{
 						b2CircleShape* cs = static_cast<b2CircleShape*>(f->GetShape());
-						float radius = tmx::BoxToSfFloat(cs->m_radius);
+						float radius = tmx::boxToSfFloat(cs->m_radius);
 						std::unique_ptr<sf::CircleShape> c(new sf::CircleShape(radius));
 						c->setPosition(pos);
 						c->setOrigin(radius, radius);
@@ -114,12 +114,12 @@ int main()
 			{
 				//this time keep a copy of the pointer so we can update the dynamic objects
 				//with their information. Don't forget to create a dynamic body
-				b2Body* b = tmx::BodyCreator::Add(o, world, b2BodyType::b2_dynamicBody);
+				b2Body* b = tmx::BodyCreator::add(o, world, b2BodyType::b2_dynamicBody);
 				b->GetFixtureList()->SetRestitution(0.99f); //set some properties of the body
 				//we assume for this example all dynamic objects are circular. Other shapes also work
 				//but you need to impliment your own drawing for them.
 				b2CircleShape* cs = static_cast<b2CircleShape*>(b->GetFixtureList()->GetShape());
-				const float radius = tmx::BoxToSfFloat(cs->m_radius);
+				const float radius = tmx::boxToSfFloat(cs->m_radius);
 				sf::CircleShape c(radius);
 				c.setOrigin(radius, radius);
 
@@ -146,7 +146,7 @@ int main()
 		for (auto& ds : dynamicShapes)
 		{
 			//move the circle shape based on physics sim using conversion functions for units
-			ds.second.setPosition(tmx::BoxToSfVec(ds.first->GetPosition()));
+			ds.second.setPosition(tmx::boxToSfVec(ds.first->GetPosition()));
 		}
 
 		//draw

@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -30,7 +30,7 @@ it freely, subject to the following restrictions:
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <tmx/MapLoader.h>
+#include <tmx/MapLoader.hpp>
 #include <sstream>
 
 int main()
@@ -40,7 +40,7 @@ int main()
 
 	//create map loader and load map
 	tmx::MapLoader ml("maps/");
-	ml.Load("isometric_grass_and_water.tmx");
+	ml.load("isometric_grass_and_water.tmx");
 
 	//adjust the view to centre on map
 	sf::View view = renderWindow.getView();
@@ -67,12 +67,12 @@ int main()
 		//draw map
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		if(debug)ml.Draw(renderWindow, tmx::MapLayer::Debug);
+		if(debug)ml.draw(renderWindow, tmx::MapLayer::Debug);
 		renderWindow.display();
 
 		//print mouse coords to orthographic (screen) coords and world (isometric) coords
 		sf::Vector2f mousePosScreen = renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow));
-		sf::Vector2f mousePosWorld = ml.OrthogonalToIsometric(mousePosScreen);
+		sf::Vector2f mousePosWorld = ml.orthogonalToIsometric(mousePosScreen);
 
 		std::stringstream stream;
 		stream << "Mouse Position: "<< mousePosScreen.x << ", " << mousePosScreen.y << " World Position: " << mousePosWorld.x << ", " << mousePosWorld.y;

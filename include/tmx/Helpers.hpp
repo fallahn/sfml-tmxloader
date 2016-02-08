@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 
 The zlib license has been used to make this software fully compatible
 with SFML. See http://www.sfml-dev.org/license.php
@@ -25,8 +25,8 @@ it freely, subject to the following restrictions:
    source distribution.
 *********************************************************************/
 
-#ifndef HELPERS_H_
-#define HELPERS_H_
+#ifndef HELPERS_HPP_
+#define HELPERS_HPP_
 
 #include <cmath>
 #include <SFML/Graphics/Rect.hpp>
@@ -96,4 +96,4 @@ namespace Helpers
 	};
 };
 
-#endif
+#endif //HELPERS_HPP_

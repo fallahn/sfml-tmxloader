@@ -27,7 +27,7 @@ and must not be misrepresented as being the original software.
 source distribution.
 *********************************************************************/
 
-#include <tmx/DebugShape.h>
+#include <tmx/DebugShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
 DebugShape::DebugShape()
@@ -36,7 +36,7 @@ m_closed	(false)
 {}
 
 //public
-void DebugShape::AddVertex(const sf::Vertex& v)
+void DebugShape::addVertex(const sf::Vertex& v)
 {
 	if(m_closed)
 	{
@@ -51,12 +51,12 @@ void DebugShape::AddVertex(const sf::Vertex& v)
 	}
 }
 
-void DebugShape::Reset()
+void DebugShape::reset()
 {
 	m_array.clear();
 }
 
-void DebugShape::CloseShape()
+void DebugShape::closeShape()
 {
 	if(m_array.getVertexCount())
 	{

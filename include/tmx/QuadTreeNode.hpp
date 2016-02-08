@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -36,10 +36,10 @@ it freely, subject to the following restrictions:
 //in quads which are them selves contained, or intersected, by the sprites AABB. These can
 //then be collision tested.
 
-#ifndef QUADTREE_NODE_H_
-#define QUADTREE_NODE_H_
+#ifndef QUADTREE_NODE_HPP_
+#define QUADTREE_NODE_HPP_
 
-#include <tmx/MapObject.h>
+#include <tmx/MapObject.hpp>
 #include <memory>
 
 namespace tmx
@@ -49,13 +49,13 @@ namespace tmx
         friend class QuadTreeRoot;
 	public:
 		QuadTreeNode(sf::Uint16 level = 0, const sf::FloatRect& bounds = sf::FloatRect(0.f, 0.f, 1.f, 1.f));
-		virtual ~QuadTreeNode(){};
+		virtual ~QuadTreeNode() = default;
 
 		//fills vector with references to all objects which
 		//appear in quads which are contained or intersect bounds.
-		std::vector<MapObject*> Retrieve(const sf::FloatRect& bounds, sf::Uint16& currentDepth);
+		std::vector<MapObject*> retrieve(const sf::FloatRect& bounds, sf::Uint16& currentDepth);
 		//inserts a reference to the object into the node's object list
-		void Insert(const MapObject& object);
+		void insert(const MapObject& object);
 	protected:
 		//maximum objects per node before splitting
 		const sf::Uint16 MAX_OBJECTS;
@@ -70,12 +70,12 @@ namespace tmx
 		//returns the index of the child node into which the givens bounds fits.
 		//returns -1 if doesn't completely fit a child. Numbered anti-clockwise
 		//from top right node.
-		sf::Int16 GetIndex(const sf::FloatRect& bounds);
+		sf::Int16 getIndex(const sf::FloatRect& bounds);
 
 		//divides node by creating 4 children
-		void Split(void);
+		void split(void);
 
-        void GetVertices(std::vector<sf::Vertex>&);
+        void getVertices(std::vector<sf::Vertex>&);
 
 	};
 
@@ -87,20 +87,20 @@ namespace tmx
 			: QuadTreeNode(level, bounds), m_depth(0u), m_searchDepth(0u){};
 
 		//clears node and all children
-		void Clear(const sf::FloatRect& newBounds);
+		void clear(const sf::FloatRect& newBounds);
 		//retrieves all objects in quads which contains or intersect test area
-		std::vector<MapObject*> Retrieve(const sf::FloatRect& bounds)
+		std::vector<MapObject*> retrieve(const sf::FloatRect& bounds)
 		{
-			return QuadTreeNode::Retrieve(bounds, m_searchDepth);
+			return QuadTreeNode::retrieve(bounds, m_searchDepth);
 		}
 
 	private:
 		//total depth of tree, and depth reached when querying
 		sf::Uint16 m_depth, m_searchDepth;
 
-        void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
+        void draw(sf::RenderTarget& rt, sf::RenderStates states) const override;
 	};
 };
 
 
-#endif //QUADTREE_NODE_H_
+#endif //QUADTREE_NODE_HPP_

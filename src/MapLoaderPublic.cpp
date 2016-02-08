@@ -27,8 +27,8 @@ it freely, subject to the following restrictions:
    source distribution.
 *********************************************************************/
 
-#include <tmx/MapLoader.h>
-#include <tmx/Log.h>
+#include <tmx/MapLoader.hpp>
+#include <tmx/Log.hpp>
 
 #include <cassert>
 
@@ -48,15 +48,15 @@ MapLoader::MapLoader(const std::string& mapDirectory, sf::Uint8 patchSize)
 {
 	//reserve some space to help reduce reallocations
 	m_layers.reserve(10);
-	AddSearchPath(mapDirectory);
+	addSearchPath(mapDirectory);
 
 	assert(patchSize > 0);
 }
 
-bool MapLoader::Load(const std::string& map)
+bool MapLoader::load(const std::string& map)
 {
-	std::string mapPath = m_searchPaths[0] + FileFromPath(map);
-	Unload(); //clear any old data first
+	std::string mapPath = m_searchPaths[0] + fileFromPath(map);
+	unload(); //clear any old data first
 
 	//parse map xml, return on error
 	pugi::xml_document mapDoc;
@@ -68,12 +68,12 @@ bool MapLoader::Load(const std::string& map)
 		return m_mapLoaded = false;
 	}
 
-	return LoadFromXmlDoc(mapDoc);
+	return loadFromXmlDoc(mapDoc);
 }
 
-bool MapLoader::LoadFromMemory(const std::string& xmlString)
+bool MapLoader::loadFromMemory(const std::string& xmlString)
 {
-	Unload();
+	unload();
 
 	pugi::xml_document mapDoc;
 	pugi::xml_parse_result result = mapDoc.load_string(xmlString.c_str());
@@ -84,10 +84,10 @@ bool MapLoader::LoadFromMemory(const std::string& xmlString)
 		return m_mapLoaded = false;
 	}
 
-	return LoadFromXmlDoc(mapDoc);
+	return loadFromXmlDoc(mapDoc);
 }
 
-void MapLoader::AddSearchPath(const std::string& path)
+void MapLoader::addSearchPath(const std::string& path)
 {
 	m_searchPaths.push_back(path);
 
@@ -101,39 +101,39 @@ void MapLoader::AddSearchPath(const std::string& path)
 	else if(s == "/" || s == "\\") s = "";
 }
 
-void MapLoader::UpdateQuadTree(const sf::FloatRect& rootArea)
+void MapLoader::updateQuadTree(const sf::FloatRect& rootArea)
 {
-	m_rootNode.Clear(rootArea);
+	m_rootNode.clear(rootArea);
 	for(const auto& layer : m_layers)
 	{
 		for(const auto& object : layer.objects)
 		{
-			m_rootNode.Insert(object);
+			m_rootNode.insert(object);
 		}
 	}
 	m_quadTreeAvailable = true;
 }
 
-std::vector<MapObject*> MapLoader::QueryQuadTree(const sf::FloatRect& testArea)
+std::vector<MapObject*> MapLoader::queryQuadTree(const sf::FloatRect& testArea)
 {
 	//quad tree must be updated at least once with UpdateQuadTree before we can call this
 	assert(m_quadTreeAvailable);
-	return m_rootNode.Retrieve(testArea);
+	return m_rootNode.retrieve(testArea);
 }
 
-std::vector<MapLayer>& MapLoader::GetLayers()
+std::vector<MapLayer>& MapLoader::getLayers()
 {
 	return m_layers;
 }
 
-const std::vector<MapLayer>& MapLoader::GetLayers() const
+const std::vector<MapLayer>& MapLoader::getLayers() const
 {
 	return m_layers;
 }
 
-void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
+void MapLoader::draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 {
-	SetDrawingBounds(rt.getView());
+	setDrawingBounds(rt.getView());
 	switch(type)
 	{
 	default:
@@ -145,13 +145,13 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 		{
 		//remember front of vector actually draws furthest back
 		MapLayer& layer = m_layers.front();
-		DrawLayer(rt, layer, debug);
+		drawLayer(rt, layer, debug);
 		}
 		break;
 	case MapLayer::Front:
 		{
 		MapLayer& layer = m_layers.back();
-		DrawLayer(rt, layer, debug);
+		drawLayer(rt, layer, debug);
 		}
 		break;
 	case MapLayer::Debug:
@@ -160,8 +160,8 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 			if(layer.type == ObjectGroup)
 			{
 				for(const auto& object : layer.objects)
-					if (m_bounds.intersects(object.GetAABB()))
-						object.DrawDebugShape(rt);
+					if (m_bounds.intersects(object.getAABB()))
+						object.drawDebugShape(rt);
 			}
 		}
 		rt.draw(m_gridVertices);
@@ -170,13 +170,13 @@ void MapLoader::Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 	}
 }
 
-void MapLoader::Draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug)
+void MapLoader::draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug)
 {
-	SetDrawingBounds(rt.getView());
-	DrawLayer(rt, m_layers[index], debug);
+	setDrawingBounds(rt.getView());
+	drawLayer(rt, m_layers[index], debug);
 }
 
-sf::Vector2f MapLoader::IsometricToOrthogonal(const sf::Vector2f& projectedCoords)
+sf::Vector2f MapLoader::isometricToOrthogonal(const sf::Vector2f& projectedCoords)
 {
 	//skip converting if we don't actually have an isometric map loaded
 	if(m_orientation != MapOrientation::Isometric) return projectedCoords;
@@ -184,7 +184,7 @@ sf::Vector2f MapLoader::IsometricToOrthogonal(const sf::Vector2f& projectedCoord
 	return sf::Vector2f(projectedCoords.x - projectedCoords.y, (projectedCoords.x / m_tileRatio) + (projectedCoords.y / m_tileRatio));
 }
 
-sf::Vector2f MapLoader::OrthogonalToIsometric(const sf::Vector2f& worldCoords)
+sf::Vector2f MapLoader::orthogonalToIsometric(const sf::Vector2f& worldCoords)
 {
 	if(m_orientation != MapOrientation::Isometric) return worldCoords;
 
@@ -192,28 +192,28 @@ sf::Vector2f MapLoader::OrthogonalToIsometric(const sf::Vector2f& worldCoords)
 							(worldCoords.y - (worldCoords.x / m_tileRatio)));
 }
 
-sf::Vector2u MapLoader::GetTileSize() const
+sf::Vector2u MapLoader::getTileSize() const
 {
 	return sf::Vector2u(m_tileWidth, m_tileHeight);
 }
 
-sf::Vector2u MapLoader::GetMapSize() const
+sf::Vector2u MapLoader::getMapSize() const
 {
 	return sf::Vector2u(m_width * m_tileWidth, m_height * m_tileHeight);
 }
 
-std::string MapLoader::GetPropertyString(const std::string& name)
+std::string MapLoader::getPropertyString(const std::string& name)
 {
 	assert(m_properties.find(name) != m_properties.end());
 	return m_properties[name];
 }
 
-void MapLoader::SetLayerShader(sf::Uint16 layerId, const sf::Shader& shader)
+void MapLoader::setLayerShader(sf::Uint16 layerId, const sf::Shader& shader)
 {
-	m_layers[layerId].SetShader(shader);
+	m_layers[layerId].setShader(shader);
 }
 
-bool MapLoader::QuadTreeAvailable() const
+bool MapLoader::quadTreeAvailable() const
 {
 	return m_quadTreeAvailable;
 }

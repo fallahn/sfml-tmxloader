@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -35,7 +35,7 @@ and must not be misrepresented as being the original software.
 source distribution.
 *********************************************************************/
 
-#include <tmx/tmx2box2d.h>
+#include <tmx/tmx2box2d.hpp>
 
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
@@ -56,32 +56,32 @@ namespace
 }
 
 //---------------------------------------------
-b2Vec2 tmx::SfToBoxVec(const sf::Vector2f& vec)
+b2Vec2 tmx::sfToBoxVec(const sf::Vector2f& vec)
 {
 	return b2Vec2(vec.x / worldScale, -vec.y / worldScale);
 }
 
-sf::Vector2f tmx::BoxToSfVec(const b2Vec2& vec)
+sf::Vector2f tmx::boxToSfVec(const b2Vec2& vec)
 {
 	return sf::Vector2f(vec.x, -vec.y) * worldScale;
 }
 
-float tmx::SfToBoxFloat(float val)
+float tmx::sfToBoxFloat(float val)
 {
 	return val / worldScale;
 }
 
-float tmx::BoxToSfFloat(float val)
+float tmx::boxToSfFloat(float val)
 {
 	return val * worldScale;
 }
 
-float tmx::SfToBoxAngle(float degrees)
+float tmx::sfToBoxAngle(float degrees)
 {
 	return -degrees * 0.0174533f;
 }
 
-float tmx::BoxToSfAngle(float rads)
+float tmx::boxToSfAngle(float rads)
 {
 	return -rads * 57.29578f;
 }
@@ -91,32 +91,32 @@ float tmx::BoxToSfAngle(float rads)
 using namespace tmx;
 
 //public
-b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bodyType)
+b2Body* BodyCreator::add(const MapObject& object, b2World& world, b2BodyType bodyType)
 {
-	assert(object.PolyPoints().size() > 1u);
+	assert(object.polyPoints().size() > 1u);
 
 	b2BodyDef bodyDef;
 	bodyDef.type = bodyType;
 
 	b2Body* body = nullptr;
 
-	MapObjectShape shapeType = object.GetShapeType();
-	sf::Uint16 pointCount = object.PolyPoints().size();
+	MapObjectShape shapeType = object.getShapeType();
+	sf::Uint16 pointCount = object.polyPoints().size();
 
 	if (shapeType == Polyline || pointCount < 3)
 	{
 		bodyDef.position.Set(0.f, 0.f);
-		bodyDef.position = SfToBoxVec(object.GetPosition());
+		bodyDef.position = sfToBoxVec(object.getPosition());
 		body = world.CreateBody(&bodyDef);
 
-		const Shape& shape = object.PolyPoints();
+		const Shape& shape = object.polyPoints();
 		b2FixtureDef f;
 		f.density = 1.f;
 
 		if (pointCount < 3)
 		{
 			b2EdgeShape es;
-			es.Set(SfToBoxVec(shape[0]), SfToBoxVec(shape[1]));
+			es.Set(sfToBoxVec(shape[0]), sfToBoxVec(shape[1]));
 			f.shape = &es;
 			body->CreateFixture(&f);
 		}
@@ -124,7 +124,7 @@ b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bod
 		{
 			std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[pointCount]);
 			for (auto i = 0u; i < pointCount; i++)
-				vertices[i] = SfToBoxVec(shape[i]);
+				vertices[i] = sfToBoxVec(shape[i]);
 
 			b2ChainShape cs;
 			cs.CreateChain(vertices.get(), pointCount);
@@ -133,16 +133,16 @@ b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bod
 		}
 	}
 	else if (shapeType == Circle ||
-		(object.Convex() && pointCount <= b2_maxPolygonVertices))
+		(object.convex() && pointCount <= b2_maxPolygonVertices))
 	{
 		b2FixtureDef f;
 		f.density = 1.f;
-		bodyDef.position = SfToBoxVec(object.GetCentre());
+		bodyDef.position = sfToBoxVec(object.getCentre());
 		if (shapeType == Circle)
 		{
 			//make a circle
 			b2CircleShape c;
-			c.m_radius = SfToBoxFloat(object.GetAABB().width / 2.f);
+			c.m_radius = sfToBoxFloat(object.getAABB().width / 2.f);
 			f.shape = &c;
 
 			body = world.CreateBody(&bodyDef);
@@ -151,7 +151,7 @@ b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bod
 		else if (shapeType == Rectangle)
 		{
 			b2PolygonShape ps;
-			ps.SetAsBox(SfToBoxFloat(object.GetAABB().width / 2.f), SfToBoxFloat(object.GetAABB().height / 2.f));
+			ps.SetAsBox(sfToBoxFloat(object.getAABB().width / 2.f), sfToBoxFloat(object.getAABB().height / 2.f));
 			f.shape = &ps;
 
 			body = world.CreateBody(&bodyDef);
@@ -160,38 +160,38 @@ b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bod
 		else //simple convex polygon
 		{
 			bodyDef.position.Set(0.f, 0.f);
-			bodyDef.position = SfToBoxVec(object.GetPosition());
+			bodyDef.position = sfToBoxVec(object.getPosition());
 			body = world.CreateBody(&bodyDef);
 
-			const Shape& points = object.PolyPoints();
-			m_CreateFixture(points, body);
+			const Shape& points = object.polyPoints();
+			createFixture(points, body);
 		}
 	}
 	else //complex polygon
 	{
 		//break into smaller convex shapes
 		bodyDef.position.Set(0.f, 0.f);
-		bodyDef.position = SfToBoxVec(object.GetPosition());
+		bodyDef.position = sfToBoxVec(object.getPosition());
 		body = world.CreateBody(&bodyDef);
 
-		m_Split(object, body);
+		split(object, body);
 	}
 
 	return body;
 }
 
 //private
-void BodyCreator::m_Split(const MapObject& object, b2Body* body)
+void BodyCreator::split(const MapObject& object, b2Body* body)
 {
 	//check object shapes is valid
-	if (!m_CheckShape(const_cast<MapObject&>(object))) return;
+	if (!checkShape(const_cast<MapObject&>(object))) return;
 
-	const Shape& points = object.PolyPoints();
+	const Shape& points = object.polyPoints();
 	Shapes shapes;
-	if (object.Convex())
-		shapes = m_ProcessConvex(points);
+	if (object.convex())
+		shapes = processConvex(points);
 	else
-		shapes = m_ProcessConcave(points);
+		shapes = processConcave(points);
 
 	for (auto& shape : shapes)
 	{
@@ -200,17 +200,17 @@ void BodyCreator::m_Split(const MapObject& object, b2Body* body)
 		if (s > b2_maxPolygonVertices)
 		{
 			//break into smaller and append
-			Shapes moreShapes = m_ProcessConvex(shape);
+			Shapes moreShapes = processConvex(shape);
 			for (auto& anotherShape : moreShapes)
-				m_CreateFixture(anotherShape, body);
+				createFixture(anotherShape, body);
 
 			continue; //skip shape because it's too big
 		}
-		m_CreateFixture(shape, body);
+		createFixture(shape, body);
 	}
 }
 
-BodyCreator::Shapes BodyCreator::m_ProcessConvex(const Shape& points)
+BodyCreator::Shapes BodyCreator::processConvex(const Shape& points)
 {
 	assert(points.size() > b2_maxPolygonVertices);
 	Shapes output;
@@ -243,7 +243,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConvex(const Shape& points)
 	return output;
 }
 
-BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
+BodyCreator::Shapes BodyCreator::processConcave(const Shape& points)
 {
 	ShapeQueue q;
 	q.push(points);
@@ -266,7 +266,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 			sf::Vector2f p2 = shape[i2];
 			sf::Vector2f p3 = shape[i3];
 
-			float direction = m_GetWinding(p1, p2, p3);
+			float direction = getWinding(p1, p2, p3);
 			if (direction < 0.f)
 			{
 				convex = false;
@@ -277,7 +277,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 				sf::Vector2f v2;
 				sf::Int16 h = 0;
 				sf::Int16 k = 0;
-				sf::Vector2f hitPoint;
+				sf::Vector2f hit;
 
 				for (auto j = 0u; j < s; j++)
 				{
@@ -289,9 +289,9 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 						v1 = shape[j1];
 						v2 = shape[j2];
 
-						sf::Vector2f hp = m_HitPoint(p1, p2, v1, v2);
-						bool b1 = m_OnSeg(p2, p1, hp);
-						bool b2 = m_OnSeg(hp, v1, v2);
+						sf::Vector2f hp = hitPoint(p1, p2, v1, v2);
+						bool b1 = onSeg(p2, p1, hp);
+						bool b2 = onSeg(hp, v1, v2);
 
 						if (b1 && b2)
 						{
@@ -303,7 +303,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 							{
 								h = j1;
 								k = j2;
-								hitPoint = hp;
+								hit = hp;
 								minLen = t;
 							}
 						}
@@ -320,11 +320,11 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 				v1 = shape[j1];
 				v2 = shape[j2];
 
-				if (!m_PointsMatch(hitPoint, v2))
-					shape1.push_back(hitPoint);
+				if (!pointsMatch(hit, v2))
+					shape1.push_back(hit);
 
-				if (!m_PointsMatch(hitPoint, v1))
-					shape2.push_back(hitPoint);
+				if (!pointsMatch(hit, v1))
+					shape2.push_back(hit);
 
 
 				h = -1;
@@ -338,7 +338,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 					else
 					{
 						assert(h >= 0 && h < s);
-						if (!m_OnSeg(v2, shape[h], p1))
+						if (!onSeg(v2, shape[h], p1))
 						{
 							shape1.push_back(shape[k]);
 						}
@@ -369,7 +369,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 					else
 					{
 						assert(h >= 0 && h < s);
-						if ((k == j1) && !m_OnSeg(v1, shape[h], p2))
+						if ((k == j1) && !onSeg(v1, shape[h], p2))
 						{
 							shape2.push_back(shape[k]);
 						}
@@ -403,7 +403,7 @@ BodyCreator::Shapes BodyCreator::m_ProcessConcave(const Shape& points)
 	return output;
 }
 
-sf::Vector2f BodyCreator::m_HitPoint(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
+sf::Vector2f BodyCreator::hitPoint(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
 {
 	sf::Vector2f g1 = p3 - p1;
 	sf::Vector2f g2 = p2 - p1;
@@ -415,7 +415,7 @@ sf::Vector2f BodyCreator::m_HitPoint(const sf::Vector2f& p1, const sf::Vector2f&
 	return sf::Vector2f(p1.x + a * g2.x, p1.y + a * g2.y);
 }
 
-bool BodyCreator::m_OnLine(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end)
+bool BodyCreator::onLine(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end)
 {
 	if (end.x - start.x > pointTolerance || start.x - end.x > pointTolerance)
 	{
@@ -428,37 +428,37 @@ bool BodyCreator::m_OnLine(const sf::Vector2f& p, const sf::Vector2f& start, con
 	return (p.x - start.x < pointTolerance || start.x - p.x < pointTolerance);
 }
 
-bool BodyCreator::m_OnSeg(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end)
+bool BodyCreator::onSeg(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end)
 {
 	bool a = (start.x + pointTolerance >= p.x && p.x >= end.x - pointTolerance)
 		|| (start.x - pointTolerance <= p.x && p.x <= end.x + pointTolerance);
 	bool b = (start.y + pointTolerance >= p.y && p.y >= end.y - pointTolerance)
 		|| (start.y - pointTolerance <= p.y && p.y <= end.y + pointTolerance);
-	return ((a && b) && m_OnLine(p, start, end));
+	return ((a && b) && onLine(p, start, end));
 }
 
-bool BodyCreator::m_PointsMatch(const sf::Vector2f& p1, const sf::Vector2f& p2)
+bool BodyCreator::pointsMatch(const sf::Vector2f& p1, const sf::Vector2f& p2)
 {
 	float x = std::abs(p2.x - p1.x);
 	float y = std::abs(p2.y - p1.y);
 	return (x < pointTolerance && y < pointTolerance);
 }
 
-float BodyCreator::m_GetWinding(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3)
+float BodyCreator::getWinding(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3)
 {
 	return p1.x * p2.y + p2.x * p3.y + p3.x * p1.y - p1.y * p2.x - p2.y * p3.x - p3.y * p1.x;
 }
 
-void BodyCreator::m_CreateFixture(const Shape& points, b2Body* body)
+void BodyCreator::createFixture(const Shape& points, b2Body* body)
 {
-	bool clockwise = (m_GetWinding(points[0], points[1], points[2]) > 0.f);
+	bool clockwise = (getWinding(points[0], points[1], points[2]) > 0.f);
 	sf::Uint16 s = points.size();
 	std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[s]);
 	for (auto i = 0u; i < s; i++)
 	{
 		//reverse direction if verts wound clockwise
 		int index = (clockwise) ? (s - 1) - i : i;
-		vertices[i] = SfToBoxVec(points[index]);
+		vertices[i] = sfToBoxVec(points[index]);
 	}
 
 	b2PolygonShape ps;
@@ -470,9 +470,9 @@ void BodyCreator::m_CreateFixture(const Shape& points, b2Body* body)
 	body->CreateFixture(&f);
 }
 
-bool BodyCreator::m_CheckShape(MapObject& object)
+bool BodyCreator::checkShape(MapObject& object)
 {
-	const Shape& points = object.PolyPoints();
+	const Shape& points = object.polyPoints();
 	sf::Uint16 s = points.size();
 	bool b1 = false;
 	bool b2 = false;
@@ -488,18 +488,18 @@ bool BodyCreator::m_CheckShape(MapObject& object)
 			{
 				if (!b1)
 				{
-					float direction = m_GetWinding(points[i], points[i2], points[j]);
+					float direction = getWinding(points[i], points[i2], points[j]);
 					if (direction > 0.f) b1 = true;
 				}
 
 				if (j != i3)
 				{
 					sf::Int16 j2 = (j < s - 1) ? j + 1 : 0;
-					sf::Vector2f hp = m_HitPoint(points[i], points[i2], points[j], points[j2]);
-					if (m_OnSeg(hp, points[i], points[i2])
-						&& m_OnSeg(hp, points[j], points[j2]))
+					sf::Vector2f hp = hitPoint(points[i], points[i2], points[j], points[j2]);
+					if (onSeg(hp, points[i], points[i2])
+						&& onSeg(hp, points[j], points[j2]))
 					{
-						std::cerr << "Object " << object.GetName() << " found with possible self intersection." << std::endl;
+						std::cerr << "Object " << object.getName() << " found with possible self intersection." << std::endl;
 						std::cerr << "Skipping body creation." << std::endl;
 						return false;
 					}
@@ -511,9 +511,9 @@ bool BodyCreator::m_CheckShape(MapObject& object)
 
 	if (b2)
 	{
-		std::cerr << "Object " << object.GetName() << " vertices are wound in the wrong direction." << std::endl;
+		std::cerr << "Object " << object.getName() << " vertices are wound in the wrong direction." << std::endl;
 		std::cerr << "Attempting to fix..." << std::endl;
-		object.ReverseWinding();
+		object.reverseWinding();
 	}
 	return true;
 }

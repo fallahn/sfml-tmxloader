@@ -26,14 +26,14 @@ it freely, subject to the following restrictions:
 3. This notice may not be removed or altered from any
    source distribution.
 *********************************************************************/
-#include <tmx/MapObject.h>
-#include <tmx/MapLayer.h>
-#include <tmx/Log.h>
+#include <tmx/MapObject.hpp>
+#include <tmx/MapLayer.hpp>
+#include <tmx/Log.hpp>
 
 using namespace tmx;
 
 ///--------poly segment--------///
-bool MapObject::Segment::Intersects(const MapObject::Segment& segment)
+bool MapObject::Segment::intersects(const MapObject::Segment& segment)
 {
 	sf::Vector2f s1 = End - Start;
 	sf::Vector2f s2 = segment.End - segment.Start;
@@ -68,7 +68,7 @@ MapObject::MapObject()
 }
 
 //public
-std::string MapObject::GetPropertyString(const std::string& name)
+std::string MapObject::getPropertyString(const std::string& name)
 {
 	if(m_properties.find(name) != m_properties.end())
 		return m_properties[name];
@@ -76,28 +76,28 @@ std::string MapObject::GetPropertyString(const std::string& name)
 		return std::string();
 }
 
-void MapObject::SetProperty(const std::string& name, const std::string& value)
+void MapObject::setProperty(const std::string& name, const std::string& value)
 {
 	m_properties[name] = value;
 }
 
-void MapObject::SetPosition(float x, float y)
+void MapObject::setPosition(float x, float y)
 {
-	SetPosition(sf::Vector2f(x, y));
+	setPosition(sf::Vector2f(x, y));
 }
 
-void MapObject::SetPosition(const sf::Vector2f& position)
+void MapObject::setPosition(const sf::Vector2f& position)
 {
 	sf::Vector2f distance = position - m_position;
-	Move(distance);
+	move(distance);
 }
 
-void MapObject::Move(float x, float y)
+void MapObject::move(float x, float y)
 {
-	Move(sf::Vector2f(x, y));
+	move(sf::Vector2f(x, y));
 }
 
-void MapObject::Move(const sf::Vector2f& distance)
+void MapObject::move(const sf::Vector2f& distance)
 {
 	//update properties by movement amount
 	m_centrePoint += distance;
@@ -113,10 +113,10 @@ void MapObject::Move(const sf::Vector2f& distance)
 	m_position += distance;
 
 	//if object is of type tile move vertex data
-	if(m_tileQuad) m_tileQuad->Move(distance);
+	if(m_tileQuad) m_tileQuad->move(distance);
 }
 
-bool MapObject::Contains(sf::Vector2f point) const
+bool MapObject::contains(sf::Vector2f point) const
 {
 	if(m_shape == Polyline) return false;
 
@@ -141,7 +141,7 @@ bool MapObject::Contains(sf::Vector2f point) const
 	return result;
 }
 
-bool MapObject::Intersects(const MapObject& object) const
+bool MapObject::intersects(const MapObject& object) const
 {
 	//check if distance between objects is less than sum of furthest points
 	float distance = Helpers::Vectors::getLength(m_centrePoint + object.m_centrePoint);
@@ -149,15 +149,15 @@ bool MapObject::Intersects(const MapObject& object) const
 
 	//check intersection if either object contains a point of the other
 	for(auto& p : object.m_polypoints)
-		if(Contains(p + object.GetPosition())) return true;
+		if(contains(p + object.getPosition())) return true;
 
 	for(auto& p : m_polypoints)
-		if(object.Contains(p + GetPosition())) return true;
+		if(object.contains(p + getPosition())) return true;
 
 	return false;
 }
 
-void MapObject::CreateDebugShape(const sf::Color& colour)
+void MapObject::createDebugShape(const sf::Color& colour)
 {
 	if(m_polypoints.size() == 0)
 	{
@@ -167,47 +167,47 @@ void MapObject::CreateDebugShape(const sf::Color& colour)
 	}
 
 	//reset any existing shapes incase new points have been added
-	m_debugShape.Reset();
+	m_debugShape.reset();
 
 	for(const auto& p : m_polypoints)
-		m_debugShape.AddVertex(sf::Vertex(p, colour));
+		m_debugShape.addVertex(sf::Vertex(p, colour));
 	
-	if(m_shape != Polyline) m_debugShape.CloseShape();
+	if(m_shape != Polyline) m_debugShape.closeShape();
 
 	m_debugShape.setPosition(m_position);
 
 	//precompute shape values for intersection testing
-	CalcTestValues();
+	calcTestValues();
 
 	//create the AABB for quad tree testing
-	CreateAABB();
+	createAABB();
 }
 
-void MapObject::DrawDebugShape(sf::RenderTarget& rt) const
+void MapObject::drawDebugShape(sf::RenderTarget& rt) const
 {
 	rt.draw(m_debugShape);
 }
 
-sf::Vector2f MapObject::FirstPoint() const
+sf::Vector2f MapObject::firstPoint() const
 {
 	if(!m_polypoints.empty())
 		return m_polypoints[0] + m_position;
 	else return sf::Vector2f();
 }
 
-sf::Vector2f MapObject::LastPoint() const
+sf::Vector2f MapObject::lastPoint() const
 {
 	if(!m_polypoints.empty())
 		return(m_polypoints.back() + m_position);
 	else return sf::Vector2f();
 }
 
-sf::Vector2f MapObject::CollisionNormal(const sf::Vector2f& start, const sf::Vector2f& end) const
+sf::Vector2f MapObject::collisionNormal(const sf::Vector2f& start, const sf::Vector2f& end) const
 {
 	Segment trajectory(start, end);
 	for(auto& s : m_polySegs)
 	{
-		if(trajectory.Intersects(s))
+		if(trajectory.intersects(s))
 		{
 			sf::Vector2f v = s.End - s.Start;
 			sf::Vector2f n(v.y, -v.x);
@@ -223,7 +223,7 @@ sf::Vector2f MapObject::CollisionNormal(const sf::Vector2f& start, const sf::Vec
 	return Helpers::Vectors::normalize(rv);
 }
 
-void MapObject::CreateSegments()
+void MapObject::createSegments()
 {
 	if(m_polypoints.size() == 0)
 	{
@@ -242,7 +242,7 @@ void MapObject::CreateSegments()
 	LOG("Added " + std::to_string(m_polySegs.size()) + " segments to Map Object", Logger::Type::Info);
 }
 
-bool MapObject::Convex() const
+bool MapObject::convex() const
 {
 	if (m_shape == MapObjectShape::Polyline)
 		return false;
@@ -267,23 +267,23 @@ bool MapObject::Convex() const
 	return true;
 }
 
-const std::vector<sf::Vector2f>& MapObject::PolyPoints()const
+const std::vector<sf::Vector2f>& MapObject::polyPoints()const
 {
 	return m_polypoints;
 }
 
-void MapObject::ReverseWinding()
+void MapObject::reverseWinding()
 {
 	std::reverse(m_polypoints.begin(), m_polypoints.end());
 }
 
-void MapObject::SetQuad(TileQuad* quad)
+void MapObject::setQuad(TileQuad* quad)
 {
 	m_tileQuad = quad;
 }
 
 //private
-sf::Vector2f MapObject::CalcCentre() const
+sf::Vector2f MapObject::calcCentre() const
 {
 	if(m_shape == Polyline) return sf::Vector2f();
 
@@ -334,9 +334,9 @@ sf::Vector2f MapObject::CalcCentre() const
 	return centroid;
 }
 
-void MapObject::CalcTestValues()
+void MapObject::calcTestValues()
 {
-	m_centrePoint = CalcCentre();
+	m_centrePoint = calcCentre();
 	for(auto i = m_polypoints.cbegin(); i != m_polypoints.cend(); ++i)
 	{
 		float length = Helpers::Vectors::getLength(*i - m_centrePoint);
@@ -350,7 +350,7 @@ void MapObject::CalcTestValues()
 	if(m_shape == Polyline) m_furthestPoint /= 2.f;
 }
 
-void MapObject::CreateAABB()
+void MapObject::createAABB()
 {
 	if(!m_polypoints.empty())
 	{

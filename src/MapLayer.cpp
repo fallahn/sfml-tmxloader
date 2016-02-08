@@ -27,7 +27,7 @@ it freely, subject to the following restrictions:
    source distribution.
 *********************************************************************/
 
-#include <tmx/MapLayer.h>
+#include <tmx/MapLayer.hpp>
 
 using namespace tmx;
 ///------TileQuad-----///
@@ -41,7 +41,7 @@ TileQuad::TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3)
 	m_indices[3] = i3;
 }
 
-void TileQuad::Move(const sf::Vector2f& distance)
+void TileQuad::move(const sf::Vector2f& distance)
 {
 	m_movement = distance;
 	if(m_parentSet)
@@ -65,7 +65,7 @@ LayerSet::LayerSet(const sf::Texture& texture, sf::Uint8 patchSize, const sf::Ve
 	m_patches.resize(m_patchCount.x * m_patchCount.y);
 }
 
-TileQuad* LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3, sf::Uint16 x, sf::Uint16 y)
+TileQuad* LayerSet::addTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3, sf::Uint16 x, sf::Uint16 y)
 {
 	sf::Int32 patchX = static_cast<sf::Int32>(std::ceil(x / m_patchSize));
 	sf::Int32 patchY = static_cast<sf::Int32>(std::ceil(y / m_patchSize));
@@ -81,12 +81,12 @@ TileQuad* LayerSet::AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::
 	m_quads.back()->m_parentSet = this;
 	m_quads.back()->m_patchIndex = patchIndex;
 
-	UpdateAABB(vt0.position, vt2.position);
+	updateAABB(vt0.position, vt2.position);
 
 	return m_quads.back().get();
 }
 
-void LayerSet::Cull(const sf::FloatRect& bounds)
+void LayerSet::cull(const sf::FloatRect& bounds)
 {
 	m_visible = m_boundingBox.intersects(bounds);
 
@@ -160,7 +160,7 @@ void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 	}
 }
 
-void LayerSet::UpdateAABB(sf::Vector2f position, sf::Vector2f size)
+void LayerSet::updateAABB(sf::Vector2f position, sf::Vector2f size)
 {
 	if(m_boundingBox.width == 0.f)
 	{
@@ -192,15 +192,15 @@ MapLayer::MapLayer(MapLayerType type)
 	m_shader	(nullptr)
 {}
 
-void MapLayer::SetShader(const sf::Shader& shader)
+void MapLayer::setShader(const sf::Shader& shader)
 {
 	m_shader = &shader;
 }
 
-void MapLayer::Cull(const sf::FloatRect& bounds)
+void MapLayer::cull(const sf::FloatRect& bounds)
 {
 	for(auto& ls : layerSets)
-		ls.second->Cull(bounds);
+		ls.second->cull(bounds);
 }
 
 //private

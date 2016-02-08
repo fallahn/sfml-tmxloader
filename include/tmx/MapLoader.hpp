@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -27,11 +27,11 @@ it freely, subject to the following restrictions:
    source distribution.
 *********************************************************************/
 
-#ifndef MAP_LOADER_H_
-#define MAP_LOADER_H_
+#ifndef MAP_LOADER_HPP_
+#define MAP_LOADER_HPP_
 
-#include <tmx/QuadTreeNode.h>
-#include <tmx/MapLayer.h>
+#include <tmx/QuadTreeNode.hpp>
+#include <tmx/MapLayer.hpp>
 
 #include <pugixml/pugixml.hpp>
 
@@ -56,40 +56,40 @@ namespace tmx
 		//where 0 does no patch splitting.
 		MapLoader(const std::string& mapDirectory, sf::Uint8 patchSize = 10u);
 		//loads a given tmx file, returns false on failure
-		bool Load(const std::string& mapFile);
+		bool load(const std::string& mapFile);
 		//loads a map from an xml string in memory
-		bool LoadFromMemory(const std::string& xmlString);
+		bool loadFromMemory(const std::string& xmlString);
 		//adds give path to list of directories to search for assets, such as tile sets
-		void AddSearchPath(const std::string& path);
+		void addSearchPath(const std::string& path);
 		//updates the map's quad tree. Not necessary when not querying the quad tree
 		//root area is the are covered by root node, for example the screen size
-		void UpdateQuadTree(const sf::FloatRect& rootArea);
+		void updateQuadTree(const sf::FloatRect& rootArea);
 		//queries the quad tree and returns a vector of objects contained by nodes enclosing
 		//or intersecting testArea
-		std::vector<MapObject*> QueryQuadTree(const sf::FloatRect& testArea);
+		std::vector<MapObject*> queryQuadTree(const sf::FloatRect& testArea);
 		//returns a vector of map layers
-		std::vector<MapLayer>& GetLayers();
-		const std::vector<MapLayer>& GetLayers() const;
+		std::vector<MapLayer>& getLayers();
+		const std::vector<MapLayer>& getLayers() const;
 		//draws visible tiles to given target, optionally draw outline of objects for debugging
-		void Draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug = false);
+		void draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug = false);
 		//overload for drawing layer by index
-		void Draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug = false);
+		void draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug = false);
 		//projects orthogonal world coords to isometric world coords if available, else return original value
 		//eg: use to convert an isometric world coordinate to a position to be drawn in view space
-		sf::Vector2f IsometricToOrthogonal(const sf::Vector2f& projectedCoords);
+		sf::Vector2f isometricToOrthogonal(const sf::Vector2f& projectedCoords);
 		//returns orthogonal world coords from projected coords
 		//eg: use to find the orthogonal world coordinates currently under the mouse cursor
-		sf::Vector2f OrthogonalToIsometric(const sf::Vector2f& worldCoords);
+		sf::Vector2f orthogonalToIsometric(const sf::Vector2f& worldCoords);
 		//returns the size of an individual tile in pixels
-		sf::Vector2u GetTileSize() const;
+		sf::Vector2u getTileSize() const;
 		//returns the map size in pixels
-		sf::Vector2u GetMapSize() const;
+		sf::Vector2u getMapSize() const;
 		//returns empty string if property not found
-		std::string GetPropertyString(const std::string& name);
+		std::string getPropertyString(const std::string& name);
 		//sets the shader property of a layer's rendering states member
-		void SetLayerShader(sf::Uint16 layerId, const sf::Shader& shader);
+		void setLayerShader(sf::Uint16 layerId, const sf::Shader& shader);
 		//so we can test if QuadTree is available
-        bool QuadTreeAvailable() const;
+        bool quadTreeAvailable() const;
 
     private:
 		//properties which correspond to tmx
@@ -107,7 +107,7 @@ namespace tmx
 		std::vector<std::unique_ptr<sf::Texture>> m_imageLayerTextures;
 		std::vector<std::unique_ptr<sf::Texture>> m_tilesetTextures; //textures created from complete sets used when drawing vertex arrays
 		const sf::Uint8 m_patchSize;
-		struct TileInfo //holds texture coords and tileset id of a tile
+		struct TileInfo final //holds texture coords and tileset id of a tile
 		{
 			std::array<sf::Vector2f, 4> Coords;
 			sf::Vector2f Size;
@@ -123,52 +123,52 @@ namespace tmx
 		QuadTreeRoot m_rootNode;
 
 
-		bool LoadFromXmlDoc(const pugi::xml_document& doc);
+		bool loadFromXmlDoc(const pugi::xml_document& doc);
 		//resets any loaded map properties
-		void Unload();
+		void unload();
 		//sets the visible area of tiles to be drawn
-		void SetDrawingBounds(const sf::View& view);
+		void setDrawingBounds(const sf::View& view);
 
 		//utility functions for parsing map data
-		bool ParseMapNode(const pugi::xml_node& mapNode);
-		bool ParseTileSets(const pugi::xml_node& mapNode);
-		bool ProcessTiles(const pugi::xml_node& tilesetNode);
-        bool ParseCollectionOfImages(const pugi::xml_node& tilesetNode);
-		bool ParseLayer(const pugi::xml_node& layerNode);
-        TileQuad* AddTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset = sf::Vector2f());
-		bool ParseObjectgroup(const pugi::xml_node& groupNode);
-		bool ParseImageLayer(const pugi::xml_node& imageLayerNode);
-		void ParseLayerProperties(const pugi::xml_node& propertiesNode, MapLayer& destLayer);
-		void SetIsometricCoords(MapLayer& layer);
-		void DrawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug = false);
-		std::string FileFromPath(const std::string& path);
+		bool parseMapNode(const pugi::xml_node& mapNode);
+		bool parseTileSets(const pugi::xml_node& mapNode);
+		bool processTiles(const pugi::xml_node& tilesetNode);
+        bool parseCollectionOfImages(const pugi::xml_node& tilesetNode);
+		bool parseLayer(const pugi::xml_node& layerNode);
+        TileQuad* addTileToLayer(MapLayer& layer, sf::Uint16 x, sf::Uint16 y, sf::Uint32 gid, const sf::Vector2f& offset = sf::Vector2f());
+		bool parseObjectgroup(const pugi::xml_node& groupNode);
+		bool parseImageLayer(const pugi::xml_node& imageLayerNode);
+		void parseLayerProperties(const pugi::xml_node& propertiesNode, MapLayer& destLayer);
+		void setIsometricCoords(MapLayer& layer);
+		void drawLayer(sf::RenderTarget& rt, MapLayer& layer, bool debug = false);
+		std::string fileFromPath(const std::string& path);
 
 		//sf::drawable
-		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
+		void draw(sf::RenderTarget& rt, sf::RenderStates states) const override;
 
 		//utility method for parsing colour values from hex values
-		sf::Color ColourFromHex(const char* hexStr) const;
+		sf::Color colourFromHex(const char* hexStr) const;
 
 		//method for decompressing zlib compressed strings
-		bool Decompress(const char* source, std::vector<unsigned char>& dest, int inSize, int expectedSize);
+		bool decompress(const char* source, std::vector<unsigned char>& dest, int inSize, int expectedSize);
 		//creates a vertex array used to draw grid lines when using debug output
-		void CreateDebugGrid(void);
+		void createDebugGrid(void);
 
 		//caches loaded images to prevent loading the same tileset more than once
-		sf::Image& LoadImage(const std::string& imageName);
+		sf::Image& loadImage(const std::string& imageName);
 		std::map<std::string, std::shared_ptr<sf::Image> >m_cachedImages;
 		bool m_failedImage;
 
         //Reading the flipped bits
-        std::vector<unsigned char> IntToBytes(sf::Uint32 paramInt);
-        std::pair<sf::Uint32, std::bitset<3> > ResolveRotation(sf::Uint32 gid);
+        std::vector<unsigned char> intToBytes(sf::Uint32 paramInt);
+        std::pair<sf::Uint32, std::bitset<3> > resolveRotation(sf::Uint32 gid);
 
         //Image flip functions
-        void FlipY(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
-        void FlipX(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
-        void FlipD(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+        void flipY(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+        void flipX(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+        void flipD(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
 
-        void DoFlips(std::bitset<3> bits,sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
+        void doFlips(std::bitset<3> bits,sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3);
     };
 
 
@@ -176,4 +176,4 @@ namespace tmx
 	static std::string base64_decode(std::string const& string);
 }
 
-#endif //MAP_LOADER_H_
+#endif //MAP_LOADER_HPP_

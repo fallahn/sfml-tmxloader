@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -30,8 +30,8 @@ it freely, subject to the following restrictions:
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <tmx/MapLoader.h>
-#include <tmx/Log.h>
+#include <tmx/MapLoader.hpp>
+#include <tmx/Log.hpp>
 
 namespace
 {
@@ -94,11 +94,11 @@ int main()
     sf::Text fpsText = getFpsText(font);
 
 	//set the debugging output mode
-	tmx::Logger::SetLogLevel(tmx::Logger::Info | tmx::Logger::Error);
+	tmx::Logger::setLogLevel(tmx::Logger::Info | tmx::Logger::Error);
 
     //create map loader and load map
     tmx::MapLoader ml("maps/");
-    ml.Load("desert.tmx");
+    ml.load("desert.tmx");
 
     sf::Clock deltaClock, frameClock;
 

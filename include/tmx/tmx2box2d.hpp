@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -31,10 +31,10 @@ and must not be misrepresented as being the original software.
 source distribution.
 *********************************************************************/
 
-#ifndef TMX_BOX2D_H_
-#define TMX_BOX2D_H_
+#ifndef TMX_BOX2D_HPP_
+#define TMX_BOX2D_HPP_
 
-#include <tmx/MapObject.h>
+#include <tmx/MapObject.hpp>
 
 #include <Box2D/Dynamics/b2World.h>
 #include <Box2D/Common/b2Math.h>
@@ -45,36 +45,36 @@ source distribution.
 
 namespace tmx
 {
-	b2Vec2 SfToBoxVec(const sf::Vector2f& vec);
-	sf::Vector2f BoxToSfVec(const b2Vec2& vec);
-	float SfToBoxFloat(float val);
-	float BoxToSfFloat(float val);
-	float SfToBoxAngle(float degrees);
-	float BoxToSfAngle(float rads);
+	b2Vec2 sfToBoxVec(const sf::Vector2f& vec);
+	sf::Vector2f boxToSfVec(const b2Vec2& vec);
+	float sfToBoxFloat(float val);
+	float boxToSfFloat(float val);
+	float sfToBoxAngle(float degrees);
+	float boxToSfAngle(float rads);
 
-	class BodyCreator
+	class BodyCreator final
 	{
 	public:
-		typedef std::vector<sf::Vector2f> Shape;
-		typedef std::vector<Shape> Shapes;
-		typedef std::queue<Shape> ShapeQueue;
+		using Shape = std::vector<sf::Vector2f>;
+		using Shapes = std::vector<Shape>;
+		using ShapeQueue = std::queue<Shape>;
 
 		//adds the object to the b2World. Returns a pointer to the body
 		//created so that its properties my be modified. Bodies are static by default
-		static b2Body* Add(const MapObject& object, b2World& world, b2BodyType bodyType = b2_staticBody);
+		static b2Body* add(const MapObject& object, b2World& world, b2BodyType bodyType = b2_staticBody);
 
 	private:
-		static void m_Split(const MapObject& object, b2Body* body);
-		static Shapes m_ProcessConcave(const Shape& points);
-		static Shapes m_ProcessConvex(const Shape& points);
-		static sf::Vector2f m_HitPoint(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4);
-		static bool m_OnLine(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end);
-		static bool m_OnSeg(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end);
-		static bool m_PointsMatch(const sf::Vector2f& p1, const sf::Vector2f& p2);
-		static float m_GetWinding(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3);
-		static void m_CreateFixture(const Shape& points, b2Body* body);
-		static bool m_CheckShape(MapObject& object);
+		static void split(const MapObject& object, b2Body* body);
+		static Shapes processConcave(const Shape& points);
+		static Shapes processConvex(const Shape& points);
+		static sf::Vector2f hitPoint(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4);
+		static bool onLine(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end);
+		static bool onSeg(const sf::Vector2f& p, const sf::Vector2f& start, const sf::Vector2f& end);
+		static bool pointsMatch(const sf::Vector2f& p1, const sf::Vector2f& p2);
+		static float getWinding(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3);
+		static void createFixture(const Shape& points, b2Body* body);
+		static bool checkShape(MapObject& object);
 	};
 }
 
-#endif
+#endif //TMX_BOX2D_HPP_

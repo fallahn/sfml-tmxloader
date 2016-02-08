@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -30,7 +30,7 @@ it freely, subject to the following restrictions:
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <tmx/MapLoader.h>
+#include <tmx/MapLoader.hpp>
 
 
 const char waterShader[] =
@@ -172,7 +172,7 @@ int main()
 
 	//create map loader and load map
 	tmx::MapLoader ml("maps\\");
-	ml.Load("shader_example.tmx");
+	ml.load("shader_example.tmx");
 
 	bool showDebug = false;
 	sf::Clock frameClock, shaderClock;
@@ -181,7 +181,7 @@ int main()
 	sf::Shader waterEffect;
 	waterEffect.loadFromMemory(waterShader, sf::Shader::Fragment);
 
-	ml.SetLayerShader(0u, waterEffect);
+	ml.setLayerShader(0u, waterEffect);
 
 	//-----------------------------------//
 
@@ -212,7 +212,7 @@ int main()
 		frameClock.restart();
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		if(showDebug) ml.Draw(renderWindow, tmx::MapLayer::Debug);//draw with debug information shown
+		if(showDebug) ml.draw(renderWindow, tmx::MapLayer::Debug);//draw with debug information shown
 		renderWindow.display();
 
 		renderWindow.setTitle("Press D to Toggle debug shapes. " + std::to_string(1.f / frameClock.getElapsedTime().asSeconds()));

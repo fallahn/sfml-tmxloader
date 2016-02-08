@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2015
+Matt Marchant 2015 - 2016
 http://trederia.blogspot.com
 
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
@@ -30,8 +30,8 @@ source distribution.
 
 //flexible logging class
 
-#ifndef LOGGER_H_
-#define LOGGER_H_
+#ifndef LOGGER_HPP_
+#define LOGGER_HPP_
 
 #include <SFML/System/NonCopyable.hpp>
 
@@ -41,11 +41,11 @@ source distribution.
 
 //to enable logging define one of these in your preprocessor directives
 #ifdef LOG_OUTPUT_ALL
-#define LOG(m, t) tmx::Logger::Log(m, t, tmx::Logger::Output::All)
+#define LOG(m, t) tmx::Logger::log(m, t, tmx::Logger::Output::All)
 #elif defined LOG_OUTPUT_CONSOLE
-#define LOG(m, t) tmx::Logger::Log(m, t, tmx::Logger::Output::Console)
+#define LOG(m, t) tmx::Logger::log(m, t, tmx::Logger::Output::Console)
 #elif defined LOG_OUTPUT_FILE
-#define LOG(m, t) tmx::Logger::Log(m, t, tmx::Logger::Output::File)
+#define LOG(m, t) tmx::Logger::log(m, t, tmx::Logger::Output::File)
 #else
 #define LOG(m, t)
 #endif //LOG_LEVEL
@@ -77,7 +77,7 @@ namespace tmx
         //message: message to log
         //type: whether this message gets tagged as information, a warning or an error
         //output: can be the console via cout, a log file on disk, or both
-        static void Log(const std::string& message, Type type = Type::Info, Output output = Output::Console)
+        static void log(const std::string& message, Type type = Type::Info, Output output = Output::Console)
         {
 			if(!(m_logFilter & type)) return;
 
@@ -119,15 +119,15 @@ namespace tmx
                 }
                 else
                 {
-                    Log(message, type, Output::Console);
-                    Log("Above message was intended for log file. Opening file probably failed.", Type::Warning, Output::Console);
+                    log(message, type, Output::Console);
+                    log("Above message was intended for log file. Opening file probably failed.", Type::Warning, Output::Console);
                 }
             }
         }
 
 		//sets the level of logging via a bit mask
 		//made up from Logger::Info, Logger::Warning and Logger::Error
-		static void SetLogLevel(int level)
+		static void setLogLevel(int level)
 		{
 			m_logFilter = level;
 		}
@@ -136,4 +136,4 @@ namespace tmx
     };
 }
 
-#endif //LOGGER_H_
+#endif //LOGGER_HPP_

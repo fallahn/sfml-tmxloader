@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -30,7 +30,7 @@ it freely, subject to the following restrictions:
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <tmx/MapLoader.h>
+#include <tmx/MapLoader.hpp>
 
 #include <sstream>
 
@@ -40,7 +40,7 @@ int main()
 
 	//create map loader and load map
 	tmx::MapLoader ml("maps/");
-	ml.Load("desert.tmx");
+	ml.load("desert.tmx");
 
 	//-----------------------------------//
 
@@ -55,11 +55,11 @@ int main()
         }
 
 		//build quad tree by querying visible region
-		ml.UpdateQuadTree(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
+		ml.updateQuadTree(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
 		//get a vector of MapObjects contained in the quads intersected by query area
 		sf::Vector2f mousePos = renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow));
 		//NOTE quad tree MUST be updated before attempting to query it
-		std::vector<tmx::MapObject*> objects = ml.QueryQuadTree(sf::FloatRect(mousePos.x - 10.f, mousePos.y - 10.f, 20.f, 20.f));
+		std::vector<tmx::MapObject*> objects = ml.queryQuadTree(sf::FloatRect(mousePos.x - 10.f, mousePos.y - 10.f, 20.f, 20.f));
 
 		//do stuff with returned objects
 		std::stringstream stream;
@@ -69,7 +69,7 @@ int main()
 		//draw
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		ml.Draw(renderWindow, tmx::MapLayer::Debug); //draw with debug information shown
+		ml.draw(renderWindow, tmx::MapLayer::Debug); //draw with debug information shown
 		renderWindow.display();
 	}
 

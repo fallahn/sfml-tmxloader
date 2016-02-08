@@ -1,5 +1,5 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
@@ -27,10 +27,10 @@ it freely, subject to the following restrictions:
    source distribution.
 *********************************************************************/
 
-#ifndef MAPLAYER_H_
-#define MAPLAYER_H_
+#ifndef MAPLAYER_HPP_
+#define MAPLAYER_HPP_
 
-#include <tmx/MapObject.h>
+#include <tmx/MapObject.hpp>
 #include <memory>
 #include <array>
 
@@ -43,7 +43,7 @@ namespace tmx
 	public:
 		typedef std::unique_ptr<TileQuad> Ptr;
 		TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3);
-		void Move(const sf::Vector2f& distance);
+		void move(const sf::Vector2f& distance);
 	private:
 		std::array<sf::Uint16, 4u> m_indices;
 		sf::Vector2f m_movement;
@@ -58,8 +58,8 @@ namespace tmx
 	public:	
 
 		LayerSet(const sf::Texture& texture, sf::Uint8 patchSize, const sf::Vector2u& mapSize, const sf::Vector2u tileSize);
-		TileQuad* AddTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3, sf::Uint16 x, sf::Uint16 y);
-		void Cull(const sf::FloatRect& bounds);
+		TileQuad* addTile(sf::Vertex vt0, sf::Vertex vt1, sf::Vertex vt2, sf::Vertex vt3, sf::Uint16 x, sf::Uint16 y);
+		void cull(const sf::FloatRect& bounds);
 
 	private:
 		const sf::Texture& m_texture;
@@ -74,10 +74,10 @@ namespace tmx
 		sf::Vector2i m_visiblePatchStart, m_visiblePatchEnd;
 		mutable std::vector<std::vector<sf::Vertex>> m_patches;
 
-		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
+		void draw(sf::RenderTarget& rt, sf::RenderStates states) const override;
 
 		mutable sf::FloatRect m_boundingBox;
-		void UpdateAABB(sf::Vector2f position, sf::Vector2f size);
+		void updateAABB(sf::Vector2f position, sf::Vector2f size);
 		bool m_visible;
 	};
 
@@ -115,13 +115,13 @@ namespace tmx
 		std::map <std::string, std::string> properties;
 
 		std::map<sf::Uint16, std::shared_ptr<LayerSet>> layerSets;
-		void SetShader(const sf::Shader& shader);
-		void Cull(const sf::FloatRect& bounds);
+		void setShader(const sf::Shader& shader);
+		void cull(const sf::FloatRect& bounds);
 
 	private:
 		const sf::Shader* m_shader;
-		void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
+		void draw(sf::RenderTarget& rt, sf::RenderStates states) const override;
 	};
 };
 
-#endif //MAPLAYER_H_
+#endif //MAPLAYER_HPP_

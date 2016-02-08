@@ -30,7 +30,7 @@ it freely, subject to the following restrictions:
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <tmx/MapLoader.h>
+#include <tmx/MapLoader.hpp>
 
 int main()
 {
@@ -39,10 +39,10 @@ int main()
 
 	//create map loader and load map
 	tmx::MapLoader ml("maps\\");
-	ml.Load("desert.tmx");
+	ml.load("desert.tmx");
 
 	//update the quad tree once so we can see it whe drawing debug
-	ml.UpdateQuadTree(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
+	ml.updateQuadTree(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
 
 	bool showDebug = false;
 	sf::Clock frameClock;
@@ -69,28 +69,28 @@ int main()
 			}
         }
 		//move objects about
-		std::vector<tmx::MapLayer>& layers = ml.GetLayers();
+		std::vector<tmx::MapLayer>& layers = ml.getLayers();
 		for(auto& l : layers)
 		{
 			if(l.type == tmx::ObjectGroup)
 			{
 				for(auto& o : l.objects)
 				{
-					o.Move(0.f, 60.f * frameClock.getElapsedTime().asSeconds());
-					if(o.GetPosition().y > 600.f)
+					o.move(0.f, 60.f * frameClock.getElapsedTime().asSeconds());
+					if(o.getPosition().y > 600.f)
 					{
-						o.SetPosition(o.GetPosition().x, 0.f);
+						o.setPosition(o.getPosition().x, 0.f);
 					}
 				}
 			}
 		}
-		ml.UpdateQuadTree(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
+		ml.updateQuadTree(sf::FloatRect(0.f, 0.f, 800.f, 600.f));
 
 		//draw
 		frameClock.restart();
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		if(showDebug) ml.Draw(renderWindow, tmx::MapLayer::Debug);//draw with debug information shown
+		if(showDebug) ml.draw(renderWindow, tmx::MapLayer::Debug);//draw with debug information shown
 		renderWindow.display();
 
 		renderWindow.setTitle("Press D to Toggle debug shapes. " + std::to_string(1.f / frameClock.getElapsedTime().asSeconds()));
