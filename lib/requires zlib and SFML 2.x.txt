@@ -1,9 +1,0 @@
-http://zlib.net/
-
-tested with 1.2.7 and higher
-
-http://sfml-dev.org
-
-tested with 2.0/2.1
-
-optionally box2D - www.box2d.org
