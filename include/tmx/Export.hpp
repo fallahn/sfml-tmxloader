@@ -27,28 +27,43 @@ and must not be misrepresented as being the original software.
 source distribution.
 *********************************************************************/
 
-#ifndef DEBUG_SHAPE_HPP_
-#define DEBUG_SHAPE_HPP_
+#ifndef TMX_EXPORT_HPP_
+#define TMX_EXPORT_HPP_
 
-#include <tmx/Export.hpp>
+//check which platform we're on and create export macros as necessary
+#if !defined(TMX_STATIC)
 
-#include <SFML/Graphics/VertexArray.hpp>
-#include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/Transformable.hpp>
+#if defined(_WIN32)
 
-class TMX_EXPORT_API DebugShape final : public sf::Drawable, public sf::Transformable
-{
-public:
-	DebugShape();
-	void addVertex(const sf::Vertex& vert);
-	void reset();
-	void closeShape();
+//windows compilers need specific (and different) keywords for export
+#define TMX_EXPORT_API __declspec(dllexport)
 
-private:
+//for vc compilers we also need to turn off this annoying C4251 warning
+#ifdef _MSC_VER
+#pragma warning(disable: 4251)
+#endif //_MSC_VER
 
-	bool m_closed;
-	sf::VertexArray m_array;
-	void draw(sf::RenderTarget& rt, sf::RenderStates states)const override;
-};
+#else //linux, FreeBSD, Mac OS X
 
-#endif //DEBUD_SHAPE_HPP_
+#if __GNUC__ >= 4
+
+//gcc 4 has special keywords for showing/hiding symbols,
+//the same keyword is used for both importing and exporting
+#define TMX_EXPORT_API __attribute__ ((__visibility__ ("default")))
+
+#else
+
+//gcc < 4 has no mechanism to explicitly hide symbols, everything's exported
+#define TMX_EXPORT_API
+#endif //__GNUC__
+
+#endif //_WIN32
+
+#else
+
+//static build doesn't need import/export macros
+#define TMX_EXPORT_API
+
+#endif //TMX_STATIC
+
+#endif //TMX_EXPORT_HPP_

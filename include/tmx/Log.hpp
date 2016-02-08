@@ -33,6 +33,8 @@ source distribution.
 #ifndef LOGGER_HPP_
 #define LOGGER_HPP_
 
+#include <tmx/Export.hpp>
+
 #include <SFML/System/NonCopyable.hpp>
 
 #include <string>
@@ -56,7 +58,7 @@ source distribution.
 
 namespace tmx
 {
-    class Logger final : private sf::NonCopyable
+    class TMX_EXPORT_API Logger final : private sf::NonCopyable
     {
     public:
         enum class Output

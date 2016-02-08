@@ -40,11 +40,12 @@ it freely, subject to the following restrictions:
 #define QUADTREE_NODE_HPP_
 
 #include <tmx/MapObject.hpp>
+
 #include <memory>
 
 namespace tmx
 {
-	class QuadTreeNode
+	class TMX_EXPORT_API QuadTreeNode
 	{
         friend class QuadTreeRoot;
 	public:
@@ -80,7 +81,7 @@ namespace tmx
 	};
 
 	//specialisation of QuadTreeNode for counting tree depth
-    class QuadTreeRoot final : public QuadTreeNode, public sf::Drawable
+    class TMX_EXPORT_API QuadTreeRoot final : public QuadTreeNode, public sf::Drawable
 	{
 	public:
 		QuadTreeRoot(sf::Uint16 level = 0, const sf::FloatRect& bounds = sf::FloatRect(0.f, 0.f, 1.f, 1.f))

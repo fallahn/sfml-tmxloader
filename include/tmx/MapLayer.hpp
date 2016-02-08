@@ -31,17 +31,19 @@ it freely, subject to the following restrictions:
 #define MAPLAYER_HPP_
 
 #include <tmx/MapObject.hpp>
+#include <tmx/Export.hpp>
+
 #include <memory>
 #include <array>
 
 namespace tmx
 {
 	class LayerSet;
-	class TileQuad final
+	class TMX_EXPORT_API TileQuad final
 	{
 		friend class LayerSet;
 	public:
-		typedef std::unique_ptr<TileQuad> Ptr;
+		using Ptr = std::shared_ptr<TileQuad>; //TODO shared libs don't like this being a unique_ptr
 		TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3);
 		void move(const sf::Vector2f& distance);
 	private:
@@ -52,7 +54,7 @@ namespace tmx
 	};
 
 	//drawable composed of vertices representing a set of tiles on a layer
-	class LayerSet final : public sf::Drawable
+	class TMX_EXPORT_API LayerSet final : public sf::Drawable
 	{
 		friend class TileQuad;
 	public:	
@@ -92,7 +94,7 @@ namespace tmx
 	};
 
 	//represents a layer of tiles, corresponding to a tmx layer, object group or image layer
-	class MapLayer final : public sf::Drawable
+	class TMX_EXPORT_API MapLayer final : public sf::Drawable
 	{
 	public:
 		//used for drawing specific layers

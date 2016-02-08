@@ -30,11 +30,8 @@ it freely, subject to the following restrictions:
 #ifndef MAP_OBJECT_HPP_
 #define MAP_OBJECT_HPP_
 
-#include <string>
-#include <vector>
-#include <map>
-#include <iostream>
-#include <memory>
+#include <tmx/Helpers.hpp>
+#include <tmx/DebugShape.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -49,8 +46,11 @@ it freely, subject to the following restrictions:
 
 #include <SFML/System/NonCopyable.hpp>
 
-#include <tmx/Helpers.hpp>
-#include <tmx/DebugShape.hpp>
+#include <string>
+#include <vector>
+#include <map>
+#include <iostream>
+#include <memory>
 
 namespace tmx
 {
@@ -67,7 +67,7 @@ namespace tmx
 	};
 
 	//map object class.
-	class MapObject final
+	class TMX_EXPORT_API MapObject final
 	{
 	private:
 		struct Segment
@@ -185,7 +185,7 @@ private:
 	using MapObjects =  std::vector<MapObject>;
 
 	//represents a single tile on a layer
-	struct MapTile final
+	struct TMX_EXPORT_API MapTile final
 	{
 		//returns the base centre point of sprite / tile
 		sf::Vector2f getBase() const
