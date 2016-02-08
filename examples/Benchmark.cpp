@@ -94,7 +94,7 @@ int main()
     sf::Text fpsText = getFpsText(font);
 
 	//set the debugging output mode
-	tmx::Logger::setLogLevel(tmx::Logger::Info | tmx::Logger::Error);
+	tmx::setLogLevel(tmx::Logger::Info | tmx::Logger::Error);
 
     //create map loader and load map
     tmx::MapLoader ml("maps/");

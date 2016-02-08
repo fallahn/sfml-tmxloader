@@ -2,67 +2,70 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\src\pugixml\pugixml.cpp">
-      <Filter>source\pugixml</Filter>
+      <Filter>Source Files\pugixml</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tmx2box2d.cpp">
-      <Filter>source</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\DebugShape.cpp">
-      <Filter>source</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\MapLayer.cpp">
-      <Filter>source</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\MapLoaderPrivate.cpp">
-      <Filter>source</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\MapLoaderPublic.cpp">
-      <Filter>source</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\MapObject.cpp">
-      <Filter>source</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\QuadTreeNode.cpp">
-      <Filter>source</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Log.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\tmx\tmx2box2d.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\QuadTreeNode.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\MapObject.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\MapLoader.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\MapLayer.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\Log.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\Helpers.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\DebugShape.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\Export.hpp">
-      <Filter>include</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="include">
+    <Filter Include="Header Files">
       <UniqueIdentifier>{a7ac5819-9e3c-48ce-8873-114eaab5ed06}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source">
+    <Filter Include="Source Files">
       <UniqueIdentifier>{54598cd1-1555-4450-b40d-9e9e35c30803}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source\pugixml">
+    <Filter Include="Source Files\pugixml">
       <UniqueIdentifier>{7aeee9d1-81fa-40cc-9249-ed7ce20167af}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

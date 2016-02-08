@@ -48,7 +48,7 @@ namespace tmx
 		SteppedIsometric
 	};
 
-	class MapLoader final : public sf::Drawable, private sf::NonCopyable
+	class TMX_EXPORT_API MapLoader final : public sf::Drawable, private sf::NonCopyable
 	{
 	public:
 		//requires a path to the map directory relative to working directory

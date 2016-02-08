@@ -45,14 +45,14 @@ source distribution.
 
 namespace tmx
 {
-	b2Vec2 sfToBoxVec(const sf::Vector2f& vec);
-	sf::Vector2f boxToSfVec(const b2Vec2& vec);
-	float sfToBoxFloat(float val);
-	float boxToSfFloat(float val);
-	float sfToBoxAngle(float degrees);
-	float boxToSfAngle(float rads);
+    TMX_EXPORT_API b2Vec2 sfToBoxVec(const sf::Vector2f& vec);
+    TMX_EXPORT_API sf::Vector2f boxToSfVec(const b2Vec2& vec);
+    TMX_EXPORT_API float sfToBoxFloat(float val);
+    TMX_EXPORT_API float boxToSfFloat(float val);
+    TMX_EXPORT_API float sfToBoxAngle(float degrees);
+    TMX_EXPORT_API float boxToSfAngle(float rads);
 
-	class BodyCreator final
+    class TMX_EXPORT_API BodyCreator final
 	{
 	public:
 		using Shape = std::vector<sf::Vector2f>;
@@ -61,7 +61,7 @@ namespace tmx
 
 		//adds the object to the b2World. Returns a pointer to the body
 		//created so that its properties my be modified. Bodies are static by default
-		static b2Body* add(const MapObject& object, b2World& world, b2BodyType bodyType = b2_staticBody);
+		b2Body* add(const MapObject& object, b2World& world, b2BodyType bodyType = b2_staticBody);
 
 	private:
 		static void split(const MapObject& object, b2Body* body);

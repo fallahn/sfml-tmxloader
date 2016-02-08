@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\DebugShape.cpp" />
+    <ClCompile Include="..\..\src\Log.cpp" />
     <ClCompile Include="..\..\src\MapLayer.cpp" />
     <ClCompile Include="..\..\src\MapLoaderPrivate.cpp" />
     <ClCompile Include="..\..\src\MapLoaderPublic.cpp" />

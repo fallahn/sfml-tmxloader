@@ -61,6 +61,9 @@ int main()
 	std::vector<DebugShape> debugShapes;
 	std::map<b2Body*, sf::CircleShape> dynamicShapes; //we can use raw pointers because box2D manages its own memory
 
+    //create a body creator
+    tmx::BodyCreator bodyCreator;
+
 	const std::vector<tmx::MapLayer>& layers = ml.getLayers();
 	for (const auto& l : layers)
 	{
@@ -69,7 +72,7 @@ int main()
 			for (const auto& o : l.objects)
 			{
 				//receive a pointer to the newly created body
-				b2Body* b = tmx::BodyCreator::add(o, world);
+                b2Body* b = bodyCreator.add(o, world);
 
 				//iterate over body info to create some visual debugging shapes to help visualise
 				debugBoxes.push_back(std::unique_ptr<sf::RectangleShape>(new sf::RectangleShape(sf::Vector2f(6.f, 6.f))));
@@ -114,7 +117,7 @@ int main()
 			{
 				//this time keep a copy of the pointer so we can update the dynamic objects
 				//with their information. Don't forget to create a dynamic body
-				b2Body* b = tmx::BodyCreator::add(o, world, b2BodyType::b2_dynamicBody);
+                b2Body* b = bodyCreator.add(o, world, b2BodyType::b2_dynamicBody);
 				b->GetFixtureList()->SetRestitution(0.99f); //set some properties of the body
 				//we assume for this example all dynamic objects are circular. Other shapes also work
 				//but you need to impliment your own drawing for them.

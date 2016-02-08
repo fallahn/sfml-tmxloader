@@ -56,12 +56,12 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../../include;extlibs/include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);LOG_OUTPUT_CONSOLE</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>extlibs/bin</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Box2D.lib;zlibstat.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Box2D-d.lib;zlibstat.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>extlibs/bin</AdditionalLibraryDirectories>
@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\DebugShape.cpp" />
+    <ClCompile Include="..\..\src\Log.cpp" />
     <ClCompile Include="..\..\src\MapLayer.cpp" />
     <ClCompile Include="..\..\src\MapLoaderPrivate.cpp" />
     <ClCompile Include="..\..\src\MapLoaderPublic.cpp" />

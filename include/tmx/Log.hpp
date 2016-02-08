@@ -45,7 +45,7 @@ source distribution.
 #ifdef LOG_OUTPUT_ALL
 #define LOG(m, t) tmx::Logger::log(m, t, tmx::Logger::Output::All)
 #elif defined LOG_OUTPUT_CONSOLE
-#define LOG(m, t) tmx::Logger::log(m, t, tmx::Logger::Output::Console)
+#define LOG(m, t) tmx::log(m, t, tmx::Logger::Output::Console)
 #elif defined LOG_OUTPUT_FILE
 #define LOG(m, t) tmx::Logger::log(m, t, tmx::Logger::Output::File)
 #else
@@ -58,7 +58,7 @@ source distribution.
 
 namespace tmx
 {
-    class TMX_EXPORT_API Logger final : private sf::NonCopyable
+    class Logger final : private sf::NonCopyable
     {
     public:
         enum class Output
@@ -75,11 +75,13 @@ namespace tmx
             Error	= (1 << 2)
         };
 
+        Logger();
+
         //logs a message to a given destination.
         //message: message to log
         //type: whether this message gets tagged as information, a warning or an error
         //output: can be the console via cout, a log file on disk, or both
-        static void log(const std::string& message, Type type = Type::Info, Output output = Output::Console)
+        void log(const std::string& message, Type type = Type::Info, Output output = Output::Console)
         {
 			if(!(m_logFilter & type)) return;
 
@@ -129,13 +131,17 @@ namespace tmx
 
 		//sets the level of logging via a bit mask
 		//made up from Logger::Info, Logger::Warning and Logger::Error
-		static void setLogLevel(int level)
+		void setLogLevel(int level)
 		{
 			m_logFilter = level;
 		}
 	private:
-		static int m_logFilter;
+		int m_logFilter;
     };
+
+    TMX_EXPORT_API void log(const std::string& m, tmx::Logger::Type t, tmx::Logger::Output o);
+
+    TMX_EXPORT_API void setLogLevel(int level);
 }
 
 #endif //LOGGER_HPP_
