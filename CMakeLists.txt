@@ -4,9 +4,10 @@ project(tmx-loader)
 
 # Set options
 set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build (Debug or Release)")
-set(BUILD_SHARED_LIBS TRUE CACHE BOOL "TRUE to build light as shared libraries, FALSE to build it as static libraries")
+set(BUILD_SHARED_LIBS TRUE CACHE BOOL "TRUE to build as shared libraries, FALSE to build it as static libraries")
 set(SFML_STATIC_LIBS FALSE CACHE BOOL "Choose whether SFML is linked statically or not.")
 set(TMX_STATIC_STD_LIBS FALSE CACHE BOOL "Use statically linked standard/runtime libraries? This option must match the one used for SFML.")
+set(USE_BOX2D FALSE CACHE BOOL "Use the Box2D functions of the map loader - Requires Box2D if true")
 set(TMX_BUILD_EXAMPLE FALSE BOOL CACHE BOOL "TRUE to build the tmx-loader example, FALSE to ignore them")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -54,27 +55,40 @@ set(pugi_SRCS
         src/pugixml/pugixml.cpp)
 
 set(tmx_HDRS
-        include/tmx/MapLayer.h
-        include/tmx/MapLoader.h
-        include/tmx/MapObject.h
-        include/tmx/QuadTreeNode.h
-        include/tmx/DebugShape.h
-        include/tmx/Helpers.h
-        include/tmx/Log.h)
+        include/tmx/MapLayer.hpp
+        include/tmx/MapLoader.hpp
+        include/tmx/MapObject.hpp
+        include/tmx/QuadTreeNode.hpp
+        include/tmx/DebugShape.hpp
+        include/tmx/Helpers.hpp
+        include/tmx/Log.hpp
+        include/tmx/Export.hpp)
 
 set(tmx_SRCS
-		src/DebugShape.cpp
+        src/DebugShape.cpp
         src/MapLoaderPublic.cpp
         src/MapLoaderPrivate.cpp
         src/MapLayer.cpp
         src/MapObject.cpp
-        src/QuadTreeNode.cpp)
+        src/QuadTreeNode.cpp
+        src/Log.cpp)
 
+if(USE_BOX2D)
+list(APPEND ${tmx_HDRS}
+        include/tmx/tmx2box2d.hpp)
+list(APPEND ${tmx_SRCS}
+        src/tmx2box2d.cpp)
+endif()
+        
 set(maps_SRCS "${PROJECT_SOURCE_DIR}/maps/")
 set(fonts_SRCS "${PROJECT_SOURCE_DIR}/fonts/")
 
 add_library(pugi ${pugi_HDRS} ${pugi_SRCS})
-add_library(${PROJECT_NAME} ${tmx_HDRS} ${tmx_SRCS})
+if(BUILD_SHARED_LIBS)
+  add_library(${PROJECT_NAME} SHARED ${tmx_HDRS} ${tmx_SRCS})
+else()
+  add_library(${PROJECT_NAME} STATIC ${tmx_HDRS} ${tmx_SRCS})
+endif()
 
 
 find_package(SFML 2 REQUIRED graphics window system)
@@ -97,16 +111,17 @@ elseif(NOT ZLIB_FOUND)
 	message("-> Make sure the zlib libraries with the same configuration (Release/Debug, Static/Dynamic) exist.\n")
 endif()
 
+if(USE_BOX2D)
+  find_package(BOX2D)
 
-find_package(BOX2D)
-
-if(BOX2D_FOUND)
-    include_directories(${BOX2D_INCLUDE_DIR})
-elseif(NOT BOX2D_FOUND)
-    set(BOX2D_INCLUDE_DIR "" CACHE PATH "Box2D include directory")
-    set(BOX2D_LIBRARIES "" CACHE PATH "Box2D lib directory")
+  if(BOX2D_FOUND)
+      include_directories(${BOX2D_INCLUDE_DIR})
+  elseif(NOT BOX2D_FOUND)
+      set(BOX2D_INCLUDE_DIR "" CACHE PATH "Box2D include directory")
+      set(BOX2D_LIBRARIES "" CACHE PATH "Box2D lib directory")
 	message("\n-> Box2D directories not found. Set BOX2D_INCLUDE_DIR to Box2D's include path and BOX2D_LIBRARIES to Box2D's lib directory path.")
 	message("-> Make sure the Box2D libraries with the same configuration (Release/Debug, Static/Dynamic) exist.\n")
+endif()
 endif()
 
 #target_link_libraries(pugi ${ZLIB_LIBRARIES})
@@ -146,7 +161,7 @@ install(
 
 # Install tmx-loader
 install(
-    TARGETS tmx-loader
+    TARGETS tmx-loader EXPORT tmx-loader-targets
     RUNTIME DESTINATION bin COMPONENT bin
     LIBRARY DESTINATION lib COMPONENT bin
     ARCHIVE DESTINATION lib COMPONENT dev
