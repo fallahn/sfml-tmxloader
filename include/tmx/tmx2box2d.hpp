@@ -3,12 +3,7 @@ Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
-Utility class for creating box2D bodies from tmx map objects. You
-can optionally include this file and tmx2box2d.cpp in your project if
-you plan to use box2d - http://www.box2d.org for processing physics.
-
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held
@@ -45,13 +40,34 @@ source distribution.
 
 namespace tmx
 {
+    /*!
+    \brief Converts an sfml vector in world units to Box2D units
+    */
     TMX_EXPORT_API b2Vec2 sfToBoxVec(const sf::Vector2f& vec);
+    /*!
+    \brief Converts a Box2D vector to sfml vector
+    */
     TMX_EXPORT_API sf::Vector2f boxToSfVec(const b2Vec2& vec);
+    /*!
+    \brief Converts a float in sfml world units to Box2D world units
+    */
     TMX_EXPORT_API float sfToBoxFloat(float val);
+    /*!
+    \brief Converts a float in Box2D world units to sfml world units
+    */
     TMX_EXPORT_API float boxToSfFloat(float val);
+    /*!
+    \brief Converts an sfml angle in degrees to radians used by Box2D
+    */
     TMX_EXPORT_API float sfToBoxAngle(float degrees);
+    /*!
+    \brief Converts a Box2D angle in radians to degrees used by sfml
+    */
     TMX_EXPORT_API float boxToSfAngle(float rads);
 
+    /*!
+    \brief Utility class for creating Box2D bodies from tmx object data
+    */
     class TMX_EXPORT_API BodyCreator final
 	{
 	public:
@@ -59,8 +75,10 @@ namespace tmx
 		using Shapes = std::vector<Shape>;
 		using ShapeQueue = std::queue<Shape>;
 
-		//adds the object to the b2World. Returns a pointer to the body
-		//created so that its properties my be modified. Bodies are static by default
+		/*!
+        \brief Adds the object to the b2World.
+        Returns a pointer to the body created so that its properties my be modified. Bodies are static by default
+        */
 		b2Body* add(const MapObject& object, b2World& world, b2BodyType bodyType = b2_staticBody);
 
 	private:

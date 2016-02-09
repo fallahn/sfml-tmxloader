@@ -3,8 +3,7 @@ Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held
@@ -48,47 +47,87 @@ namespace tmx
 		SteppedIsometric
 	};
 
+    /*!
+    \brief A drawable class which parses Tiled tmx format map files
+    */
 	class TMX_EXPORT_API MapLoader final : public sf::Drawable, private sf::NonCopyable
 	{
 	public:
-		//requires a path to the map directory relative to working directory
-		//and the maximum number of tiles in a single patch along one edge
-		//where 0 does no patch splitting.
+		/*!
+        \brief Constructor
+        Requires a path to the map directory relative to working directory
+		and the maximum number of tiles in a single patch along one edge
+		where 0 does no patch splitting.
+        */
 		MapLoader(const std::string& mapDirectory, sf::Uint8 patchSize = 10u);
-		//loads a given tmx file, returns false on failure
+		/*!
+        \brief Loads a given tmx file, returns false on failure
+        */
 		bool load(const std::string& mapFile);
-		//loads a map from an xml string in memory
+		/*!
+        \brief Loads a map from an xml string in memory
+        */
 		bool loadFromMemory(const std::string& xmlString);
-		//adds give path to list of directories to search for assets, such as tile sets
+		/*!
+        \brief Adds give path to list of directories to search for assets, such as tile sets
+        */
 		void addSearchPath(const std::string& path);
-		//updates the map's quad tree. Not necessary when not querying the quad tree
-		//root area is the are covered by root node, for example the screen size
+		/*!
+        \brief Updates the map's quad tree.
+        Not necessary when not querying the quad tree. Root area is the area covered by root node,
+        for example the screen size
+        */
 		void updateQuadTree(const sf::FloatRect& rootArea);
-		//queries the quad tree and returns a vector of objects contained by nodes enclosing
-		//or intersecting testArea
+		/*!
+        \brief Queries the quad tree and returns a vector of objects contained by nodes enclosing
+		or intersecting testArea
+        */
 		std::vector<MapObject*> queryQuadTree(const sf::FloatRect& testArea);
-		//returns a vector of map layers
+		/*!
+        \brief Returns a vector of map layers
+        */
 		std::vector<MapLayer>& getLayers();
+        /*!
+        \brief Returns a vector of map layers
+        */
 		const std::vector<MapLayer>& getLayers() const;
-		//draws visible tiles to given target, optionally draw outline of objects for debugging
-		void draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug = false);
-		//overload for drawing layer by index
-		void draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug = false);
-		//projects orthogonal world coords to isometric world coords if available, else return original value
-		//eg: use to convert an isometric world coordinate to a position to be drawn in view space
+		/*!
+        \brief Draws visible tiles to given target, optionally draw outline of objects for debugging
+        */
+		void drawLayer(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug = false);
+        /*!
+        \brief Draws a layer by index
+        */
+		void drawLayer(sf::RenderTarget& rt, sf::Uint16 index, bool debug = false);
+		/*!
+        \brief Projects orthogonal world coords to isometric world coords if available, else returns original value.
+		eg: use to convert an isometric world coordinate to a position to be drawn in view space
+        */
 		sf::Vector2f isometricToOrthogonal(const sf::Vector2f& projectedCoords);
-		//returns orthogonal world coords from projected coords
-		//eg: use to find the orthogonal world coordinates currently under the mouse cursor
+		/*!
+        \brief Returns orthogonal world coords from projected coords.
+		eg: use to find the orthogonal world coordinates currently under the mouse cursor
+        */
 		sf::Vector2f orthogonalToIsometric(const sf::Vector2f& worldCoords);
-		//returns the size of an individual tile in pixels
+		/*!
+        \brief Returns the size of an individual tile in pixels
+        */
 		sf::Vector2u getTileSize() const;
-		//returns the map size in pixels
+		/*!
+        \brief Returns the map size in pixels
+        */
 		sf::Vector2u getMapSize() const;
-		//returns empty string if property not found
+		/*!
+        \brief Returns empty string if property not found
+        */
 		std::string getPropertyString(const std::string& name);
-		//sets the shader property of a layer's rendering states member
+		/*!
+        \brief Sets the shader property of a layer's rendering states member
+        */
 		void setLayerShader(sf::Uint16 layerId, const sf::Shader& shader);
-		//so we can test if QuadTree is available
+        /*!
+        \brief Returns true if the Quad Tree is available
+        */
         bool quadTreeAvailable() const;
 
     private:

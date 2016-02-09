@@ -3,8 +3,7 @@ Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held

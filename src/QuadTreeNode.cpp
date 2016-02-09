@@ -1,10 +1,9 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held
@@ -34,10 +33,16 @@ it freely, subject to the following restrictions:
 
 using namespace tmx;
 
+namespace
+{
+    //maximum objects per node before splitting
+    const sf::Uint16 MAX_OBJECTS = 5u;
+    //maximum number of levels to split
+    const sf::Uint16 MAX_LEVELS = 5u;
+}
+
 QuadTreeNode::QuadTreeNode(sf::Uint16 level, const sf::FloatRect& bounds)
-	: MAX_OBJECTS	(5u),
-	MAX_LEVELS		(5u),
-	m_level			(level),
+	: m_level		(level),
 	m_bounds		(bounds)
 { 
 	m_children.reserve(4); 

@@ -1,8 +1,7 @@
 /*********************************************************************
 Matt Marchant 2013 - 2016
 
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held
@@ -28,28 +27,39 @@ it freely, subject to the following restrictions:
 #ifndef HELPERS_HPP_
 #define HELPERS_HPP_
 
-#include <cmath>
+
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-//helper functions
+#include <cmath>
+#include <cassert>
+
+/*!
+\brief Helper functions
+*/
 namespace Helpers
 {
 	namespace Vectors
 	{
-		//calculats dot product of 2 vectors
+		/*!
+        \brief Calculates dot product of 2 vectors
+        */
 		static inline float dot(sf::Vector2f lv, sf::Vector2f rv)
 		{
 			return lv.x * rv.x + lv.y * rv.y;
 		}	
 
-        //returns length squared
+        /*!
+        \brief Returns length squared of a given vector
+        */
         static inline float getLengthSquared(const sf::Vector2f& source)
 		{
 			return dot(source, source);
 		}
 
-		//Returns length of a given vector
+		/*!
+        \brief Returns length of a given vector
+        */
         static inline float getLength(const sf::Vector2f& source)
 		{
 			return std::sqrt(getLengthSquared(source));
@@ -66,7 +76,9 @@ namespace Helpers
 			return (BA.x * BC.y - BA.y * BC.x);
 		}
 
-		//Returns a given vector with its length normalized to 1
+		/*!
+        \brief Returns a given vector with its length normalized to 1
+        */
         static inline sf::Vector2f normalize(sf::Vector2f& source)
 		{
             float length = getLength(source);
@@ -75,7 +87,9 @@ namespace Helpers
 			return source;
 		}
 
-		//Returns angle in degrees of a given vector where 0 is horizontal
+		/*!
+        \brief Returns angle in degrees of a given vector where 0 is horizontal
+        */
         static inline float getAngle(const sf::Vector2f& source)
 		{
 			return std::atan2(source.y , source.x) * 180.f / 3.14159265f;
@@ -84,11 +98,18 @@ namespace Helpers
 	
 	namespace Math
 	{
+        /*!
+        \brief Returns value x clamped in the range a - b
+        */
         static inline float clamp(float x, float a, float b)
 		{
-			return x < a ? a : (x > b ? b : x);
+            assert(a < b);
+            return x < a ? a : (x > b ? b : x);
 		}
 
+        /*!
+        \brief Rounds the given value to the nearest whole number
+        */
         static inline float round(float val)
 		{
 			return std::floor(val + 0.5f);

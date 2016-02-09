@@ -3,8 +3,7 @@ Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held
@@ -36,12 +35,24 @@ source distribution.
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 
+/*!
+\brief Vertex array based shape used to draw object outlines for debugging
+*/
 class TMX_EXPORT_API DebugShape final : public sf::Drawable, public sf::Transformable
 {
 public:
 	DebugShape();
+    /*!
+    \brief Adds a vertex to the shape
+    */
 	void addVertex(const sf::Vertex& vert);
+    /*!
+    \brief Resets the shape and deletes all the vertices
+    */
 	void reset();
+    /*!
+    \brief Closes the shape by joining the first and last vertices
+    */
 	void closeShape();
 
 private:

@@ -1,10 +1,9 @@
 /*********************************************************************
-Matt Marchant 2013 - 2015
+Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held
@@ -131,7 +130,7 @@ const std::vector<MapLayer>& MapLoader::getLayers() const
 	return m_layers;
 }
 
-void MapLoader::draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
+void MapLoader::drawLayer(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 {
 	setDrawingBounds(rt.getView());
 	switch(type)
@@ -170,7 +169,7 @@ void MapLoader::draw(sf::RenderTarget& rt, MapLayer::DrawType type, bool debug)
 	}
 }
 
-void MapLoader::draw(sf::RenderTarget& rt, sf::Uint16 index, bool debug)
+void MapLoader::drawLayer(sf::RenderTarget& rt, sf::Uint16 index, bool debug)
 {
 	setDrawingBounds(rt.getView());
 	drawLayer(rt, m_layers[index], debug);

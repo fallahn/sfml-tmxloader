@@ -3,16 +3,11 @@ Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
-Utility class for creating box2D bodies from tmx map objects. You
-can optionally include this file and tmx2box2d.cpp in your project if
-you plan to use box2d - http://www.box2d.org for processing physics.
-
 Some of the hull decimation code is a based on an ActionScript class
 by Antoan Angelov. See:
 http://www.emanueleferonato.com/2011/09/12/create-non-convex-complex-shapes-with-box2d/
 
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held

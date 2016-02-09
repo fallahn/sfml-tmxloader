@@ -3,8 +3,7 @@ Matt Marchant 2013 - 2016
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 						http://trederia.blogspot.com/2013/05/tiled-map-loader-for-sfml.html
 
-The zlib license has been used to make this software fully compatible
-with SFML. See http://www.sfml-dev.org/license.php
+Zlib License:
 
 This software is provided 'as-is', without any express or
 implied warranty. In no event will the authors be held
@@ -53,7 +52,9 @@ namespace tmx
 		sf::Int32 m_patchIndex;
 	};
 
-	//drawable composed of vertices representing a set of tiles on a layer
+	/*!
+    \brief Drawable composed of vertices representing a set of tiles on a layer
+    */
 	class TMX_EXPORT_API LayerSet final : public sf::Drawable
 	{
 		friend class TileQuad;
@@ -85,7 +86,9 @@ namespace tmx
 
 
 
-	//used to query the type of layer, for example when looking for layers containing collision objects
+	/*!
+    \brief Used to query the type of layer, for example when looking for layers containing collision objects
+    */
 	enum MapLayerType
 	{
 		Layer,
@@ -93,7 +96,9 @@ namespace tmx
 		ImageLayer
 	};
 
-	//represents a layer of tiles, corresponding to a tmx layer, object group or image layer
+	/*!
+    \brief Represents a layer of tiles, corresponding to a tmx layer, object group or image layer
+    */
 	class TMX_EXPORT_API MapLayer final : public sf::Drawable
 	{
 	public:
@@ -117,7 +122,13 @@ namespace tmx
 		std::map <std::string, std::string> properties;
 
 		std::map<sf::Uint16, std::shared_ptr<LayerSet>> layerSets;
+        /*!
+        \brief Sets the shader which will be used when drawing this layer
+        */
 		void setShader(const sf::Shader& shader);
+        /*!
+        \brief Used to cull patches outside the visible area
+        */
 		void cull(const sf::FloatRect& bounds);
 
 	private:

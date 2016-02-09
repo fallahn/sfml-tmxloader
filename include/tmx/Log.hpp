@@ -77,10 +77,12 @@ namespace tmx
 
         Logger();
 
-        //logs a message to a given destination.
-        //message: message to log
-        //type: whether this message gets tagged as information, a warning or an error
-        //output: can be the console via cout, a log file on disk, or both
+        /*!
+        \brief logs a message to a given destination.
+        \param message Message to log
+        \param type Whether this message gets tagged as information, a warning or an error
+        \param output Can be the console via cout, a log file on disk, or both
+        */
         void log(const std::string& message, Type type = Type::Info, Output output = Output::Console)
         {
 			if(!(m_logFilter & type)) return;
@@ -88,7 +90,6 @@ namespace tmx
             std::string outstring;
             switch (type)
             {
-			//TODO defines for warning levels
             case Type::Info:
             default:
                 outstring = "INFO: " + message;
@@ -129,8 +130,10 @@ namespace tmx
             }
         }
 
-		//sets the level of logging via a bit mask
-		//made up from Logger::Info, Logger::Warning and Logger::Error
+		/*!
+        \brief Sets the level of logging via a bit mask.
+		Made up from Logger::Info, Logger::Warning and Logger::Error
+        */
 		void setLogLevel(int level)
 		{
 			m_logFilter = level;
@@ -139,8 +142,13 @@ namespace tmx
 		int m_logFilter;
     };
 
+    /*!
+    \brief Global access point for logging to default logger
+    */
     TMX_EXPORT_API void log(const std::string& m, tmx::Logger::Type t, tmx::Logger::Output o);
-
+    /*!
+    \brief Global access point for setting log level of default logger
+    */
     TMX_EXPORT_API void setLogLevel(int level);
 }
 
