@@ -105,7 +105,7 @@ namespace tmx
                     std::cout << outstring <<  std::endl;
 #ifdef _MSC_VER
                 outstring += "\n";
-				auto stemp = std::wstring(std::begin(outstring), std::end(outstring));
+                auto stemp = std::wstring(std::begin(outstring), std::end(outstring));
                 OutputDebugString(stemp.c_str());
 #endif //_MSC_VER
             }
