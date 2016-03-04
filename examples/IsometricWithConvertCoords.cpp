@@ -67,7 +67,7 @@ int main()
 		//draw map
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		if(debug)ml.draw(renderWindow, tmx::MapLayer::Debug);
+		if(debug)ml.drawLayer(renderWindow, tmx::MapLayer::Debug);
 		renderWindow.display();
 
 		//print mouse coords to orthographic (screen) coords and world (isometric) coords

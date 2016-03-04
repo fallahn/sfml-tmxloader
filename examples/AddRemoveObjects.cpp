@@ -123,7 +123,7 @@ int main()
 		//draw
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		ml.draw(renderWindow, tmx::MapLayer::Debug);
+		ml.drawLayer(renderWindow, tmx::MapLayer::Debug);
 		renderWindow.display();
 
 		const float time = 1.f / frameClock.getElapsedTime().asSeconds();

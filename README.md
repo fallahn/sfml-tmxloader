@@ -4,7 +4,7 @@ Tiled tmx map loader for SFML 2.0.0
 
 /*********************************************************************
 
-Matt Marchant 2013 - 2016
+Matt Marchant 2013 - 2016  
 SFML Tiled Map Loader - https://github.com/bjorn/tiled/wiki/TMX-Map-Format  
 
 Zlib License:  
@@ -39,33 +39,33 @@ http://trederia.blogspot.co.uk/2013/05/tiled-map-loader-for-sfml.html
 What's Supported
 ----------------
 
-Uses pugixml (included) to parse xml
-Supports orthogonal maps
-Supports isometric maps
-Supports conversion between orthogonal and isometric world coords
-Parses all types of layers (normal, object and image), layer properties
-Parses all types of object, object shapes, types, properties
-Option to draw debug output of objects and tile grid
-Supports multiple tile sets, including tsx files and collections of images
-Supports all layer encoding and compression: base64, csv, zlib, gzip and xml (requires zlib library, see /lib directory)
-Quad tree partitioning / querying of map object data
-Optional utility functions for converting tmx map objects into box2D body data
+Uses pugixml (included) to parse xml  
+Supports orthogonal maps  
+Supports isometric maps  
+Supports conversion between orthogonal and isometric world coords  
+Parses all types of layers (normal, object and image), layer properties  
+Parses all types of object, object shapes, types, properties  
+Option to draw debug output of objects and tile grid  
+Supports multiple tile sets, including tsx files and collections of images  
+Supports all layer encoding and compression: base64, csv, zlib, gzip and xml (requires zlib library, see /lib directory)  
+Quad tree partitioning / querying of map object data  
+Optional utility functions for converting tmx map objects into box2D body data  
 
 
 What's not supported / limitations
 ----------------------------------
 
-Parsing of individual tile properties
+Parsing of individual tile properties  
 Staggered isometric maps
 
 
 Requirements
 ------------
 
-pugixml (included)
-zlib (http://zlib.net/)
-SFML 2.x (http://sfml-dev.org)
-Minimal C++11 compiler support (tested with VS11 and GCC4.7) 
+pugixml (included)  
+zlib (http://zlib.net/)  
+SFML 2.x (http://sfml-dev.org)  
+Minimal C++11 compiler support (tested with VS11 and GCC4.7)   
 
 
 Usage

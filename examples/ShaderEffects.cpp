@@ -212,7 +212,7 @@ int main()
 		frameClock.restart();
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		if(showDebug) ml.draw(renderWindow, tmx::MapLayer::Debug);//draw with debug information shown
+		if(showDebug) ml.drawLayer(renderWindow, tmx::MapLayer::Debug);//draw with debug information shown
 		renderWindow.display();
 
 		renderWindow.setTitle("Press D to Toggle debug shapes. " + std::to_string(1.f / frameClock.getElapsedTime().asSeconds()));

@@ -69,7 +69,7 @@ int main()
 		//draw
 		renderWindow.clear();
 		renderWindow.draw(ml);
-		ml.draw(renderWindow, tmx::MapLayer::Debug); //draw with debug information shown
+		ml.drawLayer(renderWindow, tmx::MapLayer::Debug); //draw with debug information shown
 		renderWindow.display();
 	}
 

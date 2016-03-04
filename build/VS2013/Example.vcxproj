@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\examples\Benchmark.cpp" />
+    <ClCompile Include="..\..\examples\ShaderEffects.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7EDA038A-8CCC-492E-8E6F-56782E3A562E}</ProjectGuid>
