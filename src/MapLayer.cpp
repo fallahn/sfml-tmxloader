@@ -31,7 +31,8 @@ it freely, subject to the following restrictions:
 using namespace tmx;
 ///------TileQuad-----///
 TileQuad::TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3)
-	: m_parentSet	(nullptr),
+    : m_colour      (sf::Color::White),
+    m_parentSet	    (nullptr),
 	m_patchIndex	(-1)
 {
 	m_indices[0] = i0;
@@ -43,12 +44,29 @@ TileQuad::TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3)
 void TileQuad::move(const sf::Vector2f& distance)
 {
 	m_movement = distance;
-	if(m_parentSet)
-	{
-		m_parentSet->m_dirtyQuads.push_back(this);
-	}
+    setDirty();
 }
 
+void TileQuad::setVisible(bool visible)
+{
+    if (visible)
+    {
+        m_colour.a = 255u;
+    }
+    else
+    {
+        m_colour.a = 0u;
+    }
+    setDirty();
+}
+
+void TileQuad::setDirty()
+{
+    if (m_parentSet)
+    {
+        m_parentSet->m_dirtyQuads.push_back(this);
+    }
+}
 
 ///------LayerSet-----///
 
@@ -112,6 +130,7 @@ void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 		for(const auto& p : q->m_indices)
 		{
 			m_patches[q->m_patchIndex][p].position += q->m_movement;
+            m_patches[q->m_patchIndex][p].color = q->m_colour;
 		}
 		//mark AABB as dirty if patch size has changed - TODO this doesn't shrink AABB :/
 		//if(!m_boundingBox.contains(m_patches[q->m_patchIndex][0].position)
@@ -139,8 +158,8 @@ void LayerSet::draw(sf::RenderTarget& rt, sf::RenderStates states) const
 	//	//TODO this doesn't shrink the AABB!
 	//	if(m_boundingBox.left > min.x) m_boundingBox.left = min.x;
 	//	if(m_boundingBox.top > min.y) m_boundingBox.top = min.y;
-	//	if(std::fabs(m_boundingBox.left) + m_boundingBox.width < max.x) m_boundingBox.width = std::fabs(m_boundingBox.left) + max.x;
-	//	if(std::fabs(m_boundingBox.top) + m_boundingBox.height < max.y) m_boundingBox.width = std::fabs(m_boundingBox.top) + max.y;
+	//	if(std::abs(m_boundingBox.left) + m_boundingBox.width < max.x) m_boundingBox.width = std::fabs(m_boundingBox.left) + max.x;
+	//	if(std::abs(m_boundingBox.top) + m_boundingBox.height < max.y) m_boundingBox.width = std::fabs(m_boundingBox.top) + max.y;
 	//}
 
 	if(!m_visible) return;

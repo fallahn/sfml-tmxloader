@@ -32,6 +32,7 @@ it freely, subject to the following restrictions:
 #include <tmx/Helpers.hpp>
 #include <tmx/DebugShape.hpp>
 
+//TODO what's with all these includes???
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -43,6 +44,7 @@ it freely, subject to the following restrictions:
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 
+#include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/NonCopyable.hpp>
 
 #include <string>
@@ -65,8 +67,10 @@ namespace tmx
 		Tile
 	};
 
-	//map object class.
-	class TMX_EXPORT_API MapObject final
+	/*!
+    \brief Map Object class.
+    */
+	class TMX_EXPORT_API MapObject final : public sf::Transformable
 	{
 	private:
 		struct Segment
@@ -82,81 +86,146 @@ namespace tmx
 	public:
 		MapObject();
 
-		//**accessors**//
-		//returns empty string if property not found
+		/*!
+        \brief Returns requested property or an empty string if property not found
+        */
 		std::string getPropertyString(const std::string& name);
-		//returns top left corner of bounding rectangle
-		sf::Vector2f getPosition() const {return m_position;}
-		//returns precomputed centre of mass, or zero for polylines
-		sf::Vector2f getCentre() const {return m_centrePoint;};
-		//returns the type of shape of the object
-		MapObjectShape getShapeType() const {return m_shape;};
-		//returns and object's name
-		std::string getName() const {return m_name;};
-		//returns the object's type
-		std::string getType() const {return m_type;};
-		//returns the name of the object's parent layer
-		std::string getParent() const {return m_parent;};
-		//returns the objects AABB in world coordinates
-		sf::FloatRect getAABB() const {return m_AABB;};
-		//returns visibility
-		bool visible() const {return m_visible;}
-		//sets a property value, or adds it if property doesn't exist
+		/*!
+        \brief Returns precomputed centre of mass, or zero for polylines
+        */
+		sf::Vector2f getCentre() const { return m_centrePoint; }
+		/*!
+        \brief Returns the type of shape of the object
+        */
+		MapObjectShape getShapeType() const { return m_shape; }
+		/*!
+        \brief Returns the object's name
+        */
+		std::string getName() const { return m_name; }
+		/*!
+        \brief Returns the object's type
+        */
+		std::string getType() const { return m_type; }
+		/*!
+        \brief Returns the name of the object's parent layer
+        */
+		std::string getParent() const { return m_parent; }
+		/*!
+        \brief Returns the object's AABB in world coordinates
+        */
+		sf::FloatRect getAABB() const { return getTransform().transformRect(m_AABB); }
+		/*!
+        \brief Returns visibility
+        */
+		bool visible() const { return m_visible; }
+		/*!
+        \brief Sets a property value, or adds it if property doesn't exist
+        */
 		void setProperty(const std::string& name, const std::string& value);
-		//sets the object position in world coords
-		void setPosition(float x, float y);
-		void setPosition(const sf::Vector2f& position);
-		//moves the object by given amount
-		void move(float x, float y);
-		void move(const sf::Vector2f& distance);
-		//sets the width and height of the object
-		void setSize(const sf::Vector2f& size){m_size = size;};
-		//sets the object's name
-		void setName(const std::string& name){m_name = name;}
-		//sets the object's type
-		void setType(const std::string& type){m_type = type;};
-		//sets the name of the object's parent layer
-		void setParent(const std::string& parent){m_parent = parent;};
-		//sets the shape type
-		void setShapeType(MapObjectShape shape){m_shape = shape;};
-		//sets visibility
-		void setVisible(bool visible){m_visible = visible;};
-		//adds a point to the list of polygonal points. If calling this manually
-		//call CreateDebugShape() afterwards to rebuild debug output
-		void addPoint(const sf::Vector2f& point){m_polypoints.push_back(point);};
+		/*!
+        \brief Sets the width and height of the object
+        */
+		void setSize(const sf::Vector2f& size){ m_size = size; }
+		/*!
+        \brief Sets the object's name
+        */
+		void setName(const std::string& name){ m_name = name; }
+		/*!
+        \brief Ssets the object's type
+        */
+		void setType(const std::string& type){ m_type = type; }
+		/*!
+        \brief Sets the name of the object's parent layer
+        */
+		void setParent(const std::string& parent){ m_parent = parent; }
+		/*!
+        \brief Sets the shape type
+        */
+		void setShapeType(MapObjectShape shape){ m_shape = shape; }
+		/*!
+        \brief Sets visibility
+        */
+        void setVisible(bool visible);
+		/*!
+        \brief Adds a point to the list of polygonal points. 
+        If calling this manually call createDebugShape() afterwards to 
+        rebuild debug output and AABB
+        */
+		void addPoint(const sf::Vector2f& point){ m_polypoints.push_back(point); }
 
-		//checks if an object contains given point in world coords.
-		//Always returns false for polylines.
+		/*!
+        \brief Checks if an object contains given point in world coords.
+		Always returns false for polylines.
+        */
 		bool contains(sf::Vector2f point) const;
-		//checks if two objects intersect, including polylines
+		/*!
+        \brief Checks if two objects intersect, including polylines
+        */
 		bool intersects(const MapObject& object) const;
-		//creates a shape used for debug drawing - points are in world space
+		/*!
+        \brief Creates a shape used for debug drawing - points are in world space
+        */
 		void createDebugShape(const sf::Color& colour);
-		//draws debug shape to given target
+		/*!
+        \brief Draws debug shape to given target
+        */
 		void drawDebugShape(sf::RenderTarget& rt) const;
-		//returns the first point of poly point member (if any)
+		/*!
+        \brief Returns the first point of poly point member (if any) in world coordinates
+        */
 		sf::Vector2f firstPoint() const;
-		//returns the last point of poly point member (if any)
+		/*!
+        \brief Returns the last point of poly point member (if any) in world coordinates
+        */
 		sf::Vector2f lastPoint() const;
-		//returns a unit vector normal to the polyline segment if intersected
-		//takes the start and end point of a trajectory
+		/*!
+        \brief Returns a unit vector normal to the polyline segment if intersected.
+		\param start The start point of the segment to test in world coords
+        \param end The end point of the segment to test in world coords
+        */
 		sf::Vector2f collisionNormal(const sf::Vector2f& start, const sf::Vector2f& end) const;
-		//creates a vector of segments making up the poly shape
+		/*!
+        \brief Creates a vector of segments making up the poly shape
+        */
 		void createSegments();
-		//returns if an objects poly shape is convex or not
+		/*!
+        \brief Returns whether an object's poly shape is convex or not
+        */
 		bool convex() const;
-		//returns a reference to the array of points making up the object
+		/*!
+        \brief Returns a const reference to the array of points making up the object
+        */
 		const std::vector<sf::Vector2f>& polyPoints() const;
-		//reversing winding of object points
+		/*!
+        \brief Reverses the winding of object points
+        */
 		void reverseWinding();
-		//sets the quad used to draw the tile for tile objects
+		/*!
+        \brief Sets the quad used to draw the tile for tile objects
+        */
 		void setQuad(TileQuad* quad);
+
+        /*!
+        \brief Set the position of the object in world coordinates
+        */
+        void setPosition(float, float);
+        /*!
+        \brief Set the position of the object in world coordinates
+        */
+        void setPosition(const sf::Vector2f&);
+        /*!
+        \brief Move the objects position, in world coordinates
+        */
+        void move(float, float);
+        /*!
+        \brief Set the position of the object in world coordinates
+        */
+        void move(const sf::Vector2f&);
 
 private:
 		//object properties, reflects those which are part of the tmx format
 		std::string m_name, m_type, m_parent; //parent is name of layer to which object belongs
-		//sf::FloatRect m_rect; //width / height property of object plus position in world space
-		sf::Vector2f m_position, m_size;
+		sf::Vector2f m_size;
 		std::map <std::string, std::string> m_properties;//map of custom name/value properties
 		bool m_visible;
 		std::vector<sf::Vector2f> m_polypoints; //list of points defining any polygonal shape
@@ -183,10 +252,14 @@ private:
 	};
 	using MapObjects =  std::vector<MapObject>;
 
-	//represents a single tile on a layer
+	/*!
+    \brief Represents a single tile on a layer
+    */
 	struct TMX_EXPORT_API MapTile final
 	{
-		//returns the base centre point of sprite / tile
+		/*!
+        \brief Returns the base centre point of sprite / tile
+        */
 		sf::Vector2f getBase() const
 		{
 			return sf::Vector2f(sprite.getPosition().x + (sprite.getLocalBounds().width / 2.f),

@@ -69,10 +69,14 @@ MapObject::MapObject()
 //public
 std::string MapObject::getPropertyString(const std::string& name)
 {
-	if(m_properties.find(name) != m_properties.end())
-		return m_properties[name];
-	else
-		return std::string();
+    if (m_properties.find(name) != m_properties.end())
+    {
+        return m_properties[name];
+    }
+    else
+    {
+        return std::string();
+    }
 }
 
 void MapObject::setProperty(const std::string& name, const std::string& value)
@@ -80,61 +84,34 @@ void MapObject::setProperty(const std::string& name, const std::string& value)
 	m_properties[name] = value;
 }
 
-void MapObject::setPosition(float x, float y)
+void MapObject::setVisible(bool visible)
 {
-	setPosition(sf::Vector2f(x, y));
-}
-
-void MapObject::setPosition(const sf::Vector2f& position)
-{
-	sf::Vector2f distance = position - m_position;
-	move(distance);
-}
-
-void MapObject::move(float x, float y)
-{
-	move(sf::Vector2f(x, y));
-}
-
-void MapObject::move(const sf::Vector2f& distance)
-{
-	//update properties by movement amount
-	m_centrePoint += distance;
-	for(auto& p : m_polypoints)
-		p += distance;
-
-	m_debugShape.move(distance);
-
-	m_AABB.left += distance.x;
-	m_AABB.top += distance.y;
-
-	//set new position
-	m_position += distance;
-
-	//if object is of type tile move vertex data
-	if(m_tileQuad) m_tileQuad->move(distance);
+    m_visible = visible;
+    if (m_tileQuad)
+    {
+        m_tileQuad->setVisible(visible);
+    }
 }
 
 bool MapObject::contains(sf::Vector2f point) const
 {
 	if(m_shape == Polyline) return false;
 
-	//convert point to local coords
-	point-= m_position;
-
-	//TODO transform point instead
-
 	//check if enough poly points
 	if(m_polypoints.size() < 3) return false;
 
-	//else raycast through points
+	//else raycast through points - assuming given point is in world coords
+    const auto& transform = getTransform();
 	unsigned int i, j;
 	bool result = false;
 	for (i = 0, j = m_polypoints.size() - 1; i < m_polypoints.size(); j = i++)
 	{
-		if (((m_polypoints[i].y > point.y) != (m_polypoints[j].y > point.y)) &&
-		(point.x < (m_polypoints[j].x - m_polypoints[i].x) * (point.y - m_polypoints[i].y)
-			/ (m_polypoints[j].y - m_polypoints[i].y) + m_polypoints[i].x))
+        sf::Vector2f pointI = transform.transformPoint(m_polypoints[i]);
+        sf::Vector2f pointJ = transform.transformPoint(m_polypoints[j]);
+        
+        if (((pointI.y > point.y) != (pointJ.y > point.y)) &&
+            (point.x < (pointJ.x - pointI.x) * (point.y - pointI.y)
+            / (pointJ.y - pointI.y) + pointI.x))
 				result = !result;
 	}
 	return result;
@@ -147,11 +124,13 @@ bool MapObject::intersects(const MapObject& object) const
 	if(distance > (m_furthestPoint + object.m_furthestPoint)) return false;
 
 	//check intersection if either object contains a point of the other
+    const auto& otherTransform = object.getTransform();
 	for(auto& p : object.m_polypoints)
-		if(contains(p + object.getPosition())) return true;
+		if(contains(otherTransform.transformPoint(p))) return true;
 
+    const auto& transform = getTransform();
 	for(auto& p : m_polypoints)
-		if(object.contains(p + getPosition())) return true;
+		if(object.contains(transform.transformPoint(p))) return true;
 
 	return false;
 }
@@ -173,8 +152,6 @@ void MapObject::createDebugShape(const sf::Color& colour)
 	
 	if(m_shape != Polyline) m_debugShape.closeShape();
 
-	m_debugShape.setPosition(m_position);
-
 	//precompute shape values for intersection testing
 	calcTestValues();
 
@@ -184,101 +161,144 @@ void MapObject::createDebugShape(const sf::Color& colour)
 
 void MapObject::drawDebugShape(sf::RenderTarget& rt) const
 {
-	rt.draw(m_debugShape);
+	rt.draw(m_debugShape, getTransform());
 }
 
 sf::Vector2f MapObject::firstPoint() const
 {
-	if(!m_polypoints.empty())
-		return m_polypoints[0] + m_position;
-	else return sf::Vector2f();
+    if (!m_polypoints.empty())
+    {
+        return getTransform().transformPoint(m_polypoints[0]);
+    }
+    else
+    {
+        return sf::Vector2f();
+    }
 }
 
 sf::Vector2f MapObject::lastPoint() const
 {
-	if(!m_polypoints.empty())
-		return(m_polypoints.back() + m_position);
-	else return sf::Vector2f();
+    if (!m_polypoints.empty())
+    {
+return(getTransform().transformPoint(m_polypoints.back()));
+    }
+    else
+    {
+        return sf::Vector2f();
+    }
 }
 
 sf::Vector2f MapObject::collisionNormal(const sf::Vector2f& start, const sf::Vector2f& end) const
 {
-	Segment trajectory(start, end);
-	for(auto& s : m_polySegs)
-	{
-		if(trajectory.intersects(s))
-		{
-			sf::Vector2f v = s.End - s.Start;
-			sf::Vector2f n(v.y, -v.x);
-			//invert normal if pointing in wrong direction
-			float tAngle = Helpers::Vectors::getAngle(end - start);
-			float nAngle = Helpers::Vectors::getAngle(n);
-			if(nAngle - tAngle > 90.f) n =- n;
+    Segment trajectory(start, end);
+    for (auto& s : m_polySegs)
+    {
+        if (trajectory.intersects(s))
+        {
+            sf::Vector2f v = s.End - s.Start;
+            sf::Vector2f n(v.y, -v.x);
+            //invert normal if pointing in wrong direction
+            float tAngle = Helpers::Vectors::getAngle(end - start);
+            float nAngle = Helpers::Vectors::getAngle(n);
+            if (nAngle - tAngle > 90.f) n = -n;
 
-			return Helpers::Vectors::normalize(n);
-		}
-	}
-	sf::Vector2f rv(end - start);
-	return Helpers::Vectors::normalize(rv);
+            return Helpers::Vectors::normalize(n);
+        }
+    }
+    sf::Vector2f rv(end - start);
+    return Helpers::Vectors::normalize(rv);
 }
 
 void MapObject::createSegments()
 {
-	if(m_polypoints.size() == 0)
-	{
-		LOG("Unable to object segments, object data missing.", Logger::Type::Error);
-		LOG("Check image file paths referenced by tmx file.", Logger::Type::Error);
-		return;
-	}
-	
-	for(auto i = 0u; i < m_polypoints.size() - 1; i++)
-	{
-		m_polySegs.push_back(Segment(m_polypoints[i], m_polypoints[i + 1]));
-	}
-	if(m_shape != Polyline) //close shape
-		m_polySegs.push_back(Segment(*(m_polypoints.end() - 1), *m_polypoints.begin()));
+    if (m_polypoints.size() == 0)
+    {
+        LOG("Unable to object segments, object data missing.", Logger::Type::Error);
+        LOG("Check image file paths referenced by tmx file.", Logger::Type::Error);
+        return;
+    }
 
-	LOG("Added " + std::to_string(m_polySegs.size()) + " segments to Map Object", Logger::Type::Info);
+    for (auto i = 0u; i < m_polypoints.size() - 1; i++)
+    {
+        m_polySegs.push_back(Segment(m_polypoints[i], m_polypoints[i + 1]));
+    }
+    if (m_shape != Polyline) //close shape
+        m_polySegs.push_back(Segment(*(m_polypoints.end() - 1), *m_polypoints.begin()));
+
+    LOG("Added " + std::to_string(m_polySegs.size()) + " segments to Map Object", Logger::Type::Info);
 }
 
 bool MapObject::convex() const
 {
-	if (m_shape == MapObjectShape::Polyline)
-		return false;
-	
-	bool negative = false;
-	bool positive = false;
+    if (m_shape == MapObjectShape::Polyline)
+        return false;
 
-	sf::Uint16 a, b, c, n = m_polypoints.size();
-	for (a = 0u; a < n; ++a)
-	{
-		b = (a + 1) % n;
-		c = (b + 1) % n;
-		
-		float cross = Helpers::Vectors::cross(m_polypoints[a], m_polypoints[b], m_polypoints[c]);
-		
-		if(cross < 0.f)
-			negative = true;
-		else if(cross > 0.f)
-			positive = true;
-		if (positive && negative) return false;
-	}
-	return true;
+    bool negative = false;
+    bool positive = false;
+
+    sf::Uint16 a, b, c, n = m_polypoints.size();
+    for (a = 0u; a < n; ++a)
+    {
+        b = (a + 1) % n;
+        c = (b + 1) % n;
+
+        float cross = Helpers::Vectors::cross(m_polypoints[a], m_polypoints[b], m_polypoints[c]);
+
+        if (cross < 0.f)
+            negative = true;
+        else if (cross > 0.f)
+            positive = true;
+        if (positive && negative) return false;
+    }
+    return true;
 }
 
 const std::vector<sf::Vector2f>& MapObject::polyPoints()const
 {
-	return m_polypoints;
+    return m_polypoints;
 }
 
 void MapObject::reverseWinding()
 {
-	std::reverse(m_polypoints.begin(), m_polypoints.end());
+    std::reverse(m_polypoints.begin(), m_polypoints.end());
 }
 
 void MapObject::setQuad(TileQuad* quad)
 {
-	m_tileQuad = quad;
+    m_tileQuad = quad;
+    m_tileQuad->setVisible(visible());
+}
+
+//note we have these versions of the movement
+//functions so drawables can be updated accordingly
+void MapObject::setPosition(float x, float y)
+{
+    auto oldPos = getPosition();
+    
+    sf::Transformable::setPosition(x, y);
+    if (m_tileQuad)
+    {
+        m_tileQuad->move({ x - oldPos.x, y - oldPos.y });
+    }
+}
+
+void MapObject::setPosition(const sf::Vector2f& position)
+{
+    setPosition(position.x, position.y);
+}
+
+void MapObject::move(float x, float y)
+{
+    sf::Transformable::move(x, y);
+    if (m_tileQuad)
+    {
+        m_tileQuad->move({ x, y });
+    }
+}
+
+void MapObject::move(const sf::Vector2f& amount)
+{
+    move(amount.x, amount.y);
 }
 
 //private
@@ -289,7 +309,7 @@ sf::Vector2f MapObject::calcCentre() const
 	if(m_shape == Rectangle || m_polypoints.size() < 3)
 	{
 		//we don't have a triangle so use bounding box
-		return sf::Vector2f(m_position.x + (m_size.x / 2.f), m_position.y + (m_size.y / 2.f));
+		return sf::Vector2f(getPosition().x + (m_size.x / 2.f), getPosition().y + (m_size.y / 2.f));
 	}
 	//calc centroid of poly shape
 	sf::Vector2f centroid;
@@ -329,7 +349,7 @@ sf::Vector2f MapObject::calcCentre() const
 	centroid.y /= (6 * signedArea);
 
 	//convert to world space
-	centroid += m_position;
+    centroid = getTransform().transformPoint(centroid);
 	return centroid;
 }
 
@@ -365,11 +385,6 @@ void MapObject::createAABB()
 		//calc true width and height by distance between points
 		m_AABB.width -= m_AABB.left;
 		m_AABB.height -= m_AABB.top;
-
-		//offset into world position
-		m_AABB.left += m_position.x;
-		m_AABB.top += m_position.y;
-
 
 		//debug draw AABB
 		//m_debugShape.append(sf::Vector2f(m_AABB.left, m_AABB.top));

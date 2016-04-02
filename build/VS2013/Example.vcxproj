@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\examples\ShaderEffects.cpp" />
+    <ClCompile Include="..\..\examples\DrawMapWithDebug.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7EDA038A-8CCC-492E-8E6F-56782E3A562E}</ProjectGuid>
@@ -89,7 +89,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\Shared\;extlibs/bin</AdditionalLibraryDirectories>
-      <AdditionalDependencies>tmxsfml-d.lib;Box2D-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>tmxsfml-d.lib;Box2D-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>

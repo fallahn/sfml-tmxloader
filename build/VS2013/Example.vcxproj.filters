@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\examples\ShaderEffects.cpp">
+    <ClCompile Include="..\..\examples\DrawMapWithDebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

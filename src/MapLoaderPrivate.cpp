@@ -885,7 +885,7 @@ bool MapLoader::parseObjectgroup(const pugi::xml_node& groupNode)
 		//set object properties
 		if(objectNode.attribute("name")) object.setName(objectNode.attribute("name").as_string());
 		if(objectNode.attribute("type")) object.setType(objectNode.attribute("type").as_string());
-		//if(objectNode.attribute("rotation")) {} //TODO handle rotation attribute
+        if(objectNode.attribute("rotation")) object.setRotation(objectNode.attribute("rotation").as_float());
 		if(objectNode.attribute("visible")) object.setVisible(objectNode.attribute("visible").as_bool());
 		if(objectNode.attribute("gid"))
 		{		

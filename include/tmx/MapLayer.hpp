@@ -45,11 +45,14 @@ namespace tmx
 		using Ptr = std::shared_ptr<TileQuad>; //TODO shared libs don't like this being a unique_ptr
 		TileQuad(sf::Uint16 i0, sf::Uint16 i1, sf::Uint16 i2, sf::Uint16 i3);
 		void move(const sf::Vector2f& distance);
+        void setVisible(bool);
 	private:
 		std::array<sf::Uint16, 4u> m_indices;
+        sf::Color m_colour;
 		sf::Vector2f m_movement;
 		LayerSet* m_parentSet;
 		sf::Int32 m_patchIndex;
+        void setDirty();
 	};
 
 	/*!
