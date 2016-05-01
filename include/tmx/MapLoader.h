@@ -173,7 +173,7 @@ namespace tmx
 
 
 	//method for decoding base64 encoded strings
-	static std::string base64_decode(std::string const& string);
+  std::string base64_decode(std::string const& string);
 }
 
 #endif //MAP_LOADER_H_

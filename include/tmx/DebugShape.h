@@ -44,8 +44,8 @@ public:
 
 private:
 
+  sf::VertexArray m_array;
 	bool m_closed;
-	sf::VertexArray m_array;
 	void draw(sf::RenderTarget& rt, sf::RenderStates states)const;
 
 };
