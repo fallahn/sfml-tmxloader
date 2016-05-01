@@ -343,8 +343,7 @@ bool MapLoader::ProcessTiles(const pugi::xml_node& tilesetNode)
 
 bool MapLoader::ParseCollectionOfImages(const pugi::xml_node& tilesetNode)
 {
-    pugi::xml_node tile;
-    if (tile = tilesetNode.child("tile"))
+    if (pugi::xml_node tile = tilesetNode.child("tile"))
     {
         while (tile)
         {
@@ -602,7 +601,7 @@ void MapLoader::FlipX(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::
     v3->x = v0->x ;
 }
 
-void MapLoader::FlipD(sf::Vector2f *v0, sf::Vector2f *v1, sf::Vector2f *v2, sf::Vector2f *v3)
+void MapLoader::FlipD(sf::Vector2f * /* v0 */, sf::Vector2f *v1, sf::Vector2f * /* v2 */, sf::Vector2f *v3)
 {
     //Diagonal flip
     sf::Vector2f tmp = *v1;
@@ -816,9 +815,9 @@ bool MapLoader::ParseObjectgroup(const pugi::xml_node& groupNode)
 		}
 		//else parse poly points
         else if (objectNode.find_child(FindByName("polygon")) || objectNode.find_child(FindByName("polyline")))
-		{
+                {
             pugi::xml_node child;
-            if (child = objectNode.find_child(FindByName("polygon")))
+            if ((child = objectNode.find_child(FindByName("polygon"))))
             {
                 object.SetShapeType(Polygon);
             }
@@ -1078,7 +1077,7 @@ std::string MapLoader::FileFromPath(const std::string& path)
 	return path;
 }
 
-void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates states) const
+void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates /* states */) const
 {
 	sf::View view  = rt.getView();
 	if(view.getCenter() != m_lastViewPos)
@@ -1192,7 +1191,6 @@ bool MapLoader::Decompress(const char* source, std::vector<unsigned char>& dest,
 	byteArray = std::move(newArray);
 
 	//copy bytes to vector
-	int length = currentSize / sizeof(unsigned char);	
     dest.insert(dest.begin(), byteArray.begin(), byteArray.end());
 
 	return true;
@@ -1273,7 +1271,7 @@ static inline bool is_base64(unsigned char c)
 	return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
-static std::string base64_decode(std::string const& encoded_string)
+std::string base64_decode(std::string const& encoded_string)
 {
 	int in_len = encoded_string.size();
 	int i = 0;
