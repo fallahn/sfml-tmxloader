@@ -105,6 +105,7 @@
     <ClCompile Include="..\..\src\MapLoaderPrivate.cpp" />
     <ClCompile Include="..\..\src\MapLoaderPublic.cpp" />
     <ClCompile Include="..\..\src\MapObject.cpp" />
+    <ClCompile Include="..\..\src\miniz.c" />
     <ClCompile Include="..\..\src\pugixml\pugixml.cpp" />
     <ClCompile Include="..\..\src\QuadTreeNode.cpp" />
     <ClCompile Include="..\..\src\tmx2box2d.cpp" />

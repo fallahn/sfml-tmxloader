@@ -70,6 +70,7 @@ set(tmx_SRCS
         src/MapLoaderPrivate.cpp
         src/MapLayer.cpp
         src/MapObject.cpp
+        src/miniz.c
         src/QuadTreeNode.cpp
         src/Log.cpp)
 
@@ -101,15 +102,15 @@ elseif(NOT SFML_FOUND)
 	message("-> Make sure the SFML libraries with the same configuration (Release/Debug, Static/Dynamic) exist.\n")
 endif()
 
-find_package(ZLIB REQUIRED)
+#find_package(ZLIB REQUIRED)
 
-if(ZLIB_FOUND)
-    include_directories(${ZLIB_INCLUDE_DIRS})
-elseif(NOT ZLIB_FOUND)
-    set(ZLIB_ROOT "" CACHE PATH "zlib top-level directory")
-	message("\n-> zlib directory not found. Set ZLIB_ROOT to zlib's top-level path (containing \"include\" and \"lib\" directories).")
-	message("-> Make sure the zlib libraries with the same configuration (Release/Debug, Static/Dynamic) exist.\n")
-endif()
+#if(ZLIB_FOUND)
+#    include_directories(${ZLIB_INCLUDE_DIRS})
+#elseif(NOT ZLIB_FOUND)
+#    set(ZLIB_ROOT "" CACHE PATH "zlib top-level directory")
+#	message("\n-> zlib directory not found. Set ZLIB_ROOT to zlib's top-level path (containing \"include\" and \"lib\" directories).")
+#	message("-> Make sure the zlib libraries with the same configuration (Release/Debug, Static/Dynamic) exist.\n")
+#endif()
 
 if(USE_BOX2D)
   find_package(BOX2D)
@@ -125,7 +126,8 @@ endif()
 endif()
 
 #target_link_libraries(pugi ${ZLIB_LIBRARIES})
-target_link_libraries(tmx-loader pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${ZLIB_LIBRARIES})
+#target_link_libraries(tmx-loader pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${ZLIB_LIBRARIES})
+target_link_libraries(tmx-loader pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 
 # Adjust the output file prefix/suffix to match our conventions
 if(BUILD_SHARED_LIBS)
@@ -171,28 +173,28 @@ install(DIRECTORY include DESTINATION .)
 # Build and install the examples
 if(TMX_BUILD_EXAMPLE)
 	add_executable(BenchMark examples/Benchmark.cpp)
-	target_link_libraries(BenchMark ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${ZLIB_LIBRARIES})
+	target_link_libraries(BenchMark ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 	install(TARGETS BenchMark RUNTIME DESTINATION share/tmx/examples)
 
 	add_executable(DrawWithDebug examples/DrawMapWithDebug.cpp)
-	target_link_libraries(DrawWithDebug ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${ZLIB_LIBRARIES})
+	target_link_libraries(DrawWithDebug ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 	install(TARGETS DrawWithDebug RUNTIME DESTINATION share/tmx/examples)
 
 	add_executable(Isometric examples/IsometricWithConvertCoords.cpp)
-	target_link_libraries(Isometric ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${ZLIB_LIBRARIES})
+	target_link_libraries(Isometric ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 	install(TARGETS Isometric RUNTIME DESTINATION share/tmx/examples)
 
 	add_executable(QuadTree examples/MapWithQuadTree.cpp)
-	target_link_libraries(QuadTree ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${ZLIB_LIBRARIES})
+	target_link_libraries(QuadTree ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 	install(TARGETS QuadTree RUNTIME DESTINATION share/tmx/examples)
 
 	add_executable(ShaderEffects examples/ShaderEffects.cpp)
-	target_link_libraries(ShaderEffects ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${ZLIB_LIBRARIES})
+	target_link_libraries(ShaderEffects ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 	install(TARGETS ShaderEffects RUNTIME DESTINATION share/tmx/examples)
 	
 	if(BOX2D_FOUND)	
 		add_executable(Box2D examples/Box2D.cpp src/tmx2box2d.cpp)
-		target_link_libraries(Box2D ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${ZLIB_LIBRARIES} ${BOX2D_LIBRARIES})
+		target_link_libraries(Box2D ${PROJECT_NAME} pugi ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${BOX2D_LIBRARIES})
 		install(TARGETS Box2D RUNTIME DESTINATION share/tmx/examples)
 	endif()
 

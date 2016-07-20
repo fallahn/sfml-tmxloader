@@ -89,7 +89,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\Shared\;extlibs/bin</AdditionalLibraryDirectories>
-      <AdditionalDependencies>tmxsfml-d.lib;Box2D-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>tmxsfml-d.lib;Box2D-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -113,7 +113,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\Static\;extlibs/bin</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Box2D.lib;zlibstat.lib;tmxsfml-s.lib;sfml-system.lib;sfml-graphics.lib;sfml-window.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Box2D.lib;tmxsfml-s.lib;sfml-system.lib;sfml-graphics.lib;sfml-window.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>

@@ -65,4 +65,10 @@ source distribution.
 
 #endif //TMX_STATIC
 
+//TODO if linking the source directly to a project in visual studio
+//use this to supress a warning about export symbols no a non-exported project
+//#ifdef _MSC_VER
+//#pragma warning(disable: 4275)
+//#endif //_MSC_VER
+
 #endif //TMX_EXPORT_HPP_

@@ -29,19 +29,13 @@ it freely, subject to the following restrictions:
 #include <tmx/MapLoader.hpp>
 #include <tmx/Log.hpp>
 
-//this is needed on windows to prevent unresolved external errors
-//alternatively define this in the zlib project before compiling the zlib library
-#ifdef _WIN32
-#ifndef ZLIB_WINAPI
-#define ZLIB_WINAPI 
-#endif //ZLIB_WINAPI
-#endif //_WIN32
-#include <zlib.h>
+#include "miniz.h"
 
 #ifdef _MSC_VER
 #ifdef LoadImage
 #undef LoadImage
 #endif //Loadimage
+#pragma warning(disable: 4800) //forcing int to bool warning
 #endif //_MSC_VER
 
 #include <cstring>
@@ -1139,9 +1133,9 @@ bool MapLoader::decompress(const char* source, std::vector<unsigned char>& dest,
 	stream.next_out = (Bytef*)byteArray.data();
 	stream.avail_out = expectedSize;
 
-	if(inflateInit2(&stream, 15 + 32) != Z_OK)
+	if(inflateInit(&stream/*, 15 + 32*/) != Z_OK)
 	{
-		LOG("inflate 2 failed", Logger::Type::Error);
+		LOG("inflate init failed", Logger::Type::Error);
 		return false;
 	}
 

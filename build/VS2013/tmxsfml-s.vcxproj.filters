@@ -28,6 +28,9 @@
     <ClCompile Include="..\..\src\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\miniz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\tmx\tmx2box2d.hpp">

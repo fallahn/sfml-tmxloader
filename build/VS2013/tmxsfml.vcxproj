@@ -85,7 +85,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>extlibs/bin</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Box2D.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Box2D.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>extlibs/bin</AdditionalLibraryDirectories>
@@ -101,6 +101,7 @@
     <ClInclude Include="..\..\include\tmx\MapObject.hpp" />
     <ClInclude Include="..\..\include\tmx\QuadTreeNode.hpp" />
     <ClInclude Include="..\..\include\tmx\tmx2box2d.hpp" />
+    <ClInclude Include="..\..\src\miniz.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\DebugShape.cpp" />
@@ -109,6 +110,7 @@
     <ClCompile Include="..\..\src\MapLoaderPrivate.cpp" />
     <ClCompile Include="..\..\src\MapLoaderPublic.cpp" />
     <ClCompile Include="..\..\src\MapObject.cpp" />
+    <ClCompile Include="..\..\src\miniz.c" />
     <ClCompile Include="..\..\src\pugixml\pugixml.cpp" />
     <ClCompile Include="..\..\src\QuadTreeNode.cpp" />
     <ClCompile Include="..\..\src\tmx2box2d.cpp" />

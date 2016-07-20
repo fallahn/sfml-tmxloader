@@ -76,7 +76,7 @@ LayerSet::LayerSet(const sf::Texture& texture, sf::Uint8 patchSize, const sf::Ve
 	m_patchSize	(patchSize),
 	m_mapSize	(mapSize),
 	m_tileSize	(tileSize),
-	m_patchCount(std::ceil(static_cast<float>(mapSize.x) / patchSize), std::ceil(static_cast<float>(mapSize.y) / patchSize)),
+	m_patchCount(static_cast<sf::Uint32>(std::ceil(static_cast<float>(mapSize.x) / patchSize)), static_cast<sf::Uint32>(std::ceil(static_cast<float>(mapSize.y) / patchSize))),
 	m_visible	(true)
 {
 	m_patches.resize(m_patchCount.x * m_patchCount.y);

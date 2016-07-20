@@ -28,6 +28,9 @@
     <ClCompile Include="..\..\src\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\miniz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\tmx\DebugShape.hpp">
@@ -55,6 +58,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\tmx\Export.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\miniz.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
