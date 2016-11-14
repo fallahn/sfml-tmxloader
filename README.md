@@ -1,5 +1,7 @@
 A note on the [current status](http://trederia.blogspot.com/2016/05/sfml-tmx-map-loader-200.html)
 
+Looking for something more lightweight, yet flexible? Try [tmxlite](https://github.com/fallahn/tmxlite)!
+
 /*********************************************************************  
 
 Matt Marchant 2013 - 2015  
