@@ -1,3 +1,5 @@
+Looking for something flexible yet lightweight? Try [tmxlite](https://github.com/fallahn/tmxlite)!
+
 Tiled tmx map loader for SFML 2.0.0
 -----------------------------------
 
