@@ -48,42 +48,39 @@ source distribution.
 
 namespace
 {
-	//this scales tmx units into box2D metres
-	//value is units per metre.
-	const float worldScale = 100.f;
-	//used in point calcs. Don't change this.
-	const float pointTolerance = 0.1f;
+    //used in point calcs. Don't change this.
+    const float pointTolerance = 0.1f;
 }
 
 //---------------------------------------------
 b2Vec2 tmx::SfToBoxVec(const sf::Vector2f& vec)
 {
-	return b2Vec2(vec.x / worldScale, -vec.y / worldScale);
+    return b2Vec2(vec.x,vec.y);
 }
 
 sf::Vector2f tmx::BoxToSfVec(const b2Vec2& vec)
 {
-	return sf::Vector2f(vec.x, -vec.y) * worldScale;
+    return sf::Vector2f(vec.x,vec.y);
 }
 
 float tmx::SfToBoxFloat(float val)
 {
-	return val / worldScale;
+    return val * 0.02f;
 }
 
 float tmx::BoxToSfFloat(float val)
 {
-	return val * worldScale;
+    return val * 50.0f;
 }
 
 float tmx::SfToBoxAngle(float degrees)
 {
-	return -degrees * 0.0174533f;
+    return -degrees * 0.0174533f;
 }
 
 float tmx::BoxToSfAngle(float rads)
 {
-	return -rads * 57.29578f;
+    return -rads * 57.29578f;
 }
 
 //----------------------------------------------
@@ -93,91 +90,89 @@ using namespace tmx;
 //public
 b2Body* BodyCreator::Add(const MapObject& object, b2World& world, b2BodyType bodyType)
 {
-	assert(object.PolyPoints().size() > 1u);
+    assert(object.PolyPoints().size() > 1u);
 
-	b2BodyDef bodyDef;
-	bodyDef.type = bodyType;
+    b2BodyDef bodyDef;
+    bodyDef.type = bodyType;
 
-	b2Body* body = nullptr;
+    b2Body* body = nullptr;
 
-	MapObjectShape shapeType = object.GetShapeType();
-	sf::Uint16 pointCount = object.PolyPoints().size();
+    MapObjectShape shapeType = object.GetShapeType();
+    sf::Uint16 pointCount = object.PolyPoints().size();
 
-	if (shapeType == Polyline || pointCount < 3)
-	{
-		bodyDef.position.Set(0.f, 0.f);
-		bodyDef.position = SfToBoxVec(object.GetPosition());
-		body = world.CreateBody(&bodyDef);
+    if (shapeType == Polyline || pointCount < 3)
+    {
+        bodyDef.position.Set(object.GetPosition().x, object.GetPosition().y);
+        body = world.CreateBody(&bodyDef);
 
-		const Shape& shape = object.PolyPoints();
-		b2FixtureDef f;
-		f.density = 1.f;
+        const Shape& shape = object.PolyPoints();
+        b2FixtureDef f;
+        f.density = 1.f;
 
-		if (pointCount < 3)
-		{
-			b2EdgeShape es;
-			es.Set(SfToBoxVec(shape[0]), SfToBoxVec(shape[1]));
-			f.shape = &es;
-			body->CreateFixture(&f);
-		}
-		else
-		{
-			std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[pointCount]);
-			for (auto i = 0u; i < pointCount; i++)
-				vertices[i] = SfToBoxVec(shape[i]);
+        if (pointCount < 3)
+        {
+            bodyDef.position.Set(object.GetPosition().x, object.GetPosition().y);
+            b2EdgeShape es;
+            es.Set(SfToBoxVec(shape[0]), SfToBoxVec(shape[1]));
+            f.shape = &es;
+            body->CreateFixture(&f);
+        }
+        else
+        {
+            std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[pointCount]);
+            for (auto i = 0u; i < pointCount; i++)
+                vertices[i] = SfToBoxVec(shape[i]);
 
-			b2ChainShape cs;
-			cs.CreateChain(vertices.get(), pointCount);
-			f.shape = &cs;
-			body->CreateFixture(&f);
-		}
-	}
-	else if (shapeType == Circle ||
-		(object.Convex() && pointCount <= b2_maxPolygonVertices))
-	{
-		b2FixtureDef f;
-		f.density = 1.f;
-		bodyDef.position = SfToBoxVec(object.GetCentre());
-		if (shapeType == Circle)
-		{
-			//make a circle
-			b2CircleShape c;
-			c.m_radius = SfToBoxFloat(object.GetAABB().width / 2.f);
-			f.shape = &c;
+            b2ChainShape cs;
+            cs.CreateChain(vertices.get(), pointCount);
+            f.shape = &cs;
+            body->CreateFixture(&f);
+        }
+    }
+    else if (shapeType == Circle ||
+        (object.Convex() && pointCount <= b2_maxPolygonVertices))
+    {
+        b2FixtureDef f;
+        f.density = 1.f;
+        bodyDef.position = SfToBoxVec(object.GetCentre());
+        if (shapeType == Circle)
+        {
+            //make a circle
+            b2CircleShape c;
+            c.m_radius = object.GetAABB().width / 2.f;
+            f.shape = &c;
 
-			body = world.CreateBody(&bodyDef);
-			body->CreateFixture(&f);
-		}
-		else if (shapeType == Rectangle)
-		{
-			b2PolygonShape ps;
-			ps.SetAsBox(SfToBoxFloat(object.GetAABB().width / 2.f), SfToBoxFloat(object.GetAABB().height / 2.f));
-			f.shape = &ps;
+            body = world.CreateBody(&bodyDef);
+            body->CreateFixture(&f);
+        }
+        else if (shapeType == Rectangle)
+        {
+            b2PolygonShape ps;
+            ps.SetAsBox((object.GetAABB().width / 2.f), (object.GetAABB().height / 2.f));
+            f.shape = &ps;
 
-			body = world.CreateBody(&bodyDef);
-			body->CreateFixture(&f);
-		}
-		else //simple convex polygon
-		{
-			bodyDef.position.Set(0.f, 0.f);
-			bodyDef.position = SfToBoxVec(object.GetPosition());
-			body = world.CreateBody(&bodyDef);
+            body = world.CreateBody(&bodyDef);
+            body->CreateFixture(&f);
+        }
+        else //simple convex polygon
+        {
+            bodyDef.position.Set(object.GetPosition().x, object.GetPosition().y);
+            body = world.CreateBody(&bodyDef);
 
-			const Shape& points = object.PolyPoints();
-			m_CreateFixture(points, body);
-		}
-	}
-	else //complex polygon
-	{
-		//break into smaller convex shapes
-		bodyDef.position.Set(0.f, 0.f);
-		bodyDef.position = SfToBoxVec(object.GetPosition());
-		body = world.CreateBody(&bodyDef);
+            const Shape& points = object.PolyPoints();
+            m_CreateFixture(points, body);
+        }
+    }
+    else //complex polygon
+    {
+        //break into smaller convex shapes
+        bodyDef.position = SfToBoxVec(object.GetPosition());
+        body = world.CreateBody(&bodyDef);
 
-		m_Split(object, body);
-	}
+        m_Split(object, body);
+    }
 
-	return body;
+    return body;
 }
 
 //private
