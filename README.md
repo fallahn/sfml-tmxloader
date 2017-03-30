@@ -1,4 +1,6 @@
-Looking for something flexible yet lightweight? Try [tmxlite](https://github.com/fallahn/tmxlite)!
+NOTE: Development of this project is indefinitely suspended in favour of [tmxlite](https://github.com/fallahn/tmxlite)
+which supports generic rendering across C++ frameworks such as SFML and SDL2, requires no external linkage and
+has broader platform support, including mobile devices.
 
 Tiled tmx map loader for SFML 2.0.0
 -----------------------------------
