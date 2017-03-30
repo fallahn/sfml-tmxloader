@@ -336,8 +336,7 @@ bool MapLoader::processTiles(const pugi::xml_node& tilesetNode)
 
 bool MapLoader::parseCollectionOfImages(const pugi::xml_node& tilesetNode)
 {
-    pugi::xml_node tile;
-    if (tile = tilesetNode.child("tile"))
+    if (pugi::xml_node tile = tilesetNode.child("tile"))
     {
         while (tile)
         {
@@ -810,9 +809,9 @@ bool MapLoader::parseObjectgroup(const pugi::xml_node& groupNode)
 		}
 		//else parse poly points
         else if (objectNode.find_child(FindByName("polygon")) || objectNode.find_child(FindByName("polyline")))
-		{
+                {
             pugi::xml_node child;
-            if (child = objectNode.find_child(FindByName("polygon")))
+            if ((child = objectNode.find_child(FindByName("polygon"))))
             {
                 object.setShapeType(Polygon);
             }
@@ -1072,7 +1071,7 @@ std::string MapLoader::fileFromPath(const std::string& path)
 	return path;
 }
 
-void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates states) const
+void MapLoader::draw(sf::RenderTarget& rt, sf::RenderStates /* states */) const
 {
 	sf::View view  = rt.getView();
 	if(view.getCenter() != m_lastViewPos)
@@ -1186,7 +1185,6 @@ bool MapLoader::decompress(const char* source, std::vector<unsigned char>& dest,
 	byteArray = std::move(newArray);
 
 	//copy bytes to vector
-	int length = currentSize / sizeof(unsigned char);	
     dest.insert(dest.begin(), byteArray.begin(), byteArray.end());
 
 	return true;
@@ -1267,7 +1265,7 @@ static inline bool is_base64(unsigned char c)
 	return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
-static std::string base64_decode(std::string const& encoded_string)
+std::string base64_decode(std::string const& encoded_string)
 {
 	int in_len = encoded_string.size();
 	int i = 0;

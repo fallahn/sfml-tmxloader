@@ -216,7 +216,6 @@ BodyCreator::Shapes BodyCreator::processConvex(const Shape& points)
 	for (auto i = 0u; i <= shapeCount; i++)
 	{
 		Shape shape;
-		sf::Uint16 total = 0u;
 		for (auto j = 0u; j < maxVerts; j++)
 		{
 			sf::Uint16 index = i * maxVerts + j;

@@ -151,7 +151,7 @@ void QuadTreeNode::getVertices(std::vector<sf::Vertex>& vertices)
 
 
 //private functions//
-void QuadTreeRoot::draw(sf::RenderTarget& rt, sf::RenderStates states) const
+void QuadTreeRoot::draw(sf::RenderTarget& rt, sf::RenderStates /* states */) const
 {
     std::vector<sf::Vertex> verts;
     for (const auto& c : m_children)
