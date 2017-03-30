@@ -111,7 +111,7 @@ namespace tmx
 #ifdef _MSC_VER
                 outstring += "\n";
                 auto stemp = std::wstring(std::begin(outstring), std::end(outstring));
-                OutputDebugString(stemp.c_str());
+                OutputDebugString((LPCSTR)stemp.c_str());
 #endif //_MSC_VER
             }
             if (output == Output::File || output == Output::All)

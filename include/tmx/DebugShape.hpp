@@ -56,7 +56,7 @@ public:
 	void closeShape();
 
 private:
-
+	sf::VertexArray m_array;
 	bool m_closed;
 	void draw(sf::RenderTarget& rt, sf::RenderStates states)const override;
 };
