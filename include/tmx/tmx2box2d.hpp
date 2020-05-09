@@ -79,7 +79,7 @@ namespace tmx
         \brief Adds the object to the b2World.
         Returns a pointer to the body created so that its properties my be modified. Bodies are static by default
         */
-		static b2Body* add(const MapObject& object, b2World& world, b2BodyType bodyType = b2_staticBody);
+		static b2Body* add(const MapObject& object, b2World& world, const sf::Vector2u& tileSize, b2BodyType bodyType = b2_staticBody);
 
 	private:
 		static void split(const MapObject& object, b2Body* body);

@@ -53,12 +53,12 @@ namespace
 //---------------------------------------------
 b2Vec2 tmx::sfToBoxVec(const sf::Vector2f& vec)
 {
-    return b2Vec2(vec.x,vec.y);
+    return {vec.x,vec.y};
 }
 
 sf::Vector2f tmx::boxToSfVec(const b2Vec2& vec)
 {
-    return sf::Vector2f(vec.x,vec.y);
+    return {vec.x,vec.y};
 }
 
 float tmx::sfToBoxFloat(float val)
@@ -86,7 +86,7 @@ float tmx::boxToSfAngle(float rads)
 using namespace tmx;
 
 //public
-b2Body* BodyCreator::add(const MapObject& object, b2World& world, b2BodyType bodyType)
+b2Body* BodyCreator::add(const MapObject& object, b2World& world, const sf::Vector2u& tileSize, b2BodyType bodyType)
 {
     assert(object.polyPoints().size() > 1u);
 
@@ -134,7 +134,7 @@ b2Body* BodyCreator::add(const MapObject& object, b2World& world, b2BodyType bod
     {
         b2FixtureDef f;
         f.density = 1.f;
-        bodyDef.position = sfToBoxVec(object.getCentre());
+        bodyDef.position = sfToBoxVec(sf::Vector2f(object.getCentre().x - tileSize.x, object.getCentre().y - tileSize.y));
         if (shapeType == Circle)
         {
             //make a circle
