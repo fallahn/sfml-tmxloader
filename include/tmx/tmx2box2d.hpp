@@ -31,9 +31,9 @@ source distribution.
 
 #include <tmx/MapObject.hpp>
 
-#include <Box2D/Dynamics/b2World.h>
-#include <Box2D/Common/b2Math.h>
-#include <Box2D/Dynamics/b2Fixture.h>
+#include <box2d/b2_world.h>
+#include <box2d/b2_math.h>
+#include <box2d/b2_fixture.h>
 
 #include <vector>
 #include <queue>
