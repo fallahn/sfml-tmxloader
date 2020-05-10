@@ -32,11 +32,11 @@ source distribution.
 
 #include <tmx/tmx2box2d.hpp>
 
-#include <Box2D/Dynamics/b2Body.h>
-#include <Box2D/Collision/Shapes/b2CircleShape.h>
-#include <Box2D/Collision/Shapes/b2PolygonShape.h>
-#include <Box2D/Collision/Shapes/b2EdgeShape.h>
-#include <Box2D/Collision/Shapes/b2ChainShape.h>
+#include <box2d/b2_body.h>
+#include <box2d/b2_circle_shape.h>
+#include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_edge_shape.h>
+#include <box2d/b2_chain_shape.h>
 
 #include <cassert>
 #include <array>
@@ -53,12 +53,12 @@ namespace
 //---------------------------------------------
 b2Vec2 tmx::sfToBoxVec(const sf::Vector2f& vec)
 {
-	return b2Vec2(vec.x / worldScale, -vec.y / worldScale);
+    return {vec.x,vec.y};
 }
 
 sf::Vector2f tmx::boxToSfVec(const b2Vec2& vec)
 {
-	return sf::Vector2f(vec.x, -vec.y) * worldScale;
+    return {vec.x,vec.y};
 }
 
 float tmx::sfToBoxFloat(float val)
@@ -86,93 +86,93 @@ float tmx::boxToSfAngle(float rads)
 using namespace tmx;
 
 //public
-b2Body* BodyCreator::add(const MapObject& object, b2World& world, b2BodyType bodyType)
+b2Body* BodyCreator::add(const MapObject& object, b2World& world, const sf::Vector2u& tileSize, b2BodyType bodyType)
 {
-	assert(object.polyPoints().size() > 1u);
+    assert(object.polyPoints().size() > 1u);
 
-	b2BodyDef bodyDef;
-	bodyDef.type = bodyType;
+    b2BodyDef bodyDef;
+    bodyDef.type = bodyType;
 
-	b2Body* body = nullptr;
+    b2Body* body = nullptr;
 
-	MapObjectShape shapeType = object.getShapeType();
-	sf::Uint16 pointCount = object.polyPoints().size();
 
-	if (shapeType == Polyline || pointCount < 3)
-	{
-		bodyDef.position.Set(0.f, 0.f);
-		bodyDef.position = sfToBoxVec(object.getPosition());
-		body = world.CreateBody(&bodyDef);
 
-		const Shape& shape = object.polyPoints();
-		b2FixtureDef f;
-		f.density = 1.f;
+    MapObjectShape shapeType = object.getShapeType();
+    sf::Uint16 pointCount = object.polyPoints().size();
 
-		if (pointCount < 3)
-		{
-			b2EdgeShape es;
-			es.Set(sfToBoxVec(shape[0]), sfToBoxVec(shape[1]));
-			f.shape = &es;
-			body->CreateFixture(&f);
-		}
-		else
-		{
-			std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[pointCount]);
-			for (auto i = 0u; i < pointCount; i++)
-				vertices[i] = sfToBoxVec(shape[i]);
+    if (shapeType == Polyline || pointCount < 3)
+    {
+        bodyDef.position.Set(object.getPosition().x, object.getPosition().y);
+        body = world.CreateBody(&bodyDef);
 
-			b2ChainShape cs;
-			cs.CreateChain(vertices.get(), pointCount);
-			f.shape = &cs;
-			body->CreateFixture(&f);
-		}
-	}
-	else if (shapeType == Circle ||
-		(object.convex() && pointCount <= b2_maxPolygonVertices))
-	{
-		b2FixtureDef f;
-		f.density = 1.f;
-		bodyDef.position = sfToBoxVec(object.getCentre());
-		if (shapeType == Circle)
-		{
-			//make a circle
-			b2CircleShape c;
-			c.m_radius = sfToBoxFloat(object.getAABB().width / 2.f);
-			f.shape = &c;
+        const Shape& shape = object.polyPoints();
+        b2FixtureDef f;
+        f.density = 1.f;
 
-			body = world.CreateBody(&bodyDef);
-			body->CreateFixture(&f);
-		}
-		else if (shapeType == Rectangle)
-		{
-			b2PolygonShape ps;
-			ps.SetAsBox(sfToBoxFloat(object.getAABB().width / 2.f), sfToBoxFloat(object.getAABB().height / 2.f));
-			f.shape = &ps;
+        if (pointCount < 3)
+        {
+            bodyDef.position.Set(object.getPosition().x, object.getPosition().y);
+            b2EdgeShape es;
+            es.Set(sfToBoxVec(shape[0]), sfToBoxVec(shape[1]));
+            f.shape = &es;
+            body->CreateFixture(&f);
+        }
+        else
+        {
+            std::unique_ptr<b2Vec2[]> vertices(new b2Vec2[pointCount]);
+            for (auto i = 0u; i < pointCount; i++)
+                vertices[i] = sfToBoxVec(shape[i]);
 
-			body = world.CreateBody(&bodyDef);
-			body->CreateFixture(&f);
-		}
-		else //simple convex polygon
-		{
-			bodyDef.position.Set(0.f, 0.f);
-			bodyDef.position = sfToBoxVec(object.getPosition());
-			body = world.CreateBody(&bodyDef);
+            b2ChainShape cs;
+            cs.CreateChain(vertices.get(), pointCount);
+            f.shape = &cs;
+            body->CreateFixture(&f);
+        }
+    }
+    else if (shapeType == Circle ||
+             (object.convex() && pointCount <= b2_maxPolygonVertices))
+    {
+        b2FixtureDef f;
+        f.density = 1.f;
+        bodyDef.position = sfToBoxVec(sf::Vector2f(object.getCentre().x - tileSize.x, object.getCentre().y - tileSize.y));
+        if (shapeType == Circle)
+        {
+            //make a circle
+            b2CircleShape c;
+            c.m_radius = object.getAABB().width / 2.f;
+            f.shape = &c;
 
-			const Shape& points = object.polyPoints();
-			createFixture(points, body);
-		}
-	}
-	else //complex polygon
-	{
-		//break into smaller convex shapes
-		bodyDef.position.Set(0.f, 0.f);
-		bodyDef.position = sfToBoxVec(object.getPosition());
-		body = world.CreateBody(&bodyDef);
+            body = world.CreateBody(&bodyDef);
+            body->CreateFixture(&f);
+        }
+        else if (shapeType == Rectangle)
+        {
+            b2PolygonShape ps;
+            ps.SetAsBox((object.getAABB().width / 2.f), (object.getAABB().height / 2.f));
+            f.shape = &ps;
 
-		split(object, body);
-	}
+            body = world.CreateBody(&bodyDef);
+            body->CreateFixture(&f);
+        }
+        else //simple convex polygon
+        {
+            bodyDef.position.Set(object.getPosition().x, object.getPosition().y);
+            body = world.CreateBody(&bodyDef);
 
-	return body;
+            const Shape& points = object.polyPoints();
+            createFixture(points, body);
+        }
+    }
+    else //complex polygon
+    {
+        //break into smaller convex shapes
+        bodyDef.position = sfToBoxVec(object.getPosition());
+        body = world.CreateBody(&bodyDef);
+
+        split(object, body);
+    }
+
+    return body;
 }
 
 //private

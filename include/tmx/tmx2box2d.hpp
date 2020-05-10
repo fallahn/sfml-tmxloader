@@ -31,9 +31,9 @@ source distribution.
 
 #include <tmx/MapObject.hpp>
 
-#include <Box2D/Dynamics/b2World.h>
-#include <Box2D/Common/b2Math.h>
-#include <Box2D/Dynamics/b2Fixture.h>
+#include <box2d/b2_world.h>
+#include <box2d/b2_math.h>
+#include <box2d/b2_fixture.h>
 
 #include <vector>
 #include <queue>
@@ -79,7 +79,7 @@ namespace tmx
         \brief Adds the object to the b2World.
         Returns a pointer to the body created so that its properties my be modified. Bodies are static by default
         */
-		b2Body* add(const MapObject& object, b2World& world, b2BodyType bodyType = b2_staticBody);
+		static b2Body* add(const MapObject& object, b2World& world, const sf::Vector2u& tileSize, b2BodyType bodyType = b2_staticBody);
 
 	private:
 		static void split(const MapObject& object, b2Body* body);
