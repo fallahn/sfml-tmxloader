@@ -162,8 +162,8 @@ Some utility functions are providied in tmx2box2d.h/cpp. If you use box2d for ph
 files to you project, or set the box2d option to true when configuring the cmake file. You may then
 create box2d physics bodies using the BodyCreator:
 
-	tmx::BodyCreator bodyCreator;
-    b2Body* body = bodyCreator.add(mapObject, b2World);
+	sf::Vector2u tileSize(16, 16);
+	b2Body* body = tmx::BodyCreator::add(mapObject, b2World, tileSize);
     
 where b2World is a reference to a valid box2D physics world. The body creator is only a utility
 class, so it is no problem letting it go out of scope once your bodies are all created. As box2d 
